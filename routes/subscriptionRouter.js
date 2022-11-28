@@ -1,6 +1,6 @@
 const Router = require('express')
 const router = new Router()
-const subscriptionController = require('../controllers/SubscriptionController')
+const subscriptionController = require('../controllers/subscriptionController')
 
 
 router.get('/', subscriptionController.getOne)
