@@ -1,4 +1,5 @@
 require('dotenv').config()
+
 const express = require('express');
 const cors = require('cors')
 const sequelize = require('./db')
@@ -12,6 +13,8 @@ const changePartnerKeyHandler = require('./backGroundHandlers/changePartnerKeyHa
 const handlerTimer = require('./backGroundHandlers/handlerTimer');
 const changeOrderStatusHandler = require('./backGroundHandlers/changeOrderStatusHandler');
 const cleanNotificationsHandler = require('./backGroundHandlers/cleanNotificationsHandler');
+const https = require('https')
+const fs = require('fs')
 
 
 const PORT = process.env.PORT || 4000
@@ -21,11 +24,14 @@ app.use(cors({
     credentials: true,
     origin: process.env.CLIENT_URL
 }))
-app.use(express.json({limit: '5mb'}))
+app.use(express.json({ limit: '5mb' }))
 app.use(express.static(path.resolve(__dirname, 'uploads')))
 app.use(cookieParser())
-app.use(bodyParser.urlencoded({ limit:'5mb', extended: true  }))
-app.use(bodyParser.json({limit: '5mb'}))
+app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }))
+app.use(bodyParser.json({ limit: '5mb' }))
+
+var privateKey = fs.readFileSync('ssl/privatekey.pem');
+var certificate = fs.readFileSync('ssl/certificate.pem');
 
 handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
 
@@ -76,7 +82,12 @@ const start = async () => {
     try {
         await sequelize.authenticate()
         await sequelize.sync()
-        app.listen(PORT, () => console.log(`Server started at PORT ${PORT}`))
+        //подклчить сртификаты
+        https.createServer({
+            key: privateKey,
+            cert: certificate
+        }, app).listen(PORT, () => console.log(`Server started at PORT ${PORT}`));
+        // app.listen(PORT, () => console.log(`Server started at PORT ${PORT}`))
     }
     catch (e) {
         console.log(e)
@@ -86,6 +97,8 @@ start()
 setTimeout(() => {
     defaultDataHandler()
 }, 3000)
+
+
 
 
 
