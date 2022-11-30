@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }))
 app.use(bodyParser.json({ limit: '5mb' }))
 
 var privateKey = fs.readFileSync('ssl/privatekey.pem');
-var certificate = fs.readFileSync('ssl/certificate.pem');
+var certificate = fs.readFileSync('ssl/logid_ru.crt');
 
 handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
 
