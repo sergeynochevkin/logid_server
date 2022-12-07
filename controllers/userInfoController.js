@@ -29,7 +29,7 @@ class UserInfoController {
                 passport_issued_by,
                 email,
                 company_adress_latitude,
-                company_adress_longitude,               
+                company_adress_longitude,
                 city_latitude,
                 city_longitude,
             } = formData
@@ -71,7 +71,7 @@ class UserInfoController {
                 { name: 'Показывать новые заказы только партнерам из списка избранного', value: false, role: 'customer' },
                 { name: 'Темная тема приложения', value: false, role: 'both' },
                 { name: 'Мелкий шрифт приложения', value: false, role: 'both' },
-                { name: 'Компактный показ заказов', value: false, role: 'both' },                
+                { name: 'Компактный показ заказов', value: false, role: 'both' },
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === user.role || el.role === 'both')
@@ -171,12 +171,12 @@ class UserInfoController {
                 passport_number,
                 passport_date_of_issue,
                 passport_issued_by,
-                email,                
+                email,
                 city_latitude,
                 city_longitude,
                 company_adress_latitude,
                 company_adress_longitude
-            } = formData          
+            } = formData
 
             if (country.value !== '') {
                 await UserInfo.update({
@@ -185,10 +185,10 @@ class UserInfoController {
             }
             if (city.value !== '') {
                 await UserInfo.update({
-                    city: city.value ,                     
+                    city: city.value,
                     city_latitude,
                     city_longitude
-                }, { where: { id: id  } })
+                }, { where: { id: id } })
             }
             if (phone.value !== '') {
                 await UserInfo.update({
@@ -252,9 +252,11 @@ class UserInfoController {
                     email: email.value
                 }, { where: { id: id } })
             }
+            return res.send('updated')
         }
         catch (e) {
             next(ApiError.badRequest(e.message))
+
         }
     }
 }

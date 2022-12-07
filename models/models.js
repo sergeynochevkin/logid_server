@@ -126,7 +126,7 @@ const Order = sequelize.define('order', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     order_comment: { type: DataTypes.STRING },
     cost: { type: DataTypes.INTEGER },
-    mileage: { type: DataTypes.INTEGER, defaultValue:undefined },
+    mileage: { type: DataTypes.INTEGER, defaultValue: undefined },
     estimated_time: { type: DataTypes.TIME },
     carrierId: { type: DataTypes.INTEGER },
     order_status: { type: DataTypes.STRING },
@@ -358,6 +358,7 @@ const Subscription = sequelize.define('subscription', {
 
 const SubscriptionPlan = sequelize.define('subscription_plan', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    service_id: { type: DataTypes.INTEGER },
     name: { type: DataTypes.STRING, defaultValue: '' },
     value: { type: DataTypes.STRING, defaultValue: '' },
     bage: { type: DataTypes.STRING, defaultValue: '' },
@@ -366,16 +367,19 @@ const SubscriptionPlan = sequelize.define('subscription_plan', {
     country: { type: DataTypes.STRING, defaultValue: '' },
     frequency: { type: DataTypes.STRING, defaultValue: '' },
     period: { type: DataTypes.INTEGER, defaultValue: 0 },
+    country: { type: DataTypes.STRING, defaultValue: '' },
 })
 
 const SubscriptionOption = sequelize.define('subscription_option', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    service_id: { type: DataTypes.INTEGER },
     name: { type: DataTypes.STRING, defaultValue: '' },
     comment: { type: DataTypes.STRING, defaultValue: '' },
     value: { type: DataTypes.STRING, defaultValue: '' },
     role: { type: DataTypes.STRING, defaultValue: '' },
     limit: { type: DataTypes.INTEGER },
     type: { type: DataTypes.STRING, defaultValue: '' },
+    country: { type: DataTypes.STRING, defaultValue: '' },
 })
 
 const SubscriptionOptionsByPlan = sequelize.define('subscription_options_by_plan', {
