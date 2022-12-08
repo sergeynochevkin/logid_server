@@ -795,18 +795,18 @@ module.exports = async function () {
     }
 
     countries = [
-        { value: 'russia', default_language: 'russian', google_code: 'RU', currency: 'RUR', google_language: 'ru' },
-        { value: 'greece', default_language: 'english', google_code: 'GR', currency: 'EUR', google_language: 'el' },
-        { value: 'canada', default_language: 'english', google_code: 'CA', currency: 'CAD', google_language: 'en' },
-        { value: 'spain', default_language: 'english', google_code: 'ES', currency: 'EUR' , google_language: 'es'},
-        { value: 'sweden', default_language: 'english', google_code: 'SE', currency: 'EUR' , google_language: 'sv'},
-        { value: 'finland', default_language: 'english', google_code: 'FI', currency: 'EUR' , google_language: 'fi'},
+        { value: 'russia', default_language: 'russian', google_code: 'RU', currency: 'RUR', google_language: 'ru', weight: 'tonns', distance: 'kilometres' },
+        { value: 'greece', default_language: 'english', google_code: 'GR', currency: 'EUR', google_language: 'el', weight: 'tonns', distance: 'kilometres' },
+        { value: 'canada', default_language: 'english', google_code: 'CA', currency: 'CAD', google_language: 'en', weight: 'pounds', distance: 'miles' },
+        { value: 'spain', default_language: 'english', google_code: 'ES', currency: 'EUR', google_language: 'es', weight: 'tonns', distance: 'kilometres' },
+        { value: 'sweden', default_language: 'english', google_code: 'SE', currency: 'EUR', google_language: 'sv', weight: 'tonns', distance: 'kilometres' },
+        { value: 'finland', default_language: 'english', google_code: 'FI', currency: 'EUR', google_language: 'fi', weight: 'tonns', distance: 'kilometres' },
     ]
 
     for (const row of countries) {
         Country.findOrCreate({
             where: {
-                value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency
+                value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance
             }
         })
     }

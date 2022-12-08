@@ -368,7 +368,7 @@ const SubscriptionPlan = sequelize.define('subscription_plan', {
     country: { type: DataTypes.STRING, defaultValue: '' },
     frequency: { type: DataTypes.STRING, defaultValue: '' },
     period: { type: DataTypes.INTEGER, defaultValue: 0 },
-    })
+})
 
 const SubscriptionOption = sequelize.define('subscription_option', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -393,8 +393,10 @@ const Country = sequelize.define('country', {
     value: { type: DataTypes.STRING },
     default_language: { type: DataTypes.STRING },
     google_code: { type: DataTypes.STRING },
+    google_language: { type: DataTypes.STRING },
     currency: { type: DataTypes.STRING },
-    google_language: { type: DataTypes.STRING }
+    weight: { type: DataTypes.DECIMAL },
+    distance: { type: DataTypes.DECIMAL },
 })
 
 const City = sequelize.define('city', {
@@ -413,7 +415,6 @@ const Adress = sequelize.define('adress', {
     cityId: { type: DataTypes.INTEGER },
     countryId: { type: DataTypes.INTEGER },
 })
-
 
 UserInfo.hasOne(LimitCounter)
 LimitCounter.belongsTo(UserInfo)
