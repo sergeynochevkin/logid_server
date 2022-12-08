@@ -354,25 +354,25 @@ const Subscription = sequelize.define('subscription', {
     status: { type: DataTypes.STRING, defaultValue: 'none' },
     paid_to: { type: DataTypes.DATE },
     planId: { type: DataTypes.INTEGER, defaultValue: 0 },
+    country: { type: DataTypes.STRING, defaultValue: '' },
 })
 
 const SubscriptionPlan = sequelize.define('subscription_plan', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    service_id: { type: DataTypes.INTEGER },
+    plan_id: { type: DataTypes.INTEGER },
     name: { type: DataTypes.STRING, defaultValue: '' },
     value: { type: DataTypes.STRING, defaultValue: '' },
     bage: { type: DataTypes.STRING, defaultValue: '' },
     comment: { type: DataTypes.STRING, defaultValue: '' },
-    price: { type: DataTypes.STRING, defaultValue: '' },
+    price: { type: DataTypes.INTEGER },
     country: { type: DataTypes.STRING, defaultValue: '' },
     frequency: { type: DataTypes.STRING, defaultValue: '' },
     period: { type: DataTypes.INTEGER, defaultValue: 0 },
-    country: { type: DataTypes.STRING, defaultValue: '' },
-})
+    })
 
 const SubscriptionOption = sequelize.define('subscription_option', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    service_id: { type: DataTypes.INTEGER },
+    option_id: { type: DataTypes.INTEGER },
     name: { type: DataTypes.STRING, defaultValue: '' },
     comment: { type: DataTypes.STRING, defaultValue: '' },
     value: { type: DataTypes.STRING, defaultValue: '' },
@@ -394,6 +394,7 @@ const Country = sequelize.define('country', {
     default_language: { type: DataTypes.STRING },
     google_code: { type: DataTypes.STRING },
     currency: { type: DataTypes.STRING },
+    google_language: { type: DataTypes.STRING }
 })
 
 const City = sequelize.define('city', {

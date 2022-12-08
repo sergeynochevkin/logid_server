@@ -19,8 +19,8 @@ class SubscriptionController {
                 let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
                 let user = await User.findOne({ where: { id: userInfo.userId } })
                 let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId } })
-                optionsByPlan = optionsByPlan.map(el => el.optionId)
-                let options = await SubscriptionOption.findAll({ where: { id: { [Op.in]: optionsByPlan } } })
+                optionsByPlan = optionsByPlan.map(el => el.optionId)              
+                let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: userInfo.country } }) // взяли опции по стране
                 if (planId === 2) {
                     await LimitCounter.update({ trial_used: true }, { where: { userInfoId } })
                 }
@@ -34,6 +34,7 @@ class SubscriptionController {
                     await UserAppLimit.update({ customer_create_order_limit_per_day, customer_new_order_range, customer_new_order_point_limit }, { where: { userInfoId } })
                     await LimitCounter.update({ customer_create_amount_per_day: 0, customer_create_started: currentTime }, { where: { userInfoId } })
                 }
+
                 if (user.role === 'carrier') {
                     let carrier_offer_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'offer')
                     carrier_offer_limit_per_day = carrier_offer_limit_per_day.limit
