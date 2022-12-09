@@ -1,16 +1,19 @@
 const jwt = require('jsonwebtoken')
 const userService = require('../service/user_service')
+const translateService = require('../service/translate_service')
 const { validationResult } = require('express-validator')
 const ApiError = require('../exceptions/api_error')
-const { User, ServerNotification } = require('../models/models')
+const { User, ServerNotification, Translation } = require('../models/models')
+
 
 class UserController {
+
 
     async registration(req, res, next) {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
-                return next(ApiError.badRequest('Ошибка при валидации', errors.array()))
+                return next(ApiError.badRequest('Ошибка при валидации', errors.array()))//последним
             }
             const { email, password, role } = req.body
             const userData = await userService.registration(email, password, role)
@@ -88,8 +91,10 @@ class UserController {
     async restore_link(req, res, next) {
         let { email } = req.query
         try {
+            let language = 'english'
+            let message = await Translation.findOne({ where: { service: 'new_link_send', type: 'notification' } })
             await userService.generate_link(email)
-            return res.send(`Новая ссылка для активации аккаунта отправлена на ${email}`)
+            return res.send(`${message[language]} ${email}`)
         } catch (e) {
             next(e);
         }

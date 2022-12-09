@@ -395,8 +395,8 @@ const Country = sequelize.define('country', {
     google_code: { type: DataTypes.STRING },
     google_language: { type: DataTypes.STRING },
     currency: { type: DataTypes.STRING },
-    weight: { type: DataTypes.DECIMAL },
-    distance: { type: DataTypes.DECIMAL },
+    weight: { type: DataTypes.STRING },
+    distance: { type: DataTypes.STRING },
 })
 
 const City = sequelize.define('city', {
