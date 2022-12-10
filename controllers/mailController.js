@@ -42,10 +42,14 @@ class MailController {
             let allMembers_subject
             let allMembers_text
 
-            let language = 'english'
-            let response_will_not_be_read = await Translation.findOne({ where: { service: 'response_will_not_be_read', type: 'notification' } })
-            response_will_not_be_read = response_will_not_be_read[language]
-            let notifications = await Translation.findAll({ where: { type: 'notification' } })//или каждый раз спрашивать у базы?
+
+            let response_will_not_be_read = translateService.setTranslate(
+                {
+                    russian: ['Это автоматическое уведомление, ответ не будет прочитан'],
+                    english: ['This is an automatic notification, the response will not be read']
+                }
+            )
+
 
             const sendMail = (email, subject, text, order, group) => {
                 transport.sendMail({
@@ -70,15 +74,15 @@ class MailController {
             if (Array.isArray(orderId)) {
                 order = await Order.findAll({ where: { id: { [Op.in]: orderId } } })
                 if (role === 'carrier') {
-                    mover = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.carrierId) } } }) // массив отправителей
-                    member = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.userInfoId) } } }) // массив получателей
+                    mover = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.carrierId) } } }) // array of senders
+                    member = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.userInfoId) } } }) // array of recipients
                 }
                 if (role === 'customer') {
-                    member = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.carrierId) } } }) // массив получателей
-                    mover = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.userInfoId) } } }) // массив отправителей
+                    member = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.carrierId) } } }) // array of recipients
+                    mover = await UserInfo.findAll({ where: { id: { [Op.in]: order.map(el => el.userInfoId) } } }) // array of senders
                 }
             }
-            // проверить, всегда ли надо делать этот запрос
+            // check if this request should always be made
             if (!Array.isArray(orderId)) {
                 offers = await Offer.findAll({ where: { orderId: order.id } })
                 if (offers.length > 0) {
@@ -102,11 +106,16 @@ class MailController {
                     side_types = order.map(el => el.side_type)
                 }
                 transportHandler(types, load_capacities, side_types)
-                mover_subject = `Вы создали ${order.order_type === 'order' ? `заказ` : `аукцион`} ${order.id}`
+                mover_subject = translateService.setTranslate(
+                    {
+                        russian: ['Вы создали', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id],
+                        english: ['You have created ', order.order_type === 'order' ? 'order' : 'auction', order.id],
+                    }
+                )
                 mover_text = response_will_not_be_read
                 await sendMail(mover.email, mover_subject, mover_text, order)
 
-                // внимание!!! фетч вообще всего транспорта позднее уменьшить выборку по городу через UserInfo таблицу
+                // Attention!!! fetch in general of all transport later reduce the selection by city through the UserInfo table
                 transports = await Transport.findAll({ where: { type: { [Op.in]: types }, load_capacity: { [Op.in]: load_capacities }, side_type: { [Op.in]: side_types } } })
                 transports = transports.map(el => el.userInfoId)
 
@@ -114,59 +123,104 @@ class MailController {
                     allWhoHaveTransport = await UserInfo.findAll({ where: { id: { [Op.in]: transports }, city: order.city } })
                 }
 
-                // здесь возможно можно было не делить, но вдруг транспорт в будущем понадобится и при массовой обработке
+                // here it was possible not to divide, but suddenly transport will be needed in the future for mass processing
                 if (Array.isArray(orderId)) {
                     allWhoHaveTransport = await UserInfo.findAll({ where: { id: { [Op.in]: transports }, city: { [Op.in]: order.map(el => el.city) } } })
                 }
                 allWhoHaveTransport = allWhoHaveTransport.map(el => el.email).toString()
 
                 if (!Array.isArray(orderId)) {
-                    allMembers_subject = `В вашем городе появился новый ${order.order_type === 'order' ? `заказ` : `аукцион`} ${order.id} подходящий для вашего транспорта`
+
+                    allMembers_subject = translateService.setTranslate(
+                        {
+                            russian: ['Поступил новый', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, 'подходящий для вашего транспорта'],
+                            english: ['Received a new', order.order_type === 'order' ? 'order' : 'auction', order.id, 'suitable for your transport'],
+                        }
+                    )
                 }
 
-                // сейчас так не будет но вдруг пригодится в будущем
+                // it won't be like that now but it might come in handy in the future
                 if (Array.isArray(orderId)) {
-                    allMembers_subject = `В вашем городе появились новые заказы ${order.map(el => el.id).toString()} подходящие для вашего транспорта`
+                    allMembers_subject = translateService.setTranslate(
+                        {
+                            russian: ['Поступили новые', order.order_type === 'order' ? 'заказы' : 'аукционы', order.map(el => el.id).toString(), 'подходящие для вашего транспорта'],
+                            english: ['New', order.map(el => el.id).toString(), 'orders received, suitable for your transport'],
+                        }
+                    )
                 }
-
                 allMembers_text = response_will_not_be_read
 
                 if (allWhoHaveTransport.length > 0) {
                     await sendMail([], allMembers_subject, allMembers_text, order, allWhoHaveTransport)
                 }
             }
-            // массовая обработка не планируется
+            // mass processing is not planned
             if (mailFunction === 'order_type') {
-                mover_subject = `Вы преобразовали ${order.order_type === 'order' ? `заказ` : `аукцион`} ${order.id} в ${option === 'order' ? `заказ` : `аукцион`}`
+                mover_subject = translateService.setTranslate(
+                    {
+                        russian: ['Вы преобразовали', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, в, order.order_type === 'order' ? 'аукцион' : 'заказ'],
+                        english: ['You converted', order.order_type === 'order' ? 'order' : 'auction', order.id, в, order.order_type === 'order' ? 'to an auction' : 'to an order'],
+                    }
+                )
                 mover_text = response_will_not_be_read
                 await sendMail(mover.email, mover_subject, mover_text, order)
 
                 if (offers.length !== 0) {
-                    member_subject = `${order.order_type === 'order' ? `Заказ` : `Аукцион`} ${order.id}, по которому вы делали предложение ${option === 'order' ? `преобразован в заказ ${order.order_status === 'postponed' ? ', но отложен' : ''} вы можете взять его в работу на текущих условиях ${order.order_status === 'postponed' ? ', когда заказчик его отправит' : ''}` : `снова преобразован в аукцион, ожидайте решения заказчика`}`
+
+                    member_subject = translateService.setTranslate(
+                        {
+                            russian: [order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, 'по которому вы делали предложение', option === 'order' ? 'преобразован в заказ' : 'преобразован в аукцион', order.order_status === 'postponed' ? 'но отложен' : 'вы можете взять в работу на текущих условиях', order.order_status === 'postponed' && 'когда заказчик его отправит'],
+                            english: ['The', order.order_type === 'order' ? 'order' : 'auction', order.id, 'for which you made an offer has been converted into an', order.order_type === 'order' ? 'auction' : 'order', order.order_status === 'postponed' ? 'but has been postponed' : 'you can take an order on current terms', order.order_status === 'postponed' && 'you can take it to work when the customer sends it'],
+                        }
+                    )
+
                     member_text = response_will_not_be_read
                     allWhoProposed = allWhoProposed.map(el => el.email).toString()
                     await sendMail([], member_subject, member_text, order, allWhoProposed)
                 }
             }
-            // массовая обработка не планируется
+            // mass processing is not planned
             if (mailFunction === 'offer') {
-                member_subject = `По вашему аукциону ${order.id} ${option === 'create' ? 'поступило новое' : option === 'update' ? 'изменено' : option === 'delete' ? 'удалено' : ''} предложение, предложений ${option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет'
-                    : option === 'delete' && offers.length !== 1 ? offers.length - 1
-                        : option === 'update' ? offers.length : ''
-                    }`
+
+                member_subject = translateService.setTranslate(
+                    {
+                        russian: [option === 'create' ? 'Поступило' : option === 'update' ? 'Изменено' : option === 'delete' ? 'Удалено' : '', 'предложение по аукциону', order.id, 'предложений', option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length - 1 : option === 'update' ? offers.length : ''],
+                        english: [option === 'create' ? 'Recieved' : option === 'update' ? 'Updated' : option === 'delete' ? 'Deleted' : '', 'an offer for an auction', order.id, option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length - 1 : option === 'update' ? offers.length : '', 'proposals'],
+                    }
+                )
+
                 member_text = response_will_not_be_read
                 await sendMail(member.email, member_subject, member_text, order)
             }
             if (mailFunction === 'order_status') {
-                // перевозчик не может взять одновременно несколько заказов в работу, а заказчик не может несколько предложений массовая обработка не планируется
+                // the carrier cannot take several orders to work at the same time, and the customer cannot take several offers mass processing is not planned
                 if (option === 'inWork') {
                     mover_subject = `${role === 'carrier' ? 'Вы взяли в работу' : 'Вы приняли предложение'} ${order.order_type === 'order' ? `заказ` : `по аукциону`} ${order.id}`
+                    mover_subject = translateService.setTranslate(
+                        {
+                            russian: [role === 'carrier' ? 'Вы взяли в работу заказ' : 'Вы приняли предложение по аукциону', order.id],
+                            english: [role === 'carrier' ? 'You have taken an' : 'You have accepted an auction', order.id, role === 'carrier' ? 'order' : 'offer'],
+                        }
+                    )
+
                     mover_text = response_will_not_be_read
 
-                    member_subject = `${role === 'carrier' ? 'Ваш' : 'Ваше предложение'} ${order.order_type === 'order' ? `заказ` : ` к аукциону`} ${order.id} ${role === 'carrier' ? 'взят в работу перевозчиком' : 'принято заказчиком, можете приступать к выполнению'}`
+                    member_subject = translateService.setTranslate(
+                        {
+                            russian: [role === 'carrier' ? 'Ваш' : 'Ваше предложение', order.order_type === 'order' ? `заказ` : `к аукциону`, order.id, role === 'carrier' ? 'взят в работу перевозчиком' : 'принято заказчиком, можете приступать к выполнению'],
+                            english: [role === 'carrier' ? 'Ваш заказ' : 'Your proposal for auction', order.id, role === 'carrier' ? 'has been taken into work by the carrier' : 'has been accepted by the customer, you can proceed with the implementation'],
+                        }
+                    )
+
                     member_text = response_will_not_be_read
 
-                    allMembers_subject = `Ваше предложение к аукциону ${order.id} было отклонено, заказчик отдал предпочтение другому перевозчику, рассмотрите другие заказы или аукционы`
+                    allMembers_subject = translateService.setTranslate(
+                        {
+                            russian: ['Ваше предложение к аукциону', order.id, 'было отклонено, заказчик отдал предпочтение другому перевозчику, рассмотрите другие заказы или аукционы'],
+                            english: ['Your offer for auction', order.id, 'was rejected, the customer has preferred another carrier, consider other orders or auctions'],
+                        }
+                    )
+
                     allMembers_text = response_will_not_be_read
                     if (role === 'customer') {
                         member = allWhoProposed.find(el => el.id === noPartnerId)
@@ -180,27 +234,57 @@ class MailController {
                         await sendMail(member.email, member_subject, member_text, order)
                     }
                 }
-                // массовой обработки у заказов в работе нет и не планируется
+                // mass processing of orders is not in progress and is not planned
                 else if (option === 'completed') {
-                    mover_subject = `Вы завершили ${order.order_type === 'order' ? `заказ` : `аукцион`} ${order.id}`
+                    mover_subject = translateService.setTranslate(
+                        {
+                            russian: ['Вы завершили', order.order_type === 'order' ? `заказ` : `аукцион`, order.id],
+                            english: ['You have completed', order.order_type === 'order' ? `order` : `auction`, order.id],
+                        }
+                    )
+
                     mover_text = response_will_not_be_read
-                    member_subject = `${order.order_type === 'order' ? `Заказ` : `Аукцион`} ${order.id} завершен ${role === 'carrier' ? 'перевозчиком' : 'заказчиком'}`
+                    member_subject = translateService.setTranslate(
+                        {
+                            russian: [order.order_type === 'order' ? `Заказ` : `Аукцион`, order.id, 'завершен', role === 'carrier' ? 'перевозчиком' : 'заказчиком'],
+                            english: [order.order_type === 'order' ? `Order` : `Auction`, order.id, 'completed by', role === 'carrier' ? 'carrier' : 'customer'],
+                        }
+                    )
+
                     member_text = response_will_not_be_read
                     await sendMail(mover.email, mover_subject, mover_text, order)
                     await sendMail(member.email, member_subject, member_text, order)
                 }
-                // неподача, незагрузка массовая обработка не планируется
+                // non-submission, non-loading mass processing is not planned
                 else if (option === 'disrupt') {
-                    mover_subject = `Вы отменили ${order.order_type === 'order' ? `заказ` : `аукцион`} ${order.id} в связи с ${role === 'carrier' ? 'незагрузкой' : role === 'customer' ? 'неподачей' : ''} это повлияет на рейтинг ${role === 'carrier' ? 'заказчика' : role === 'customer' ? 'перевозчика. Вы можете восстановить заказ' : ''}`
+
+                    mover_subject = translateService.setTranslate(
+                        {
+                            russian: ['Вы отменили', order.order_type === 'order' ? `заказ` : `аукцион`, order.id, 'в связи с', role === 'carrier' ? 'незагрузкой' : role === 'customer' ? 'неподачей' : '', 'это повлияет на рейтинг', role === 'carrier' ? 'заказчика' : role === 'customer' ? 'перевозчика. Вы можете восстановить заказ' : ''],
+                            english: ['You canceled the', order.order_type === 'order' ? `order` : `auction`, order.id, role === 'carrier' ? 'due to not loading' : role === 'customer' ? 'due to non-arrival' : '', 'this affects the rating of the', role === 'carrier' ? 'customer' : role === 'customer' ? 'carrier. You can restore the order' : ''],
+                        }
+                    )
+
                     mover_text = response_will_not_be_read
-                    member_subject = `${order.order_type === 'order' ? `Заказ` : `Аукцион`} ${order.id} отменен в связи с ${role === 'carrier' ? 'незагрузкой' : role === 'customer' ? 'неподачей' : ''} это повлияет на ваш рейтинг`
+
+                    member_subject = translateService.setTranslate(
+                        {
+                            russian: [order.order_type === 'order' ? 'Заказ' : 'Аукцион', 'отменен в связи c', role === 'carrier' ? 'незагрузкой' : role === 'customer' ? 'неподачей' : '', 'это повлияет на ваш рейтинг'],
+                            english: [order.order_type === 'order' ? 'Order' : 'Auction', order.id, ' canceled due to', role === 'carrier' ? 'not loading' : role === 'customer' ? 'non-arrival' : '', 'this will affect your rating'],
+                        }
+                    )
                     member_text = response_will_not_be_read
                     await sendMail(mover.email, mover_subject, mover_text, order)
                     await sendMail(member.email, member_subject, member_text, order)
                 }
                 else {
                     if (!Array.isArray(orderId)) {
-                        mover_subject = `Вы ${option === 'canceled' ? 'отменили' : option === 'postponed' ? 'отложили' : option === 'new' ? 'отправили' : option === 'arc' ? 'перенесли' : ''} ${order.order_type === 'order' ? `заказ` : `аукцион`} ${order.id} ${option === 'arc' ? 'в архив' : ''}`
+                        mover_subject = translateService.setTranslate(
+                            {
+                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id],
+                                english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', order.order_type === 'order' ? 'an order' : 'an auction', order.id],
+                            }
+                        )
                         mover_text = response_will_not_be_read
                         await sendMail(mover.email, mover_subject, mover_text, order)
                     }
@@ -213,13 +297,24 @@ class MailController {
                         }
                     }
                     if (Array.isArray(orderId)) {
-                        mover_subject = `Вы ${option === 'canceled' ? 'отменили' : option === 'postponed' ? 'отложили' : option === 'new' ? 'отправили' : option === 'arc' ? 'перенесли' : ''} ${order.length === 1 ? 'заказ' : 'заказы'} ${order.map(el => el.id).sort().toString()} ${option === 'arc' ? 'в архив' : ''}`
+                        mover_subject = translateService.setTranslate(
+                            {
+                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', order.order_type === 'order' ? 'заказы' : 'аукционы', order.id],
+                                english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', order.order_type === 'order' ? 'orders' : 'auctions', order.map(el => el.id).sort().toString()],
+                            }
+                        )
                         mover_text = response_will_not_be_read
                         await sendMail(mover.map(el => el.email).toString(), mover_subject, mover_text, order)
                     }
                     if (!Array.isArray(orderId)) {
                         if (offers.length !== 0 && order.order_type === 'auction' && option !== 'arc') {
-                            member_subject = `${order.order_type === 'order' ? `Заказ` : `Аукцион`} ${order.id} по которому вы делали предложение ${option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''} `
+
+                            member_subject = translateService.setTranslate(
+                                {
+                                    russian: [order.order_type === 'order' ? `Заказ` : `Аукцион`, order.id, 'по которомы вы делали предложение', option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''],
+                                    english: [order.order_type === 'order' ? `The order` : 'The auction', order.id, 'for which you made an offer', option === 'canceled' ? 'was canceled' : option === 'postponed' ? 'was postponed' : option === 'new' ? 'has been sent again' : ''],
+                                }
+                            )
                         }
                         member_text = response_will_not_be_read
                         if (allWhoProposed) {
@@ -229,7 +324,7 @@ class MailController {
                             }
                         }
                     }
-                    // отправка по массовой обработке но письма по каждому заказу каждому кто делал предложение, это логично, так как активности будут происходить в разное время и от разных пользователей
+                    // sending by mass processing, but letters for each order to everyone who made an offer, this is logical, since activities will occur at different times and from different users
                     if (Array.isArray(orderId)) {
                         member_text = response_will_not_be_read
                         order.forEach(async order => {
@@ -237,7 +332,14 @@ class MailController {
                             if (offers.length > 0) {
                                 offers = offers.map(el => el.carrierId)
                                 allWhoProposed = await UserInfo.findAll({ where: { id: { [Op.in]: offers } } })
-                                member_subject = `Аукцион  ${order.id} по которому вы делали предложение ${option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''} `
+
+                                member_subject = translateService.setTranslate(
+                                    {
+                                        russian: [`Аукцион`, order.id, 'по которомы вы делали предложение', option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''],
+                                        english: ['The auction', order.id, 'for which you made an offer', option === 'canceled' ? 'was canceled' : option === 'postponed' ? 'was postponed' : option === 'new' ? 'has been sent again' : ''],
+                                    }
+                                )
+                                
                                 allWhoProposed = allWhoProposed.map(el => el.email).toString()
                                 await sendMail(allWhoProposed, member_subject, member_text, order)
                             }

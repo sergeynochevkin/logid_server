@@ -13,7 +13,7 @@ class UserController {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
-                return next(ApiError.badRequest('Ошибка при валидации', errors.array()))//последним
+                return next(ApiError.badRequest('Validation error', errors.array()))//последним
             }
             const { email, password, role } = req.body
             const userData = await userService.registration(email, password, role)
@@ -91,10 +91,13 @@ class UserController {
     async restore_link(req, res, next) {
         let { email } = req.query
         try {
-            let language = 'english'
-            let message = await Translation.findOne({ where: { service: 'new_link_send', type: 'notification' } })
-            await userService.generate_link(email)
-            return res.send(`${message[language]} ${email}`)
+            userService.generate_link(email)
+            return res.send(translateService.setTranslate(
+                {
+                    russian: ['Новая ссылка для активации аккаунта отправлена на', email],
+                    english: ['A new account activation link has been sent to', email]
+                }
+            ))
         } catch (e) {
             next(e);
         }
