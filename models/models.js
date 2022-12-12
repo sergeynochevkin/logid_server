@@ -12,6 +12,8 @@ const User = sequelize.define('user', {
     activationLink: { type: DataTypes.STRING },
     emailRecoveryCode: { type: DataTypes.STRING },
     role: { type: DataTypes.STRING },
+    cookies_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
+    privacy_policy_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
 })
 
 const Token = sequelize.define('token', {
@@ -58,8 +60,9 @@ const UserInfo = sequelize.define('user_info', {
     complete_orders_amount: { type: DataTypes.INTEGER, defaultValue: 0 },
     files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
     uuid: { type: DataTypes.STRING, defaultValue: v4() },
+
     isModerated: { type: DataTypes.BOOLEAN, defaultValue: false },
-    isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },   
 })
 
 const OrderRating = sequelize.define('order_rating', {
@@ -397,6 +400,7 @@ const Country = sequelize.define('country', {
     currency: { type: DataTypes.STRING },
     weight: { type: DataTypes.STRING },
     distance: { type: DataTypes.STRING },
+    country_code_iso3: { type: DataTypes.STRING },
 })
 
 const City = sequelize.define('city', {

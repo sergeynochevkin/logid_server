@@ -260,20 +260,20 @@ module.exports = async function () {
     }
 
     countries = [
-        { value: 'russia', default_language: 'russian', google_code: 'RU', currency: 'RUR', google_language: 'ru', weight: 'tonn', distance: 'kilometer' },
-        { value: 'greece', default_language: 'english', google_code: 'GR', currency: 'EUR', google_language: 'el', weight: 'tonn', distance: 'kilometer' },
-        { value: 'canada', default_language: 'english', google_code: 'CA', currency: 'CAD', google_language: 'en', weight: 'pound', distance: 'mile' },
-        { value: 'spain', default_language: 'english', google_code: 'ES', currency: 'EUR', google_language: 'es', weight: 'tonn', distance: 'kilometer' },
-        { value: 'sweden', default_language: 'english', google_code: 'SE', currency: 'EUR', google_language: 'sv', weight: 'tonn', distance: 'kilometer' },
-        { value: 'finland', default_language: 'english', google_code: 'FI', currency: 'EUR', google_language: 'fi', weight: 'tonn', distance: 'kilometer' },
+        { value: 'russia', country_code_iso3: 'RUS', default_language: 'russian', google_code: 'RU', currency: 'RUR', google_language: 'ru', weight: 'tonn', distance: 'kilometer' },
+        { value: 'greece', country_code_iso3: 'GRC', default_language: 'english', google_code: 'GR', currency: 'EUR', google_language: 'el', weight: 'tonn', distance: 'kilometer' },
+        { value: 'canada', country_code_iso3: 'CAN', default_language: 'english', google_code: 'CA', currency: 'CAD', google_language: 'en', weight: 'pound', distance: 'mile' },
+        { value: 'spain', country_code_iso3: 'ESP', default_language: 'english', google_code: 'ES', currency: 'EUR', google_language: 'es', weight: 'tonn', distance: 'kilometer' },
+        { value: 'sweden', country_code_iso3: 'SWE', default_language: 'english', google_code: 'SE', currency: 'EUR', google_language: 'sv', weight: 'tonn', distance: 'kilometer' },
+        { value: 'finland', country_code_iso3: 'FIN', default_language: 'english', google_code: 'FI', currency: 'EUR', google_language: 'fi', weight: 'tonn', distance: 'kilometer' },
     ]
 
     for (const row of countries) {
         let checkItem = await Country.findOne({ where: { value: row.value } })
         if (checkItem) {
-            await Country.update({ default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance }, { where: { value: row.value } })
+            await Country.update({ default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance }, { where: { value: row.value }, country_code_iso3: row.country_code_iso3 })
         } else {
-            await Country.create({ value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance })
+            await Country.create({ value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance, country_code_iso3: row.country_code_iso3 })
         }
     }
 

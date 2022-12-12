@@ -2,6 +2,7 @@ const { Subscription, SubscriptionOptionsByPlan, SubscriptionOption, User, UserI
 const ApiError = require('../exceptions/api_error')
 const { Op } = require('sequelize')
 const limitService = require('../service/limit_service')
+const translateService = require('../service/translate_service')
 
 class SubscriptionController {
 
@@ -19,8 +20,8 @@ class SubscriptionController {
                 let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
                 let user = await User.findOne({ where: { id: userInfo.userId } })
                 let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId } })
-                optionsByPlan = optionsByPlan.map(el => el.optionId)              
-                let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: userInfo.country } }) // взяли опции по стране
+                optionsByPlan = optionsByPlan.map(el => el.optionId)
+                let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: userInfo.country } }) // Took options by country
                 if (planId === 2) {
                     await LimitCounter.update({ trial_used: true }, { where: { userInfoId } })
                 }
@@ -46,11 +47,26 @@ class SubscriptionController {
                     await LimitCounter.update({ carrier_offer_amount_per_day: 0, carrier_take_order_amount_per_day: 0, carrier_take_order_started: currentTime, carrier_offer_started: currentTime }, { where: { userInfoId } })
                 }
                 if (planId === 1) {
-                    return res.send('Подписка отключена')
+                    return res.send(translateService.setTranslate(
+                        {
+                            russian: ['Подписка отключена'],
+                            english: ['Subscription disabled']
+                        }
+                    ))
                 } else if (planId === currentPlan.planId) {
-                    return res.send('Подписка продлена')
+                    return res.send(translateService.setTranslate(
+                        {
+                            russian: ['Подписка продлена'],
+                            english: ['Subscription renewed']
+                        }
+                    ))
                 } else {
-                    return res.send('Подписка офрмлена')
+                    return res.send(translateService.setTranslate(
+                        {
+                            russian: ['Подписка оформлена'],
+                            english: ['Subscribed']
+                        }
+                    ))
                 }
             } catch (e) {
                 next(e)

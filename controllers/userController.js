@@ -13,7 +13,12 @@ class UserController {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
-                return next(ApiError.badRequest('Validation error', errors.array()))//последним
+                return next(ApiError.badRequest(translateService.setTranslate(
+                    {
+                        russian: ['Ошибка валидации'],
+                        english: ['Validation error']
+                    }
+                ), errors.array()))//at last
             }
             const { email, password, role } = req.body
             const userData = await userService.registration(email, password, role)

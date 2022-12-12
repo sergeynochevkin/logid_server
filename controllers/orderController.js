@@ -207,6 +207,7 @@ class OrderController {
                     offset: 0,
                     // limit: filters[order_status].limit
                 })
+                console.log(JSON.stringify(order));
             }
 
             else if (role === 'customer') {
@@ -238,7 +239,7 @@ class OrderController {
             if (role === 'carrier' && isArc !== 'arc') {
                 if (order_status !== 'new') {
                     order = await Order.findAndCountAll({
-                        where: { [Op.and]: { carrierId, order_status, country, /*city, коммент переход на гео*/  carrier_arc_status: null, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
+                        where: { [Op.and]: { carrierId, order_status, country, /*city, comment go to geo*/  carrier_arc_status: null, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
                         order: [
                             [sortDirection, sortColumn]
                         ],
@@ -324,7 +325,7 @@ class OrderController {
 
                     let firtstPointCheckedOrders = [...new Set([...orderFavorite, ...restOrders])]
 
-                    //второй вариант если интерсити включен
+                    //second variant if intercity on
                     let orderSet = []
                     for (const city of cities) {
                         for (const order of firtstPointCheckedOrders) {
@@ -384,7 +385,7 @@ class OrderController {
 
                 let blockedForState = [...new Set([...myBlocked, ...iAmBlocked])]
 
-                //state с учетом cities              
+                //state with cities in mind              
                 let firtstPointCheckedOrders = []
                 for (const city of cities) {
                     let orders = await Order.findAll({
@@ -401,7 +402,7 @@ class OrderController {
                     firtstPointCheckedOrders = [...firtstPointCheckedOrders, ...orders]
                 }
 
-                //второй вариант если интерсити включен
+                //second variant if intercity on
                 let newOrdersState = []
                 for (const city of cities) {
                     for (const order of firtstPointCheckedOrders) {
@@ -438,7 +439,7 @@ class OrderController {
                         currentNewOrdersState.push(row)
                     }
                 }
-                // что с логикой предыдущего состояния для carrier предположим он перенастроил фильтр
+                // what about the logic of the previous state for the carrier suppose he reconfigured the filter
                 newOrdersState = [...currentNewOrdersState]
 
                 state = await Order.findAll({
@@ -467,7 +468,7 @@ class OrderController {
             partners = await UserInfo.findAll({ where: { id: { [Op.in]: orderForPartners } } })
 
             if (partnersByGroups.length !== 0) {
-                partners = partners.filter(el => partnersByGroups.includes(el.id))//новая логика с группами
+                partners = partners.filter(el => partnersByGroups.includes(el.id))//new logic with groups
             }
 
             partners = partners.filter(partner => partner.name_surname_fathersname.toLowerCase().includes(filters[order_status].partnerName.toLowerCase())
@@ -552,7 +553,7 @@ class OrderController {
 
                     order.added = addedObj
 
-                    // напушить id заказов которые изменились            
+                    // push changed ids           
                 }
 
                 state = JSON.stringify(state)
@@ -770,7 +771,7 @@ class OrderController {
     }
 
 
-    // использовать для отображения в заказе и отключения кнопки удаления группы если есть заказы которые доступны группе
+    // use to display in the order and disable the delete group button if there are orders that are available to the group
     async getOrderConnections(req, res, next) {
         try {
             let { orderIds, option } = req.body

@@ -1,6 +1,7 @@
 const { Partner, OtherRating, PartnerGroup, PartnerByGroup, UserInfo, User } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op } = require("sequelize")
+const translateService = require('../service/translate_service')
 
 class PartnerController {
     async create(req, res, next) {
@@ -63,8 +64,25 @@ class PartnerController {
                     }
                 }))
             }
-            else if (role === newPartnerRole) { partner = `${role === 'carrier' ? 'Вы являетесь перевозчиком и не можете добавить перевозчика' : 'Вы являетесь заказчиком и не можете добавить заказчика'}` }
-            else { partner = 'Партнер не найден' }
+            else if (role === newPartnerRole) {
+                partner = `${role === 'carrier' ? translateService.setTranslate(
+                    {
+                        russian: ['Вы являетесь перевозчиком и не можете добавить перевозчика'],
+                        english: ['You are a carrier and cannot add a carrier']
+                    }
+                ) : translateService.setTranslate(
+                    {
+                        russian: ['Вы являетесь заказчиком и не можете добавить заказчика'],
+                        english: ['You are a customer and cannot add a customer']
+                    }
+                )}`
+            }
+            else { partner = translateService.setTranslate(
+                {
+                    russian: ['Партнер не найден'],
+                    english: ['Partner not found']
+                }
+            )}
             return res.json(partner)
         } catch (e) {
             next(ApiError.badRequest(e.message))

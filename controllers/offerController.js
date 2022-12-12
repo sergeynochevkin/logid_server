@@ -50,14 +50,14 @@ class OfferController {
 
             offer = await Offer.findAndCountAll({ where: { orderId: orderIDs } })
 
-            //Получение состояния
+            //Getting state
             let notificationState = await NotificationState.findOne({ where: { userInfoId } })
 
             let offersState = JSON.parse(notificationState.order_state).map(el => el.id)
             let previousState = JSON.parse(notificationState.offer_state)
             let state = await Offer.findAll({ where: { orderId: { [Op.in]: offersState } } })
 
-            //Сопоставление состояния добавление различий в ответ
+            //State mapping adding differences to the response
             let addedObj = {
                 new: [],
                 updated: [],
@@ -80,7 +80,7 @@ class OfferController {
 
             offer.changes = addedObj
 
-            //Запись состояния   
+            //Saving state
             state = JSON.stringify(state)
             await NotificationState.update({ offer_state: state }, { where: { userInfoId: userInfoId } })
 

@@ -1,3 +1,5 @@
+const translateService = require('../service/translate_service')
+
 class ApiError extends Error {
     status
     errors
@@ -21,7 +23,12 @@ class ApiError extends Error {
     }
 
     static unauthorizedError() {
-        return new ApiError(401, 'Пользователь не авторизован')
+        return new ApiError(401, translateService.setTranslate(
+            {
+                russian: ['Пользователь не авторизован'],
+                english: ['User not authorized']
+            }
+        ))
     }
 }
 

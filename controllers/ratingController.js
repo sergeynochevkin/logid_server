@@ -117,7 +117,7 @@ class RatingController {
                                     (total_solvency = (partnerUserInfo.total_solvency * partnerUserInfo.solvency_amount + solvency) / (partnerUserInfo.solvency_amount + 1), solvency_amount = partnerUserInfo.solvency_amount + 1)
                                     : '',
 
-                    //total_rating
+                    //total rating
                     n = 1,
                     n = partnerUserInfo.facilities_amount === 0 ? n : n + 1,
                     n = partnerUserInfo.in_time_amount === 0 ? n : n + 1,

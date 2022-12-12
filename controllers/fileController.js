@@ -3,6 +3,7 @@ const ApiError = require('../exceptions/api_error')
 const { Op } = require("sequelize")
 const path = require('path')
 const multer = require('multer')
+const translateService = require('../service/translate_service')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -25,7 +26,12 @@ class FileController {
             if (mimeType /*&& extname*/) {
                 return cb(null, true)
             }
-            cb('Не корректные форматы файлов')
+            cb(translateService.setTranslate(
+                {
+                    russian: ['Не корректные форматы файлов'],
+                    english: ['Incorrect file formats']
+                }
+            ))
         },
     })
         // .single('image')

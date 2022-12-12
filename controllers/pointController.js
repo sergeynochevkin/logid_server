@@ -8,7 +8,7 @@ class PointController {
         try {
             let { formData, userInfoId, newOrderIntegrationId, option } = req.body
             let points = []
-            // получить интеграционнй id по другому под другим именем
+            // get the integration id differently under a different name
             formData.forEach(element => {
 
                 let {
@@ -78,14 +78,14 @@ class PointController {
 
             points = await Point.findAndCountAll({ where: { orderIntegrationId: pointsIntegrationIds } });
 
-            //Получение состояния
+            //Getting state
             let notificationState = await NotificationState.findOne({ where: { userInfoId } })
 
             let ordersState = JSON.parse(notificationState.order_state).map(el => el.pointsIntegrationId)
             let previousState = JSON.parse(notificationState.point_state)
             let state = await Point.findAll({ where: { orderIntegrationId: { [Op.in]: ordersState } } })
 
-            //Сопоставление состояния добавление различий в ответ
+            //State mapping adding differences to the response
             let addedObj = {
                 new: [],
                 postponed: [],
@@ -114,7 +114,7 @@ class PointController {
 
             points.added = addedObj
 
-            //Запись состояния
+            //State saving
             state = JSON.stringify(state)
             await NotificationState.update({ point_state: state }, { where: { userInfoId: userInfoId } })
 

@@ -5,16 +5,27 @@ const mailService = require('./mail_service')
 const tokenService = require('./token_service');
 const UserDTO = require('../dtos/user_dto');
 const ApiError = require('../exceptions/api_error');
+const translateService = require('../service/translate_service')
 
 class UserService {
 
     async registration(email, password, role) {
         if (!email || !password) {
-            throw ApiError.badRequest('Не корректный email или пароль')
+            throw ApiError.badRequest(translateService.setTranslate(
+                {
+                    russian: ['Не корректный email или пароль'],
+                    english: ['Incorrect email or password']
+                }
+            ))
         }
         const candidate = await User.findOne({ where: { email } })
         if (candidate) {
-            throw ApiError.badRequest('email уже занят')
+            throw ApiError.badRequest(translateService.setTranslate(
+                {
+                    russian: ['email уже занят'],
+                    english: ['email is already taken']
+                }
+            ))
         }
         const hashPassword = await bcrypt.hash(password, 5)
         const activationLink = v4()
@@ -34,7 +45,12 @@ class UserService {
             const candidate = await User.findOne({ where: { id: userId } })
             let comparePassword = bcrypt.compareSync(password, candidate.password)
             if (comparePassword) {
-                throw ApiError.badRequest('Вы ввели действующий пароль')
+                throw ApiError.badRequest(translateService.setTranslate(
+                    {
+                        russian: ['Вы ввели действующий пароль'],
+                        english: ['You have entered your current password']
+                    }
+                ))
             }
             const hashPassword = await bcrypt.hash(password, 5)
             await User.update({ password: hashPassword }, { where: { id: userId } })
@@ -51,10 +67,20 @@ class UserService {
             const candidate = await User.findOne({ where: { email } })
             if (candidate) {
                 if (candidate.id === userId) {
-                    throw ApiError.badRequest('Вы ввели действующий email')
+                    throw ApiError.badRequest(translateService.setTranslate(
+                        {
+                            russian: ['Вы ввели действующий email'],
+                            english: ['You have entered your current email']
+                        }
+                    ))
                 }
                 else {
-                    throw ApiError.badRequest('email уже занят')
+                    throw ApiError.badRequest(translateService.setTranslate(
+                        {
+                            russian: ['email уже занят'],
+                            english: ['email is already taken']
+                        }
+                    ))
                 }
             }
             const activationLink = v4()
@@ -81,11 +107,21 @@ class UserService {
     async restore(password, code) {
         const candidate = await User.findOne({ where: { emailRecoveryCode: code } })
         if (!candidate) {
-            throw ApiError.badRequest('Неверный код подтверждения')
+            throw ApiError.badRequest(translateService.setTranslate(
+                {
+                    russian: ['Неверный код подтверждения'],
+                    english: ['Incorrect confirmation code']
+                }
+            ))
         } else {
             let comparePassword = bcrypt.compareSync(password, candidate.password)
             if (comparePassword) {
-                throw ApiError.badRequest('Вы ввели действующий пароль')
+                throw ApiError.badRequest(translateService.setTranslate(
+                    {
+                        russian: ['Вы ввели действующий пароль'],
+                        english: ['You have entered your current password']
+                    }
+                ))
             }
         }
         const hashPassword = await bcrypt.hash(password, 5)
@@ -103,7 +139,12 @@ class UserService {
     async password_update_code(email) {
         const candidate = await User.findOne({ where: { email } })
         if (!candidate) {
-            throw ApiError.badRequest('Вы ввели не корректный email')
+            throw ApiError.badRequest(translateService.setTranslate(
+                {
+                    russian: ['Вы ввели не корректный email'],
+                    english: ['You entered an incorrect email']
+                }
+            ))
         }
         const emailRecoveryCode = v4()
         await User.update({ emailRecoveryCode }, { where: { email } })
@@ -114,14 +155,35 @@ class UserService {
         let uuid = activationLink
         const user = await User.findOne({ where: { activationLink } })
         if (!user) {
-            await ServerNotification.create({  message: 'Неверная ссылка активации ', type: 'error', uuid: activationLink })
+            await ServerNotification.create({
+                message: translateService.setTranslate(
+                    {
+                        russian: ['Неверная ссылка активации'],
+                        english: ['Incorrect activation link']
+                    }
+                ), type: 'error', uuid: activationLink
+            })
         } else {
             const userInfo = await UserInfo.findOne({ where: { userId: user.id } })
             if (user.isActivated) {
-                await ServerNotification.create({  message: 'Аккаунт уже активирован', type: 'error', uuid: activationLink })
+                await ServerNotification.create({
+                    message: translateService.setTranslate(
+                        {
+                            russian: ['Аккаунт уже активирован'],
+                            english: ['Account has already been activated']
+                        }
+                    ), type: 'error', uuid: activationLink
+                })
             } else {
                 await User.update({ isActivated: true }, { where: { id: user.id } })
-                await ServerNotification.create({ userInfoId: userInfo.id, message: 'Вы активировали аккаунт', type: 'success', uuid: activationLink })
+                await ServerNotification.create({
+                    userInfoId: userInfo.id, message: translateService.setTranslate(
+                        {
+                            russian: ['Вы активировали аккаунт'],
+                            english: ['You have activated your account']
+                        }
+                    ), type: 'success', uuid: activationLink
+                })
             }
         }
         return uuid
@@ -130,11 +192,21 @@ class UserService {
     async login(email, password) {
         const user = await User.findOne({ where: { email } })
         if (!user) {
-            throw ApiError.badRequest('Пользователя с таким email не существует')
+            throw ApiError.badRequest(translateService.setTranslate(
+                {
+                    russian: ['Пользователя с таким email не существует'],
+                    english: ['User with this email does not exist']
+                }
+            ))
         }
         let comparePassword = bcrypt.compareSync(password, user.password)
         if (!comparePassword) {
-            throw ApiError.badRequest('Нееверный пароль')
+            throw ApiError.badRequest(translateService.setTranslate(
+                {
+                    russian: ['Нееверный пароль'],
+                    english: ['Incorrect password']
+                }
+            ))
         }
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })
