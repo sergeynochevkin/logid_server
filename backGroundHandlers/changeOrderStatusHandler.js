@@ -6,6 +6,18 @@ const translateService = require('../service/translate_service')
 module.exports = async function (handlerArgs) {
     console.log(`${handlerArgs.statusArray.toString()} to ${handlerArgs.newStatus} handling started...`);
 
+    const sortOrders = (a, b) => {
+        if (a && b) {
+            if (a > b) {
+                return 1
+            } else {
+                return -1
+            }
+        } else {
+            return
+        }
+    }
+
     const transport = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,
@@ -107,11 +119,11 @@ module.exports = async function (handlerArgs) {
         if (ordersForStatusUpdate.length > 0) {
             message = translateService.setTranslate(
                 {
-                    russian: [ordersForStatusUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForStatusUpdate.toString(), 'автоматически', ordersForStatusUpdate.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
+                    russian: [ordersForStatusUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForStatusUpdate.sort(sortOrders(a, b)).toString(), 'автоматически', ordersForStatusUpdate.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
                         ordersForStatusUpdate.length === 1 && handlerArgs.newStatus === 'arc' ? 'перенесен в архив' : ordersForStatusUpdate.length > 1 && handlerArgs.newStatus === 'canceled' ? 'отменены' : ordersForStatusUpdate.length === 1 && handlerArgs.newStatus === 'canceled' ? 'отменен'
                             : ordersForStatusUpdate.length > 1 && handlerArgs.newStatus === 'completed' ? 'завершены' : ordersForStatusUpdate.length === 1 && handlerArgs.newStatus === 'completed' ? 'завершен'
                                 : ''],
-                    english: [ordersForStatusUpdate.length > 1 ? 'Orders' : 'Order', 'utomatically', handlerArgs.newStatus === 'arc' ? 'moved to archive' : handlerArgs.newStatus === 'canceled' ? 'canceled' : handlerArgs.newStatus === 'completed' ? 'completed' : '']
+                    english: [ordersForStatusUpdate.length > 1 ? 'Orders' : 'Order', ordersForStatusUpdate.sort(sortOrders(a, b)).toString(), 'atomatically', handlerArgs.newStatus === 'arc' ? 'moved to archive' : handlerArgs.newStatus === 'canceled' ? 'canceled' : handlerArgs.newStatus === 'completed' ? 'completed' : '']
                 }
             )
 
@@ -137,10 +149,10 @@ module.exports = async function (handlerArgs) {
         if (ordersForNotification.length > 0) {
             message = translateService.setTranslate(
                 {
-                    russian: [ordersForNotification.length > 1 ? 'Заказы' : 'Заказ', ordersForNotification.toString(), 'завтра', ordersForNotification.length > 1 ? 'будут' : 'будет', 'автоматически', ordersForNotification.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
+                    russian: [ordersForNotification.length > 1 ? 'Заказы' : 'Заказ', ordersForNotification.sort(sortOrders(a, b)).toString(), 'завтра', ordersForNotification.length > 1 ? 'будут' : 'будет', 'автоматически', ordersForNotification.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
                         ordersForNotification.length === 1 && handlerArgs.newStatus === 'arc' ? 'перенесен в архив' : ordersForNotification.length > 1 && handlerArgs.newStatus === 'canceled' ? 'отменены' : ordersForNotification.length === 1 && handlerArgs.newStatus === 'canceled' ? 'отменен'
                             : ordersForNotification.length > 1 && handlerArgs.newStatus === 'completed' ? 'завершены' : ordersForNotification.length === 1 && handlerArgs.newStatus === 'completed' ? 'завершен' : ''],
-                    english: [ordersForNotification.length > 1 ? 'Orders' : 'Order', ordersForNotification.toString(), 'will be automatically', handlerArgs.newStatus === 'arc' ? 'moved to archive' : handlerArgs.newStatus === 'canceled' ? 'canceled' : handlerArgs.newStatus === 'completed' ? 'completed' : '', 'tomorrow']
+                    english: [ordersForNotification.length > 1 ? 'Orders' : 'Order', ordersForNotification.sort(sortOrders(a, b)).toString(), 'will be automatically', handlerArgs.newStatus === 'arc' ? 'moved to archive' : handlerArgs.newStatus === 'canceled' ? 'canceled' : handlerArgs.newStatus === 'completed' ? 'completed' : '', 'tomorrow']
                 }
             )
 
@@ -159,8 +171,8 @@ module.exports = async function (handlerArgs) {
         if (ordersForTypeUpdate.length > 0) {
             message = translateService.setTranslate(
                 {
-                    russian: [ordersForTypeUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForTypeUpdate.toString(), 'долго не берут в работу, вы можете преобразовать', ordersForTypeUpdate.length > 1 ? 'их' : 'его', 'в аукцион и рассмотреть предложения перевозчиков'],
-                    english: [ordersForTypeUpdate.length > 1 ? 'Orders' : 'Order', ordersForTypeUpdate.toString(), 'is not taken into work for a long time, you can convert', ordersForTypeUpdate.length > 1 ? 'them' : 'it', 'into auction and consider customers offers']
+                    russian: [ordersForTypeUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForTypeUpdate.sort(sortOrders(a, b)).toString(), 'долго не берут в работу, вы можете преобразовать', ordersForTypeUpdate.length > 1 ? 'их' : 'его', 'в аукцион и рассмотреть предложения перевозчиков'],
+                    english: [ordersForTypeUpdate.length > 1 ? 'Orders' : 'Order', ordersForTypeUpdate.sort(sortOrders(a, b)).toString(), 'is not taken into work for a long time, you can convert', ordersForTypeUpdate.length > 1 ? 'them' : 'it', 'into auction and consider customers offers']
                 }
             )
             await ServerNotification.findOrCreate({

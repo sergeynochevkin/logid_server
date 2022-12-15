@@ -18,12 +18,12 @@ class TranslateService {
             { service: 'inWork', russian: 'В работе', english: 'In work', spain: '', color: 'rgb(254, 145, 40,0.8)', type: 'order_status' },
             { service: 'disrupt', russian: 'Сорван', english: 'Disrupted', spain: '', color: 'rgb(254, 111, 103,0.8)', type: 'order_status' },
 
-            { service: 'retail', russian: 'Розничной торговли', english: 'Retail', color: '', spain: '', type: 'user_info' },
-            { service: 'wholesale', russian: 'Оптовой торговли', english: 'Whole sale', color: '', spain: '', type: 'user_info' },
-            { service: 'food_delivery', russian: 'Доставки продуктов', english: 'Food delivery', spain: '', color: '', type: 'user_info' },
-            { service: 'ready_food_delivery', russian: 'Доставки готовых блюд', english: 'Ready food delivery', spain: '', color: '', type: 'user_info' },
-            { service: 'electronics_repair', russian: 'Ремонта электроники', english: 'Electrinics repair', spain: '', color: '', type: 'user_info' },
-            { service: 'for_myself', russian: 'Себя', english: 'For myself', spain: '', color: '', type: 'user_info' },
+            { service: 'retail', russian: 'Для розничной торговли', english: 'Retail', color: '', spain: '', type: 'user_info' },
+            { service: 'wholesale', russian: 'Для оптовой торговли', english: 'Whole sale', color: '', spain: '', type: 'user_info' },
+            { service: 'food_delivery', russian: 'Для доставки продуктов', english: 'Food delivery', spain: '', color: '', type: 'user_info' },
+            { service: 'ready_food_delivery', russian: 'Для доставки готовых блюд', english: 'Ready food delivery', spain: '', color: '', type: 'user_info' },
+            { service: 'electronics_repair', russian: 'Для ремонта электроники', english: 'Electrinics repair', spain: '', color: '', type: 'user_info' },
+            { service: 'for_myself', russian: 'Для себя', english: 'For myself', spain: '', color: '', type: 'user_info' },
 
             { service: 'person', russian: 'Физическое лицо', english: 'Private person', spain: '', color: '', type: 'user_info' },
             { service: 'entity', russian: 'Юридическое лицо', english: 'Entity', spain: '', color: '', type: 'user_info' },
@@ -132,7 +132,7 @@ class TranslateService {
             { service: 'to_group', russian: 'Группе', english: 'To group', spain: '', color: '', type: 'content' },
             { service: 'to_partner', russian: 'Партнеру', english: 'To partner', spain: '', color: '', type: 'content' },
             { service: 'to_you', russian: 'Только вам', english: 'Just for you', spain: '', color: '', type: 'content' },
-            { service: 'your_grop', russian: 'Вашей группе', english: 'To your group', spain: '', color: '', type: 'content' },         
+            { service: 'your_grop', russian: 'Вашей группе', english: 'To your group', spain: '', color: '', type: 'content' },
             { service: 'auth_email', russian: 'Электронная почта для авторизации', english: 'Authorization email', spain: '', color: '', type: 'content' },
             { service: 'your_rating', russian: 'Ваш рейтинг', english: 'Your rating', spain: '', color: '', type: 'content' },
             { service: 'name_surname_fathersname_content', russian: 'Фамилию, имя, отчество', english: 'First and last name', spain: '', color: '', type: 'content' },
@@ -186,6 +186,7 @@ class TranslateService {
             { service: 'mile', russian: 'mi', english: 'mi', spain: '', color: '', type: 'content' },
             { service: 'kilometer', russian: 'km', english: 'km', spain: '', color: '', type: 'content' },
             { service: 'all_country', russian: 'вся', english: 'all', spain: '', color: '', type: 'content' },
+            { service: 'total_offers', russian: 'Сделано предложений', english: 'Total offers', spain: '', color: '', type: 'content' },
 
             { service: 'sign_in', russian: 'Войти', english: 'Sign in', spain: '', color: '', type: 'button' },
             { service: 'sign_out', russian: 'Выйти', english: 'Sign out', spain: '', color: '', type: 'button' },
@@ -244,6 +245,16 @@ class TranslateService {
             { service: 'groups', russian: 'Группы', english: 'Groups', spain: '', color: '', type: 'button' },
             { service: 'add_partner_by_id', russian: 'Добавить партнера по id', english: 'Add partner by id', spain: '', color: '', type: 'button' },
             { service: 'partner_to_normal', russian: 'Удалить из избранного', english: 'Delete from favorite', spain: '', color: '', type: 'button' },
+
+            { service: 'change_offer', russian: 'Изменить предложение', english: 'Change offer', spain: '', color: '', type: 'button' },
+            { service: 'delete_offer', russian: 'Удалить предложение', english: 'Delete offer', spain: '', color: '', type: 'button' },
+            { service: 'make_offer', russian: 'Сделать предложение', english: 'Make offer', spain: '', color: '', type: 'button' },
+            { service: 'show_more', russian: 'Показать еще', english: 'Show more', spain: '', color: '', type: 'button' },
+            { service: 'show_all', russian: 'Показать все', english: 'Show all', spain: '', color: '', type: 'button' },
+            { service: 'roll_up_list', russian: 'Свернуть', english: 'Roll up the list', spain: '', color: '', type: 'button' },
+
+
+
             { service: 'partner_to_blocked', russian: 'Заблокировать', english: 'Block', spain: '', color: '', type: 'button' },
             { service: 'partner_from_blocked', russian: 'Разблокировать', english: 'Unblock', spain: '', color: '', type: 'button' },
             { service: 'partner_to_favorite', russian: 'В избранное', english: 'To favorites', spain: '', color: '', type: 'button' },
@@ -356,7 +367,7 @@ class TranslateService {
             { service: 'year', russian: 'Год', english: 'Year', spain: '', color: '', type: 'subscription_plans' },
 
             //с этого момента не нужное          
-                
+
             { service: 'code_sent', russian: 'Код отправлен', english: 'Сode sent', spain: '', color: '', type: 'notification' },
             { service: 'password_changed', russian: 'Пароль изиенен, доступ восстановлен, вы авторизованы', english: 'Password changed, access restored, you are logged in', spain: '', color: '', type: 'notification' },
             { service: 'logged_in', russian: 'Вы авторизованы', english: 'You are logged in', spain: '', color: '', type: 'notification' },
@@ -428,7 +439,7 @@ class TranslateService {
             { service: 'to_arc_notification', russian: 'Перенесен в архив', english: 'Archived', spain: '', color: '', type: 'button' },
             { service: 'you_moved_to_arc', russian: 'в ахиве', english: 'archived', spain: '', color: '', type: 'notification' },
             { service: 'you_opened', russian: 'Вы открыли', english: 'You have opened', spain: '', color: '', type: 'notification' },
-            { service: 'the', russian: '', english: 'The', spain: '', color: '', type: 'notification' },
+            { service: 'the', russian: ' ', english: 'The', spain: '', color: '', type: 'notification' },
             { service: 'orders_notification', russian: 'Заказы', english: 'Orders', spain: '', color: '', type: 'notification' },
             { service: 'for_editing', russian: 'для редактирования', english: 'for_editing', spain: '', color: '', type: 'notification' },
             { service: 'form_from_order', russian: 'форму из заказа', english: 'form from order', spain: '', color: '', type: 'notification' },
@@ -499,9 +510,6 @@ class TranslateService {
             { service: 'by_customer', russian: 'заказчиком', english: 'by customer', spain: '', color: '', type: 'notification' },
             { service: 'finished', russian: 'завершен', english: 'finished', spain: '', color: '', type: 'notification' },
             { service: 'you_can_restore', russian: 'вы можете восстановить заказ', english: 'you can restore the order', spain: '', color: '', type: 'notification' },
-
-    
-
         ]
     }
 

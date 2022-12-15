@@ -127,6 +127,7 @@ class OrderController {
             {
                 count: undefined,
                 total_count: {},
+                filtered_count: undefined,
                 rows: [],
                 map_rows: [],
                 added: {},
@@ -476,9 +477,7 @@ class OrderController {
                 .map(partner => partner.id)
 
             order.rows = order.rows.filter(order => (((points.includes(order.pointsIntegrationId))
-
                 && ((partners.includes(order.carrierId) || partners.includes(order.userInfoId) || filters[order_status].partnerName.length === 0) && (partnersByGroups.length === 0 || partnersByGroups.includes(order.carrierId) || partnersByGroups.includes(order.userInfoId)))
-
                 && (order.id == filters[order_status].id || filters[order_status].id === '') && (filters.selected.includes(order.id) || filters.selected.length === 0))))
 
             if (isArc !== 'arc') {
@@ -563,6 +562,8 @@ class OrderController {
             if (order_status === 'new' && role === 'carrier') {
                 order.map_rows = [...order.rows]
             }
+
+            order.filtered_count = order.rows.length
 
             order.rows = order.rows.splice(0, filters[order_status].limit)
 
