@@ -299,8 +299,8 @@ class MailController {
                     if (Array.isArray(orderId)) {
                         mover_subject = translateService.setTranslate(
                             {
-                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', order.order_type === 'order' ? 'заказы' : 'аукционы', order.id],
-                                english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', order.order_type === 'order' ? 'orders' : 'auctions', order.map(el => el.id).sort().toString()],
+                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', 'заказы', order.id],
+                                english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', 'orders', order.map(el => el.id).sort().toString()],
                             }
                         )
                         mover_text = response_will_not_be_read
@@ -339,7 +339,7 @@ class MailController {
                                         english: ['The auction', order.id, 'for which you made an offer', option === 'canceled' ? 'was canceled' : option === 'postponed' ? 'was postponed' : option === 'new' ? 'has been sent again' : ''],
                                     }
                                 )
-                                
+
                                 allWhoProposed = allWhoProposed.map(el => el.email).toString()
                                 await sendMail(allWhoProposed, member_subject, member_text, order)
                             }

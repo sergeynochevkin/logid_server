@@ -30,8 +30,8 @@ app.use(cookieParser())
 app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }))
 app.use(bodyParser.json({ limit: '5mb' }))
 
-var privateKey = fs.readFileSync('ssl/logid_ru.key');
-var certificate = fs.readFileSync('ssl/logid_ru.crt');
+var privateKey = fs.readFileSync('ssl/8901920.key');
+var certificate = fs.readFileSync('ssl/www_logid_app.crt');
 
 handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
 
