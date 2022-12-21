@@ -284,7 +284,7 @@ class OrderController {
                             where: {
                                 [Op.and]: {
                                     carrierId, order_status, country, type: types, load_capacity: load_capacities, side_type: side_types,
-                                    userInfoId: myFavorite, carrier_arc_status: null,
+                                    userInfoId:{[Op.in]: myFavorite} , carrier_arc_status: null,
                                     start_lat: { [Op.lte]: city.lat + bound },
                                     start_lng: { [Op.lte]: city.lng + bound },
                                     start_lat: { [Op.gte]: city.lat - bound },
@@ -300,7 +300,7 @@ class OrderController {
                         orderFavorite = [...orderFavorite, ...orders]
                     }
 
-                    let blocked = [...new Set([...myBlocked, ...iAmBlocked, ...myFavorite])]
+                    let blocked = [...new Set([...myBlocked, ...iAmBlocked])]
 
                     let restOrders = []
                     for (const city of cities) {

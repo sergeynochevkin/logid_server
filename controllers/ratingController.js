@@ -53,11 +53,12 @@ class RatingController {
                     (facilities_amount - 1) === 0 ? total_facilities = facilities :
                         total_facilities = (partnerUserInfo.total_facilities * (facilities_amount - 1) + facilities) / facilities_amount,
 
-                    n = 0,
+                    //problem with rating first count
+                    n = 3,
                     n = partnerUserInfo.solvency_amount === 0 ? n : n + 1,
-                    n = partnerUserInfo.facilities_amount === 0 ? n : n + 1,
-                    n = partnerUserInfo.in_time_amount === 0 ? n : n + 1,
-                    n = partnerUserInfo.politeness_amount === 0 ? n : n + 1,
+                    // n = partnerUserInfo.facilities_amount === 0 ? n : n + 1,
+                    // n = partnerUserInfo.in_time_amount === 0 ? n : n + 1,
+                    // n = partnerUserInfo.politeness_amount === 0 ? n : n + 1,
 
                     role === 'customer' ? total_rating = (total_politeness + total_facilities + total_in_time) / n : total_rating = (total_politeness + total_facilities + total_in_time + partnerUserInfo.total_solvency) / n,
 
@@ -123,7 +124,7 @@ class RatingController {
                     n = partnerUserInfo.in_time_amount === 0 ? n : n + 1,
                     n = partnerUserInfo.total_politeness === 0 ? n : n + 1,
 
-                    total_rating = (Number(partnerUserInfo.total_politeness) + Number(partnerUserInfo.total_facilities) + Number(partnerUserInfo.total_in_time) + total_solvency) / n,
+                    total_rating = (Number(partnerUserInfo.total_politeness) + Number(partnerUserInfo.total_facilities) + Number(partnerUserInfo.total_in_time) + Number(total_solvency)) / n,
 
                     await UserInfo.update(
                         {

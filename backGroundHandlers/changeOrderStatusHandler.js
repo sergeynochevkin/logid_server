@@ -6,15 +6,15 @@ const translateService = require('../service/translate_service')
 module.exports = async function (handlerArgs) {
     console.log(`${handlerArgs.statusArray.toString()} to ${handlerArgs.newStatus} handling started...`);
 
-    // const sortOrders = (a, b) => {
-    //     if (a > b) {
-    //         return 1
-    //     } else if (a < b) {
-    //         return -1
-    //     } else {
-    //         return 0
-    //     }
-    // }
+    const sortOrders = (a, b) => {
+        if (a.id > b.id) {
+            return 1
+        } else if (a.id < b.id) {
+            return -1
+        } else {
+            return 0
+        }
+    }
 
     const transport = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
@@ -71,6 +71,10 @@ module.exports = async function (handlerArgs) {
             thisUserOrders = orders.filter(el => el.userInfoId === userInfo.id)
         }
 
+        if (thisUserOrders.length > 1) {
+            thisUserOrders = thisUserOrders.sort(sortOrders)
+        }
+
         for (const element of thisUserOrders) {
             await Point.findAll({ where: { [Op.and]: { orderIntegrationId: element.pointsIntegrationId, sequence: 1 } } }).then(data => { points = data })
             let firstPoint = points.find(el => el.sequence === 1)
@@ -105,6 +109,7 @@ module.exports = async function (handlerArgs) {
             if (lastPoint && lastPoint.time < (dateNow - actionDelay) && (handlerArgs.statusArray.includes('inWork') || handlerArgs.statusArray.includes('new'))) {
                 ordersForStatusUpdate.push(element.id)
             }
+
         };
 
         let text = translateService.setTranslate(
