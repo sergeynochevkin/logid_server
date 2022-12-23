@@ -5,16 +5,16 @@ const translateService = require('../service/translate_service')
 module.exports = async function () {
     console.log('default data handler started...');
 
-    let translation = translateService.translation
+    // let translation = translateService.translation
 
-    for (const row of translation) {
-        let checkItem = await Translation.findOne({ where: { [Op.and]: { service: row.service, type: row.type } } })
-        if (checkItem) {
-            Translation.update({ russian: row.russian, english: row.english, spain: row.spain, color: row.color }, { where: { [Op.and]: { service: row.service, type: row.type } } })
-        } else {
-            Translation.create({ service: row.service, russian: row.russian, english: row.english, spain: row.spain, color: row.color, type: row.type })
-        }
-    }
+    // for (const row of translation) {
+    //     let checkItem = await Translation.findOne({ where: { [Op.and]: { service: row.service, type: row.type } } })
+    //     if (checkItem) {
+    //         Translation.update({ russian: row.russian, english: row.english, spain: row.spain, color: row.color }, { where: { [Op.and]: { service: row.service, type: row.type } } })
+    //     } else {
+    //         Translation.create({ service: row.service, russian: row.russian, english: row.english, spain: row.spain, color: row.color, type: row.type })
+    //     }
+    // }
 
     let options_pattern = [
         { option_id: 1, name: 'orders_within_24_hours', comment: 'countdown_from', value: '', role: 'customer', limit: 6, type: 'order', country: '' },
