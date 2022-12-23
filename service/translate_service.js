@@ -267,6 +267,9 @@ class TranslateService {
             { service: 'go_to_auction', russian: 'Перейти к аукциону', english: 'Go to auction', spain: '', color: '', type: 'button' },
             { service: 'accept', russian: 'Подтведить', english: 'Accept', spain: '', color: '', type: 'button' },
             { service: 'decline', russian: 'Отклонить', english: 'Decline', spain: '', color: '', type: 'button' },
+            { service: 'move_up', russian: 'вверх', english: 'move up', spain: '', color: '', type: 'button' },
+            { service: 'move_down', russian: 'вниз', english: 'move down', spain: '', color: '', type: 'button' },
+            { service: 'tap_to_hide', russian: 'Каснитесь, чтобы скрыть', english: 'Tap to hide', spain: '', color: '', type: 'button' },
 
             { service: 'carriers_office', russian: 'Кабинет перевозчика', english: 'Сarrier`s office', spain: '', color: '', type: 'header' },
             { service: 'customers_office', russian: 'Кабинет заказчика', english: 'Customer`s office', spain: '', color: '', type: 'header' },
@@ -316,6 +319,8 @@ class TranslateService {
             { service: 'id_36', russian: 'длина id должна быть 36 симовлов', english: 'id length must be 36 characters', spain: '', color: '', type: 'validation' },
             { service: 'id_not_empty', russian: 'id не может быть пустым', english: 'id can`t be empty', spain: '', color: '', type: 'validation' },
             { service: 'password_hint', russian: 'пароль должен содержать минимум 1 символ A-Z, минимум 1 символ a-z, минимум 1 символ 0-9, и любой спецсимовол', english: 'password must contain at least 1 character A-Z, at least 1 character a-z, at least 1 character 0-9, and any special character', spain: '', color: '', type: 'validation' },
+            { service: 'auth_email_validation', russian: 'email для авторизации', english: 'authorization email', spain: '', color: '', type: 'notification' },
+
 
             { service: 'your_email', russian: 'Ваш email', english: 'Your email', spain: '', color: '', type: 'place_holder' },
             { service: 'your_password', russian: 'Ваш пароль', english: 'Your password', spain: '', color: '', type: 'place_holder' },
