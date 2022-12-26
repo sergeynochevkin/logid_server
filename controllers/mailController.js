@@ -199,7 +199,7 @@ class MailController {
                     mover_subject = translateService.setTranslate(
                         {
                             russian: [role === 'carrier' ? 'Вы взяли в работу заказ' : 'Вы приняли предложение по аукциону', order.id],
-                            english: [role === 'carrier' ? 'You have taken an' : 'You have accepted an auction', order.id, role === 'carrier' ? 'order' : 'offer'],
+                            english: [role === 'carrier' ? 'You have taken an' : 'You have accepted an auction', role === 'carrier' ? 'order' : 'offer', order.id],
                         }
                     )
 

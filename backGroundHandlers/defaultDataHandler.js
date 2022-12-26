@@ -27,7 +27,7 @@ module.exports = async function () {
     ]
 
     let plans_pattern = [
-        { plan_id: 1, name: 'none', value: 'none', bage: '', comment: '', price: '', country: 'russia', frequency: '', period: 0 },
+        { plan_id: 1, name: 'none', value: 'none', bage: 'no_time_limit', comment: '', price: '', country: 'russia', frequency: '', period: 0 },
         { plan_id: 2, name: 'free', value: 'free', bage: '30_days', comment: 'free', price: 0, country: 'russia', frequency: 'month', period: 31, country: '' },
         { plan_id: 3, name: 'standart', value: 'standart_month', bage: 'month', comment: 'free', price: 0, country: 'russia', frequency: 'month', period: 31, country: '' },
         { plan_id: 4, name: 'standart', value: 'standart_year', bage: 'year', comment: 'free', price: 0, country: 'russia', frequency: 'year', period: 365, country: '' },
