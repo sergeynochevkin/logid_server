@@ -13,15 +13,15 @@ class UserController {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
-                return next(ApiError.badRequest(translateService.setTranslate(
+                return next(ApiError.badRequest(translateService.setNativeTranslate('english',
                     {
                         russian: ['Ошибка валидации'],
                         english: ['Validation error']
                     }
                 ), errors.array()))//at last
             }
-            const { email, password, role } = req.body
-            const userData = await userService.registration(email, password, role)
+            const { email, password, role, language } = req.body
+            const userData = await userService.registration(email, password, role, language)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -31,8 +31,8 @@ class UserController {
 
     async update(req, res, next) {
         try {
-            let { userId, email, password } = req.body
-            const userData = await userService.update(userId, email, password)
+            let { userId, email, password, language } = req.body
+            const userData = await userService.update(userId, email, password, language)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -42,8 +42,8 @@ class UserController {
 
     async restore(req, res, next) {
         try {
-            let { password, code } = req.body
-            const userData = await userService.restore(password, code)
+            let { password, code, language } = req.body
+            const userData = await userService.restore(password, code, language)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -53,8 +53,8 @@ class UserController {
 
     async getCode(req, res, next) {
         try {
-            let { email } = req.query
-            await userService.password_update_code(email)
+            let { email, language } = req.query
+            await userService.password_update_code(email, language)
             return res.send('code send')
         } catch (e) {
             next(e);
@@ -63,8 +63,8 @@ class UserController {
 
     async login(req, res, next) {
         try {
-            const { email, password } = req.body
-            const userData = await userService.login(email, password)
+            const { email, password, language } = req.body
+            const userData = await userService.login(email, password, language)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -86,7 +86,8 @@ class UserController {
     async activate(req, res, next) {
         try {
             const activationLink = req.params.link
-            let uuid = await userService.activate(activationLink)
+            const language = req.query.language
+            let uuid = await userService.activate(activationLink, language)
             return res.redirect(`${process.env.CLIENT_URL}/?uuid=${uuid}`)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -94,10 +95,10 @@ class UserController {
     }
 
     async restore_link(req, res, next) {
-        let { email } = req.query
+        let { email, language } = req.query
         try {
-            userService.generate_link(email)
-            return res.send(translateService.setTranslate(
+            userService.generate_link(email, language)
+            return res.send(translateService.setNativeTranslate(language,
                 {
                     russian: ['Новая ссылка для активации аккаунта отправлена на', email],
                     english: ['A new account activation link has been sent to', email]

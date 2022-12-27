@@ -28,7 +28,7 @@ class PartnerController {
     async addPartnerByKey(req, res, next) {
         try {
             const {
-                role, userInfoId, key
+               language, role, userInfoId, key
             } = req.body
 
             let newPartner = await UserInfo.findOne({ where: { uuid: key } })
@@ -65,19 +65,19 @@ class PartnerController {
                 }))
             }
             else if (role === newPartnerRole) {
-                partner = `${role === 'carrier' ? translateService.setTranslate(
+                partner = `${role === 'carrier' ? translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы являетесь перевозчиком и не можете добавить перевозчика'],
                         english: ['You are a carrier and cannot add a carrier']
                     }
-                ) : translateService.setTranslate(
+                ) : translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы являетесь заказчиком и не можете добавить заказчика'],
                         english: ['You are a customer and cannot add a customer']
                     }
                 )}`
             }
-            else { partner = translateService.setTranslate(
+            else { partner = translateService.setNativeTranslate(language,
                 {
                     russian: ['Партнер не найден'],
                     english: ['Partner not found']

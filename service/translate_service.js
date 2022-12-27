@@ -1,6 +1,6 @@
 class TranslateService {
 
-    setTranslate(phrase_object, language) {
+    setNativeTranslate(language, phrase_object) {
         if (!language) {
             language = 'english'
         }

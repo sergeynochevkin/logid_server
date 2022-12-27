@@ -26,7 +26,7 @@ class FileController {
             if (mimeType /*&& extname*/) {
                 return cb(null, true)
             }
-            cb(translateService.setTranslate(
+            cb(translateService.setNativeTranslate(language,
                 {
                     russian: ['Не корректные форматы файлов'],
                     english: ['Incorrect file formats']
@@ -39,7 +39,7 @@ class FileController {
 
     async uploadImages(req, res, next) {
         try {
-            const { transportId, path } = req.body
+            const { transportId, path, language } = req.body
             console.log('files!');
             console.log(req.files);
             // const { path } = req.files; // files для нескольких изображений     

@@ -9,18 +9,18 @@ const translateService = require('../service/translate_service')
 
 class UserService {
 
-    async registration(email, password, role) {
+    async registration(email, password, role, language) {
         if (!email || !password) {
-            throw ApiError.badRequest(translateService.setTranslate(
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Не корректный email или пароль'],
                     english: ['Incorrect email or password']
                 }
             ))
         }
-        const candidate = await User.findOne({ where: { email } })
+        const candidate = await User.findOne({ where: { email} })
         if (candidate) {
-            throw ApiError.badRequest(translateService.setTranslate(
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['email уже занят'],
                     english: ['email is already taken']
@@ -30,7 +30,7 @@ class UserService {
         const hashPassword = await bcrypt.hash(password, 5)
         const activationLink = v4()
         const user = await User.create({ email, password: hashPassword, role, activationLink })
-        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}`, language)
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })
         await tokenService.saveToken(userDto.id, tokens.refreshToken)
@@ -40,12 +40,12 @@ class UserService {
         }
     }
 
-    async update(userId, email, password) {
+    async update(userId, email, password, language) {
         if (!email && password) {
             const candidate = await User.findOne({ where: { id: userId } })
             let comparePassword = bcrypt.compareSync(password, candidate.password)
             if (comparePassword) {
-                throw ApiError.badRequest(translateService.setTranslate(
+                throw ApiError.badRequest(translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы ввели действующий пароль'],
                         english: ['You have entered your current password']
@@ -67,7 +67,7 @@ class UserService {
             const candidate = await User.findOne({ where: { email } })
             if (candidate) {
                 if (candidate.id === userId) {
-                    throw ApiError.badRequest(translateService.setTranslate(
+                    throw ApiError.badRequest(translateService.setNativeTranslate(language,
                         {
                             russian: ['Вы ввели действующий email'],
                             english: ['You have entered your current email']
@@ -75,7 +75,7 @@ class UserService {
                     ))
                 }
                 else {
-                    throw ApiError.badRequest(translateService.setTranslate(
+                    throw ApiError.badRequest(translateService.setNativeTranslate(language,
                         {
                             russian: ['email уже занят'],
                             english: ['email is already taken']
@@ -97,17 +97,17 @@ class UserService {
         }
     }
 
-    async generate_link(email) {
+    async generate_link(email, language) {
         const activationLink = v4()
         await User.update({ activationLink }, { where: { email } })
-        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
         return null
     }
 
-    async restore(password, code) {
+    async restore(password, code, language) {
         const candidate = await User.findOne({ where: { emailRecoveryCode: code } })
         if (!candidate) {
-            throw ApiError.badRequest(translateService.setTranslate(
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Неверный код подтверждения'],
                     english: ['Incorrect confirmation code']
@@ -116,7 +116,7 @@ class UserService {
         } else {
             let comparePassword = bcrypt.compareSync(password, candidate.password)
             if (comparePassword) {
-                throw ApiError.badRequest(translateService.setTranslate(
+                throw ApiError.badRequest(translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы ввели действующий пароль'],
                         english: ['You have entered your current password']
@@ -136,10 +136,10 @@ class UserService {
         }
     }
 
-    async password_update_code(email) {
+    async password_update_code(email, language) {
         const candidate = await User.findOne({ where: { email } })
         if (!candidate) {
-            throw ApiError.badRequest(translateService.setTranslate(
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Вы ввели не корректный email'],
                     english: ['You entered an incorrect email']
@@ -148,15 +148,16 @@ class UserService {
         }
         const emailRecoveryCode = v4()
         await User.update({ emailRecoveryCode }, { where: { email } })
-        await mailService.sendEmailRecoveryCode(email, `${emailRecoveryCode}`)
+        await mailService.sendEmailRecoveryCode(email, `${emailRecoveryCode}`, language)
     }
 
-    async activate(activationLink) {
+    //no lang!
+    async activate(activationLink, language) {
         let uuid = activationLink
         const user = await User.findOne({ where: { activationLink } })
         if (!user) {
             await ServerNotification.create({
-                message: translateService.setTranslate(
+                message: translateService.setNativeTranslate(language,
                     {
                         russian: ['Неверная ссылка активации'],
                         english: ['Incorrect activation link']
@@ -167,7 +168,7 @@ class UserService {
             const userInfo = await UserInfo.findOne({ where: { userId: user.id } })
             if (user.isActivated) {
                 await ServerNotification.create({
-                    message: translateService.setTranslate(
+                    message: translateService.setNativeTranslate(language,
                         {
                             russian: ['Аккаунт уже активирован'],
                             english: ['Account has already been activated']
@@ -177,7 +178,7 @@ class UserService {
             } else {
                 await User.update({ isActivated: true }, { where: { id: user.id } })
                 await ServerNotification.create({
-                    userInfoId: userInfo.id, message: translateService.setTranslate(
+                    userInfoId: userInfo.id, message: translateService.setNativeTranslate(language,
                         {
                             russian: ['Вы активировали аккаунт'],
                             english: ['You have activated your account']
@@ -189,10 +190,10 @@ class UserService {
         return uuid
     }
 
-    async login(email, password) {
+    async login(email, password, language) {
         const user = await User.findOne({ where: { email } })
         if (!user) {
-            throw ApiError.badRequest(translateService.setTranslate(
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Пользователя с таким email не существует'],
                     english: ['User with this email does not exist']
@@ -201,7 +202,7 @@ class UserService {
         }
         let comparePassword = bcrypt.compareSync(password, user.password)
         if (!comparePassword) {
-            throw ApiError.badRequest(translateService.setTranslate(
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Нееверный пароль'],
                     english: ['Incorrect password']

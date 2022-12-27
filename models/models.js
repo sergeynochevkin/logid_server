@@ -62,7 +62,7 @@ const UserInfo = sequelize.define('user_info', {
     uuid: { type: DataTypes.STRING, defaultValue: v4() },
 
     isModerated: { type: DataTypes.BOOLEAN, defaultValue: false },
-    isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },   
+    isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },
 })
 
 const OrderRating = sequelize.define('order_rating', {
@@ -401,6 +401,7 @@ const Country = sequelize.define('country', {
     weight: { type: DataTypes.STRING },
     distance: { type: DataTypes.STRING },
     country_code_iso3: { type: DataTypes.STRING },
+    sector: { type: DataTypes.STRING },
 })
 
 const City = sequelize.define('city', {

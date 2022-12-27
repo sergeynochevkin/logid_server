@@ -8,13 +8,13 @@ class SubscriptionController {
 
 
     async update(req, res, next) {
-        let { userInfoId, planId, paid_to } = req.body
+        let { language, userInfoId, planId, paid_to } = req.body
         let currentTime = new Date()
 
         let currentPlan = await Subscription.findOne({ where: { userInfoId } })
 
         try {
-            await limitService.check_trial_used(userInfoId, planId)
+            await limitService.check_trial_used(language,userInfoId, planId)
             try {
                 await Subscription.update({ planId, paid_to }, { where: { userInfoId } })
                 let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
@@ -47,21 +47,21 @@ class SubscriptionController {
                     await LimitCounter.update({ carrier_offer_amount_per_day: 0, carrier_take_order_amount_per_day: 0, carrier_take_order_started: currentTime, carrier_offer_started: currentTime }, { where: { userInfoId } })
                 }
                 if (planId === 1) {
-                    return res.send(translateService.setTranslate(
+                    return res.send(translateService.setNativeTranslate(language,
                         {
                             russian: ['Подписка отключена'],
                             english: ['Subscription disabled']
                         }
                     ))
                 } else if (planId === currentPlan.planId) {
-                    return res.send(translateService.setTranslate(
+                    return res.send(translateService.setNativeTranslate(language,
                         {
                             russian: ['Подписка продлена'],
                             english: ['Subscription renewed']
                         }
                     ))
                 } else {
-                    return res.send(translateService.setTranslate(
+                    return res.send(translateService.setNativeTranslate(language,
                         {
                             russian: ['Подписка оформлена'],
                             english: ['Subscribed']

@@ -10,6 +10,7 @@ class MailController {
     async send(req, res, next) {
         try {
             let {
+                language,
                 role,
                 orderId,
                 mailFunction,
@@ -43,7 +44,7 @@ class MailController {
             let allMembers_text
 
 
-            let response_will_not_be_read = translateService.setTranslate(
+            let response_will_not_be_read = translateService.setNativeTranslate(language,
                 {
                     russian: ['Это автоматическое уведомление, ответ не будет прочитан'],
                     english: ['This is an automatic notification, the response will not be read']
@@ -106,7 +107,7 @@ class MailController {
                     side_types = order.map(el => el.side_type)
                 }
                 transportHandler(types, load_capacities, side_types)
-                mover_subject = translateService.setTranslate(
+                mover_subject = translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы создали', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id],
                         english: ['You have created ', order.order_type === 'order' ? 'order' : 'auction', order.id],
@@ -131,7 +132,7 @@ class MailController {
 
                 if (!Array.isArray(orderId)) {
 
-                    allMembers_subject = translateService.setTranslate(
+                    allMembers_subject = translateService.setNativeTranslate(language,
                         {
                             russian: ['Поступил новый', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, 'подходящий для вашего транспорта'],
                             english: ['Received a new', order.order_type === 'order' ? 'order' : 'auction', order.id, 'suitable for your transport'],
@@ -141,7 +142,7 @@ class MailController {
 
                 // it won't be like that now but it might come in handy in the future
                 if (Array.isArray(orderId)) {
-                    allMembers_subject = translateService.setTranslate(
+                    allMembers_subject = translateService.setNativeTranslate(language,
                         {
                             russian: ['Поступили новые', order.order_type === 'order' ? 'заказы' : 'аукционы', order.map(el => el.id).toString(), 'подходящие для вашего транспорта'],
                             english: ['New', order.map(el => el.id).toString(), 'orders received, suitable for your transport'],
@@ -156,7 +157,7 @@ class MailController {
             }
             // mass processing is not planned
             if (mailFunction === 'order_type') {
-                mover_subject = translateService.setTranslate(
+                mover_subject = translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы преобразовали', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, в, order.order_type === 'order' ? 'аукцион' : 'заказ'],
                         english: ['You converted', order.order_type === 'order' ? 'order' : 'auction', order.id, в, order.order_type === 'order' ? 'to an auction' : 'to an order'],
@@ -167,7 +168,7 @@ class MailController {
 
                 if (offers.length !== 0) {
 
-                    member_subject = translateService.setTranslate(
+                    member_subject = translateService.setNativeTranslate(language,
                         {
                             russian: [order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, 'по которому вы делали предложение', option === 'order' ? 'преобразован в заказ' : 'преобразован в аукцион', order.order_status === 'postponed' ? 'но отложен' : 'вы можете взять в работу на текущих условиях', order.order_status === 'postponed' && 'когда заказчик его отправит'],
                             english: ['The', order.order_type === 'order' ? 'order' : 'auction', order.id, 'for which you made an offer has been converted into an', order.order_type === 'order' ? 'auction' : 'order', order.order_status === 'postponed' ? 'but has been postponed' : 'you can take an order on current terms', order.order_status === 'postponed' && 'you can take it to work when the customer sends it'],
@@ -182,7 +183,7 @@ class MailController {
             // mass processing is not planned
             if (mailFunction === 'offer') {
 
-                member_subject = translateService.setTranslate(
+                member_subject = translateService.setNativeTranslate(language,
                     {
                         russian: [option === 'create' ? 'Поступило' : option === 'update' ? 'Изменено' : option === 'delete' ? 'Удалено' : '', 'предложение по аукциону', order.id, 'предложений', option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length - 1 : option === 'update' ? offers.length : ''],
                         english: [option === 'create' ? 'Recieved' : option === 'update' ? 'Updated' : option === 'delete' ? 'Deleted' : '', 'an offer for an auction', order.id, option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length - 1 : option === 'update' ? offers.length : '', 'proposals'],
@@ -196,7 +197,7 @@ class MailController {
                 // the carrier cannot take several orders to work at the same time, and the customer cannot take several offers mass processing is not planned
                 if (option === 'inWork') {
                     mover_subject = `${role === 'carrier' ? 'Вы взяли в работу' : 'Вы приняли предложение'} ${order.order_type === 'order' ? `заказ` : `по аукциону`} ${order.id}`
-                    mover_subject = translateService.setTranslate(
+                    mover_subject = translateService.setNativeTranslate(language,
                         {
                             russian: [role === 'carrier' ? 'Вы взяли в работу заказ' : 'Вы приняли предложение по аукциону', order.id],
                             english: [role === 'carrier' ? 'You have taken an' : 'You have accepted an auction', role === 'carrier' ? 'order' : 'offer', order.id],
@@ -205,7 +206,7 @@ class MailController {
 
                     mover_text = response_will_not_be_read
 
-                    member_subject = translateService.setTranslate(
+                    member_subject = translateService.setNativeTranslate(language,
                         {
                             russian: [role === 'carrier' ? 'Ваш' : 'Ваше предложение', order.order_type === 'order' ? `заказ` : `к аукциону`, order.id, role === 'carrier' ? 'взят в работу перевозчиком' : 'принято заказчиком, можете приступать к выполнению'],
                             english: [role === 'carrier' ? 'Ваш заказ' : 'Your proposal for auction', order.id, role === 'carrier' ? 'has been taken into work by the carrier' : 'has been accepted by the customer, you can proceed with the implementation'],
@@ -214,7 +215,7 @@ class MailController {
 
                     member_text = response_will_not_be_read
 
-                    allMembers_subject = translateService.setTranslate(
+                    allMembers_subject = translateService.setNativeTranslate(language,
                         {
                             russian: ['Ваше предложение к аукциону', order.id, 'было отклонено, заказчик отдал предпочтение другому перевозчику, рассмотрите другие заказы или аукционы'],
                             english: ['Your offer for auction', order.id, 'was rejected, the customer has preferred another carrier, consider other orders or auctions'],
@@ -236,7 +237,7 @@ class MailController {
                 }
                 // mass processing of orders is not in progress and is not planned
                 else if (option === 'completed') {
-                    mover_subject = translateService.setTranslate(
+                    mover_subject = translateService.setNativeTranslate(language,
                         {
                             russian: ['Вы завершили', order.order_type === 'order' ? `заказ` : `аукцион`, order.id],
                             english: ['You have completed', order.order_type === 'order' ? `order` : `auction`, order.id],
@@ -244,7 +245,7 @@ class MailController {
                     )
 
                     mover_text = response_will_not_be_read
-                    member_subject = translateService.setTranslate(
+                    member_subject = translateService.setNativeTranslate(language,
                         {
                             russian: [order.order_type === 'order' ? `Заказ` : `Аукцион`, order.id, 'завершен', role === 'carrier' ? 'перевозчиком' : 'заказчиком'],
                             english: [order.order_type === 'order' ? `Order` : `Auction`, order.id, 'completed by', role === 'carrier' ? 'carrier' : 'customer'],
@@ -258,7 +259,7 @@ class MailController {
                 // non-submission, non-loading mass processing is not planned
                 else if (option === 'disrupt') {
 
-                    mover_subject = translateService.setTranslate(
+                    mover_subject = translateService.setNativeTranslate(language,
                         {
                             russian: ['Вы отменили', order.order_type === 'order' ? `заказ` : `аукцион`, order.id, 'в связи с', role === 'carrier' ? 'незагрузкой' : role === 'customer' ? 'неподачей' : '', 'это повлияет на рейтинг', role === 'carrier' ? 'заказчика' : role === 'customer' ? 'перевозчика. Вы можете восстановить заказ' : ''],
                             english: ['You canceled the', order.order_type === 'order' ? `order` : `auction`, order.id, role === 'carrier' ? 'due to not loading' : role === 'customer' ? 'due to non-arrival' : '', 'this affects the rating of the', role === 'carrier' ? 'customer' : role === 'customer' ? 'carrier. You can restore the order' : ''],
@@ -267,7 +268,7 @@ class MailController {
 
                     mover_text = response_will_not_be_read
 
-                    member_subject = translateService.setTranslate(
+                    member_subject = translateService.setNativeTranslate(language,
                         {
                             russian: [order.order_type === 'order' ? 'Заказ' : 'Аукцион', 'отменен в связи c', role === 'carrier' ? 'незагрузкой' : role === 'customer' ? 'неподачей' : '', 'это повлияет на ваш рейтинг'],
                             english: [order.order_type === 'order' ? 'Order' : 'Auction', order.id, ' canceled due to', role === 'carrier' ? 'not loading' : role === 'customer' ? 'non-arrival' : '', 'this will affect your rating'],
@@ -279,7 +280,7 @@ class MailController {
                 }
                 else {
                     if (!Array.isArray(orderId)) {
-                        mover_subject = translateService.setTranslate(
+                        mover_subject = translateService.setNativeTranslate(language,
                             {
                                 russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id],
                                 english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', order.order_type === 'order' ? 'an order' : 'an auction', order.id],
@@ -297,7 +298,7 @@ class MailController {
                         }
                     }
                     if (Array.isArray(orderId)) {
-                        mover_subject = translateService.setTranslate(
+                        mover_subject = translateService.setNativeTranslate(language,
                             {
                                 russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', 'заказы', order.id],
                                 english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', 'orders', order.map(el => el.id).sort().toString()],
@@ -309,7 +310,7 @@ class MailController {
                     if (!Array.isArray(orderId)) {
                         if (offers.length !== 0 && order.order_type === 'auction' && option !== 'arc') {
 
-                            member_subject = translateService.setTranslate(
+                            member_subject = translateService.setNativeTranslate(language,
                                 {
                                     russian: [order.order_type === 'order' ? `Заказ` : `Аукцион`, order.id, 'по которомы вы делали предложение', option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''],
                                     english: [order.order_type === 'order' ? `The order` : 'The auction', order.id, 'for which you made an offer', option === 'canceled' ? 'was canceled' : option === 'postponed' ? 'was postponed' : option === 'new' ? 'has been sent again' : ''],
@@ -333,7 +334,7 @@ class MailController {
                                 offers = offers.map(el => el.carrierId)
                                 allWhoProposed = await UserInfo.findAll({ where: { id: { [Op.in]: offers } } })
 
-                                member_subject = translateService.setTranslate(
+                                member_subject = translateService.setNativeTranslate(language,
                                     {
                                         russian: [`Аукцион`, order.id, 'по которомы вы делали предложение', option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''],
                                         english: ['The auction', order.id, 'for which you made an offer', option === 'canceled' ? 'was canceled' : option === 'postponed' ? 'was postponed' : option === 'new' ? 'has been sent again' : ''],

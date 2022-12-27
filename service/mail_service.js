@@ -18,12 +18,12 @@ class MailService {
         })
     }
 
-    async sendActivationMail(to, link) {
+    async sendActivationMail(to, link, language) {
         await this.transport.sendMail({
             from: process.env.MAIL_FROM,
             to: to,
             bcc: '',
-            subject: translateService.setTranslate(
+            subject: translateService.setNativeTranslate(language,
                 {
                     russian: ['Ссылка для активации вашего аккаунта logid'],
                     english: ['Link to activate your logid account']
@@ -38,12 +38,12 @@ class MailService {
         })
     }
 
-    async sendEmailRecoveryCode(to, code) {
+    async sendEmailRecoveryCode(to, code, language) {
         await this.transport.sendMail({
             from: process.env.MAIL_FROM,
             to: to,
             bcc: '',
-            subject: translateService.setTranslate(
+            subject: translateService.setNativeTranslate(language,
                 {
                     russian: ['Код для изменения пароля вашего аккаунта logid'],
                     english: ['The code to change the password of your logid account']

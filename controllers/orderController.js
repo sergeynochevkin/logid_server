@@ -10,6 +10,7 @@ class OrderController {
 
     async create(req, res, next) {
         let {
+            language,
             order_comment,
             cost,
             mileage,
@@ -42,8 +43,8 @@ class OrderController {
         } = req.body
 
         try {
-            await limitService.check_account_activated(userInfoId)
-            await limitService.check_subscription(userInfoId, order_status)
+            await limitService.check_account_activated(language, userInfoId)
+            await limitService.check_subscription(language, userInfoId, order_status)
             try {
                 let partner = []
                 if (for_partner.length !== 0) {
@@ -284,7 +285,7 @@ class OrderController {
                             where: {
                                 [Op.and]: {
                                     carrierId, order_status, country, type: types, load_capacity: load_capacities, side_type: side_types,
-                                    userInfoId:{[Op.in]: myFavorite} , carrier_arc_status: null,
+                                    userInfoId: { [Op.in]: myFavorite }, carrier_arc_status: null,
                                     start_lat: { [Op.lte]: city.lat + bound },
                                     start_lng: { [Op.lte]: city.lng + bound },
                                     start_lat: { [Op.gte]: city.lat - bound },

@@ -23,7 +23,7 @@ class ApiError extends Error {
     }
 
     static unauthorizedError() {
-        return new ApiError(401, translateService.setTranslate(
+        return new ApiError(401, translateService.setNativeTranslate('english',
             {
                 russian: ['Пользователь не авторизован'],
                 english: ['User not authorized']

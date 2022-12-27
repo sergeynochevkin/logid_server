@@ -10,7 +10,7 @@ module.exports = function (role) {
             const token = req.headers.authorization.split(' ')[1]
             if (!token) {
                 return res.status(401).json({
-                    message: translateService.setTranslate(
+                    message: translateService.setNativeTranslate('english',
                         {
                             russian: ['Пользователь не авторизован'],
                             english: ['User not authorized']
@@ -20,7 +20,7 @@ module.exports = function (role) {
             }
             const decoded = jwt.verify(token, process.env.SECRET_KEY)
             if (decoded.role !== role) {
-                return res.status(403).json({ message: translateService.setTranslate(
+                return res.status(403).json({ message: translateService.setNativeTranslate('english',
                     {
                         russian: ['Нет прав на изменения'],
                         english: ['No rights to change']
@@ -32,7 +32,7 @@ module.exports = function (role) {
         }
         catch (e) {
             res.status(401).json({
-                message: translateService.setTranslate(
+                message: translateService.setNativeTranslate('english',
                     {
                         russian: ['Пользователь не авторизован'],
                         english: ['User not authorized']
@@ -42,7 +42,6 @@ module.exports = function (role) {
         }
     }
 }
-
 
 
 

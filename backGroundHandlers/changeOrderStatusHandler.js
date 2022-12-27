@@ -1,7 +1,8 @@
 const { Order, ServerNotification, Point, UserInfo, User } = require('../models/models')
 const { Op } = require("sequelize")
 const nodemailer = require('nodemailer');
-const translateService = require('../service/translate_service')
+const translateService = require('../service/translate_service');
+const language_service = require('../service/language_service');
 
 module.exports = async function (handlerArgs) {
     console.log(`${handlerArgs.statusArray.toString()} to ${handlerArgs.newStatus} handling started...`);
@@ -59,6 +60,7 @@ module.exports = async function (handlerArgs) {
     for (const userInfo of userInfos) {
 
         let role
+        let language = await language_service.setLanguage(userInfo.id)
         await User.findOne({ where: { id: userInfo.userId } }).then(data => { role = data.role })
 
         let thisUserOrders
@@ -112,7 +114,7 @@ module.exports = async function (handlerArgs) {
 
         };
 
-        let text = translateService.setTranslate(
+        let text = translateService.setNativeTranslate(language,
             {
                 russian: ['Это автоматическое уведомление, ответ не будет прочитан'],
                 english: ['This is an automatic notification, the response will not be read']
@@ -120,7 +122,7 @@ module.exports = async function (handlerArgs) {
         )
         let message
         if (ordersForStatusUpdate.length > 0) {
-            message = translateService.setTranslate(
+            message = translateService.setNativeTranslate(language,
                 {
                     russian: [ordersForStatusUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForStatusUpdate.toString(), 'автоматически', ordersForStatusUpdate.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
                         ordersForStatusUpdate.length === 1 && handlerArgs.newStatus === 'arc' ? 'перенесен в архив' : ordersForStatusUpdate.length > 1 && handlerArgs.newStatus === 'canceled' ? 'отменены' : ordersForStatusUpdate.length === 1 && handlerArgs.newStatus === 'canceled' ? 'отменен'
@@ -150,7 +152,7 @@ module.exports = async function (handlerArgs) {
         }
 
         if (ordersForNotification.length > 0) {
-            message = translateService.setTranslate(
+            message = translateService.setNativeTranslate(language,
                 {
                     russian: [ordersForNotification.length > 1 ? 'Заказы' : 'Заказ', ordersForNotification.toString(), 'завтра', ordersForNotification.length > 1 ? 'будут' : 'будет', 'автоматически', ordersForNotification.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
                         ordersForNotification.length === 1 && handlerArgs.newStatus === 'arc' ? 'перенесен в архив' : ordersForNotification.length > 1 && handlerArgs.newStatus === 'canceled' ? 'отменены' : ordersForNotification.length === 1 && handlerArgs.newStatus === 'canceled' ? 'отменен'
@@ -172,7 +174,7 @@ module.exports = async function (handlerArgs) {
             })
         }
         if (ordersForTypeUpdate.length > 0) {
-            message = translateService.setTranslate(
+            message = translateService.setNativeTranslate(language,
                 {
                     russian: [ordersForTypeUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForTypeUpdate.toString(), 'долго не берут в работу, вы можете преобразовать', ordersForTypeUpdate.length > 1 ? 'их' : 'его', 'в аукцион и рассмотреть предложения перевозчиков'],
                     english: [ordersForTypeUpdate.length > 1 ? 'Orders' : 'Order', ordersForTypeUpdate.toString(), 'is not taken into work for a long time, you can convert', ordersForTypeUpdate.length > 1 ? 'them' : 'it', 'into auction and consider customers offers']

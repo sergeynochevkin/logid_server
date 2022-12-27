@@ -6,7 +6,7 @@ const limitService = require('../service/limit_service')
 class OfferController {
 
     async create(req, res, next) {
-        let { formData } = req.body
+        let { language,formData } = req.body
 
         let {
             userInfoId,
@@ -18,8 +18,8 @@ class OfferController {
         } = formData
         try {
 
-            await limitService.check_account_activated(carrierId)
-            await limitService.check_subscription(carrierId, '', 'offer')
+            await limitService.check_account_activated(language,carrierId)
+            await limitService.check_subscription(language,carrierId, '', 'offer')
 
             let offer = await Offer.create({
                 userInfoId,
@@ -30,7 +30,7 @@ class OfferController {
                 carrier_comment
             })
 
-            await limitService.increase(carrierId, '', 'offer')
+            await limitService.increase( language, carrierId, '', 'offer')
 
             return res.json(offer)
         } catch (e) {
