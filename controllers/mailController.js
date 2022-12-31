@@ -159,8 +159,8 @@ class MailController {
             if (mailFunction === 'order_type') {
                 mover_subject = translateService.setNativeTranslate(language,
                     {
-                        russian: ['Вы преобразовали', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, в, order.order_type === 'order' ? 'аукцион' : 'заказ'],
-                        english: ['You converted', order.order_type === 'order' ? 'order' : 'auction', order.id, в, order.order_type === 'order' ? 'to an auction' : 'to an order'],
+                        russian: ['Вы преобразовали', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, 'в', order.order_type === 'order' ? 'аукцион' : 'заказ'],
+                        english: ['You converted', order.order_type === 'order' ? 'order' : 'auction', order.id, 'to', order.order_type === 'order' ? 'to an auction' : 'to an order'],
                     }
                 )
                 mover_text = response_will_not_be_read

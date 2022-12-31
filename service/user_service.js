@@ -86,7 +86,7 @@ class UserService {
             const activationLink = v4()
             await User.update({ email, activationLink, isActivated: false }, { where: { id: userId } })
             const user = await User.findOne({ where: { id: userId } })
-            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
             const userDto = new UserDTO(user)
             const tokens = await tokenService.generateTokens({ ...userDto })
             await tokenService.saveToken(userDto.id, tokens.refreshToken)
