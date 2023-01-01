@@ -445,9 +445,9 @@ module.exports = async function () {
     for (const row of countries) {
         let checkItem = await Country.findOne({ where: { value: row.value } })
         if (checkItem) {
-            await Country.update({ default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance }, { where: { value: row.value }, country_code_iso3: row.country_code_iso3, sector:row.sector })
+            await Country.update({ default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance ,country_code_iso3: row.country_code_iso3, sector: row.sector, google_language: row.google_language  }, { where: { value: row.value }})
         } else {
-            await Country.create({ value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance, country_code_iso3: row.country_code_iso3, sector:row.sector })
+            await Country.create({ value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance, country_code_iso3: row.country_code_iso3, sector: row.sector, google_language: row.google_language })
         }
     }
 
