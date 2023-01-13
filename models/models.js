@@ -6,14 +6,17 @@ const User = sequelize.define('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     email: { type: DataTypes.STRING, unique: true, require: true },
     password: { type: DataTypes.STRING, require: true },
+    country: { type: DataTypes.STRING, require: true },
     isActivated: { type: DataTypes.BOOLEAN, defaultValue: false },
     isModerated: { type: DataTypes.BOOLEAN, defaultValue: false },
     isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },
     activationLink: { type: DataTypes.STRING },
     emailRecoveryCode: { type: DataTypes.STRING },
     role: { type: DataTypes.STRING },
-    cookies_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
+    user_agreement_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
     privacy_policy_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
+    cookies_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
+    age_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
 })
 
 const Token = sequelize.define('token', {
@@ -153,7 +156,7 @@ const Order = sequelize.define('order', {
     thermo_van: { type: DataTypes.BOOLEAN },
 
     country: { type: DataTypes.STRING },
-    city: { type: DataTypes.STRING },//убрать после перехода на стартовую и финишную точку
+    city: { type: DataTypes.STRING },//remove after moving to the start and finish points
 
     start_lat: { type: DataTypes.DECIMAL },
     start_lng: { type: DataTypes.DECIMAL },
@@ -265,7 +268,7 @@ const NotificationState = sequelize.define('notification_state', {
     order_state: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
     point_state: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
     offer_state: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
-    partner_state: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) }// сделать отслеживание добавления партнером
+    partner_state: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },// make add tracking partner
 })
 
 const UserAppState = sequelize.define('user_app_state', {
@@ -288,13 +291,12 @@ const UserAppLimit = sequelize.define('user_app_limit', {
     customer_new_order_point_limit: { type: DataTypes.INTEGER, defaultValue: 5 },
     carrier_take_order_city_limit: { type: DataTypes.INTEGER, defaultValue: 0 },
 
-    carrier_block_rating: { type: DataTypes.INTEGER, defaultValue: 2 },// при попытке действий из подписки чекаем дополнительно и кидаеи ошибку до ошибки подписки
-    customer_block_rating: { type: DataTypes.INTEGER, defaultValue: 2 },// при попытке действий из подписки чекаем дополнительно и кидаеи ошибку  до ошибки подписки
+    carrier_block_rating: { type: DataTypes.INTEGER, defaultValue: 2 },// when trying to take actions from a subscription, we check additionally and throw an error up to a subscription error
+    customer_block_rating: { type: DataTypes.INTEGER, defaultValue: 2 },// when trying to take actions from a subscription, we check additionally and throw an error up to a subscription error
     customer_critical_solvency: { type: DataTypes.INTEGER, defaultValue: 2 },
-    block_limit: { type: DataTypes.INTEGER, defaultValue: 2 },// сколько раз после блокировки возобнавляем работу через перерыв
-    block_interval: { type: DataTypes.INTEGER, defaultValue: 2 },// сколько в днях длится одна блокировка
+    block_limit: { type: DataTypes.INTEGER, defaultValue: 2 },//how many times after blocking we resume work after a break
+    block_interval: { type: DataTypes.INTEGER, defaultValue: 2 },// how many days does one block last
 })
-
 const UserAppSetting = sequelize.define('user_app_setting', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING, defaultValue: '' },
@@ -302,10 +304,10 @@ const UserAppSetting = sequelize.define('user_app_setting', {
 
     /*
         //notifications
-        carrier_new_orders_notification: { type: DataTypes.BOOLEAN, defaultValue: true },//при создании заказа в mail контроллере проверять нет ли такой настройки у кого то из получателей
+        carrier_new_orders_notification: { type: DataTypes.BOOLEAN, defaultValue: true },//when creating an order in the mail controller, check if one of the recipients has such a setting
         //partner rules
-        customer_fix_points_before_finish_order: { type: DataTypes.BOOLEAN, defaultValue: false },//когда перевозчик пытается завершить проверять есть ли у зкаказчика такая настройка
-        customer_show_orders_just_favorite_partners: { type: DataTypes.BOOLEAN, defaultValue: false },//применить функционал for_group
+        customer_fix_points_before_finish_order: { type: DataTypes.BOOLEAN, defaultValue: false },//when the carrier tries to complete check if the customer has such a setting
+        customer_show_orders_just_favorite_partners: { type: DataTypes.BOOLEAN, defaultValue: false },//apply functionality for_group
         //language
         language: { type: DataTypes.STRING, defaultValue: 'english' },
         //design
@@ -421,6 +423,20 @@ const Adress = sequelize.define('adress', {
     countryId: { type: DataTypes.INTEGER },
 })
 
+const SafetyOrderHash = sequelize.define('safety_order_hash', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    orderId: { type: DataTypes.INTEGER },
+    customer_data: { type: DataTypes.JSON },
+    carriier_data: { type: DataTypes.JSON },
+})
+
+const SafetyIpHash = sequelize.define('safety_ip_hash', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    userInfoId: { type: DataTypes.INTEGER },
+    ip: { type: DataTypes.STRING },
+})
+
+
 UserInfo.hasOne(LimitCounter)
 LimitCounter.belongsTo(UserInfo)
 
@@ -503,7 +519,8 @@ module.exports = {
     TransportLoadCapacity,
     UserAppLimit,
     City,
-    Adress
+    SafetyOrderHash,
+    SafetyIpHash
 }
 
 

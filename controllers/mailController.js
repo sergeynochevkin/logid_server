@@ -300,7 +300,7 @@ class MailController {
                     if (Array.isArray(orderId)) {
                         mover_subject = translateService.setNativeTranslate(language,
                             {
-                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', 'заказы', order.id],
+                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', 'заказы', order.map(el => el.id).sort().toString()],
                                 english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', 'orders', order.map(el => el.id).sort().toString()],
                             }
                         )
