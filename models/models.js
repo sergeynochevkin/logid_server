@@ -17,6 +17,7 @@ const User = sequelize.define('user', {
     privacy_policy_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
     cookies_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
     age_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
+    personal_data_agreement_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
 })
 
 const Token = sequelize.define('token', {
