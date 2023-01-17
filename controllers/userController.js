@@ -20,8 +20,8 @@ class UserController {
                     }
                 ), errors.array()))//at last
             }
-            const { email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted } = req.body
-            const userData = await userService.registration(email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted)
+            const { email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted } = req.body
+            const userData = await userService.registration(email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted,personal_data_agreement_accepted)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {

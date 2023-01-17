@@ -9,7 +9,7 @@ const translateService = require('../service/translate_service')
 
 class UserService {
 
-    async registration(email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted) {
+    async registration(email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted) {
         if (!email || !password) {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
@@ -18,7 +18,7 @@ class UserService {
                 }
             ))
         }
-        const candidate = await User.findOne({ where: { email} })
+        const candidate = await User.findOne({ where: { email } })
         if (candidate) {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
@@ -29,7 +29,7 @@ class UserService {
         }
         const hashPassword = await bcrypt.hash(password, 5)
         const activationLink = v4()
-        const user = await User.create({ email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted })
+        const user = await User.create({ email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
         await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })
