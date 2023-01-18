@@ -32,7 +32,7 @@ class UserService {
         const user = await User.create({ email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
         await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
        
-        await mailService.sendEmailToAdmin(`New ${role} registered`, '')
+        await mailService.sendEmailToAdmin(`New ${role} registered`, 'App notification')
        
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })
