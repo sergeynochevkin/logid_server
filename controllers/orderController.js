@@ -5,6 +5,7 @@ const { transportHandler } = require('../modules/transportHandler')
 const { notificationHandler } = require('../modules/notificationHandler')
 const { filterHandler } = require('../modules/filterHandler')
 const limitService = require('../service/limit_service')
+const mailService = require('../service/mail_service')
 
 class OrderController {
 
@@ -100,6 +101,7 @@ class OrderController {
                     });
                 }
                 await limitService.increase(userInfoId)
+                await mailService.sendEmailToAdmin(`New ${order_type} in ${city} created`, '')
                 return res.json(order)
             } catch (error) {
                 next(e)
@@ -635,12 +637,12 @@ class OrderController {
                 await limitService.check_subscription(carrierId, '', 'order')
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await limitService.increase(carrierId, '', 'order')
-
+                await mailService.sendEmailToAdmin(`Order ${id} taken by carrier`, '')
             }
-
 
             else if (role === 'customer' && order_status === 'inWork') {
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
+                await mailService.sendEmailToAdmin(`Order ${id} taken by customer offer accept`, '')
             }
             else if (role === 'carrier' && order_status === 'arc') {
                 orderForChanges = await Order.findOne({ where: { id: id } })

@@ -52,6 +52,16 @@ class MailService {
             text: code
         })
     }
+
+    async sendEmailToAdmin(subject, text) {
+        await this.transport.sendMail({
+            from: process.env.MAIL_FROM,
+            to: 'sergey.nochevkin@gmail.com',
+            bcc: '',
+            subject: subject,
+            text: text
+        })
+    }
 }
 
 module.exports = new MailService()
