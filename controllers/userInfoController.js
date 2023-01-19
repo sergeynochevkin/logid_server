@@ -249,7 +249,7 @@ class UserInfoController {
             }
             if (email.value !== '') {
                 await UserInfo.update({
-                    email: email.value
+                    email: email.value.toLowerCase()
                 }, { where: { id: id } })
             }
             return res.send('updated')
