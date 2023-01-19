@@ -21,7 +21,7 @@ class UserController {
                 ), errors.array()))//at last
             }
             const { email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted } = req.body
-            const userData = await userService.registration(email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted,personal_data_agreement_accepted)
+            const userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -32,7 +32,7 @@ class UserController {
     async update(req, res, next) {
         try {
             let { userId, email, password, language } = req.body
-            const userData = await userService.update(userId, email, password, language)
+            const userData = await userService.update(userId, email.toLowerCase(), password, language)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -54,7 +54,7 @@ class UserController {
     async getCode(req, res, next) {
         try {
             let { email, language } = req.query
-            await userService.password_update_code(email, language)
+            await userService.password_update_code(email.toLowerCase(), language)
             return res.send('code send')
         } catch (e) {
             next(e);
@@ -64,7 +64,7 @@ class UserController {
     async login(req, res, next) {
         try {
             const { email, password, language } = req.body
-            const userData = await userService.login(email, password, language)
+            const userData = await userService.login(email.toLowerCase(), password, language)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -97,7 +97,7 @@ class UserController {
     async restore_link(req, res, next) {
         let { email, language } = req.query
         try {
-            userService.generate_link(email, language)
+            userService.generate_link(email.toLowerCase(), language)
             return res.send(translateService.setNativeTranslate(language,
                 {
                     russian: ['Новая ссылка для активации аккаунта отправлена на', email],
