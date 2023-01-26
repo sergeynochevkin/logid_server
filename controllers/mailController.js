@@ -6,7 +6,43 @@ const { transportHandler } = require('../modules/transportHandler')
 const { types } = require('pg')
 const translateService = require('../service/translate_service')
 
+
 class MailController {
+
+    async sendCaptureFormMail(req, res, next) {
+        try {
+            let {
+                phone,
+                section,
+            } = req.body
+            const transport = nodemailer.createTransport({
+                host: process.env.MAIL_HOST,
+                port: process.env.MAIL_PORT,
+                secure: true,
+                auth: {
+                    user: process.env.MAIL_USER,
+                    pass: process.env.MAIL_PASS
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            })
+            const sendMail = (email, subject, text) => {
+                transport.sendMail({
+                    from: process.env.MAIL_FROM,
+                    to: email,
+                    subject: subject,
+                    html: `${text}`
+                })
+            }
+            await sendMail('support@logid.app', `New request from form capture, section ${section}`, `Phone: ${phone}`)
+            return res.send('mail sent')
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+
     async send(req, res, next) {
         try {
             let {
