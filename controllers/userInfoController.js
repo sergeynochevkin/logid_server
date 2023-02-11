@@ -60,7 +60,7 @@ class UserInfoController {
             })
 
             await NotificationState.create({ userInfoId: user_info.id })
-            await Subscription.create({ userInfoId: user_info.id, planId: 1, country: user_info.country })
+            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country })
             await UserAppState.create({ userInfoId: user_info.id })
             await UserAppLimit.create({ userInfoId: user_info.id })
             await LimitCounter.create({ userInfoId: user_info.id })
