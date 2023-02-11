@@ -2,6 +2,7 @@ const { UserInfo, UserInfoRating, NotificationState, Order, PartnerByGroup, Subs
 const ApiError = require('../exceptions/api_error')
 const { Op } = require("sequelize")
 const { v4 } = require("uuid")
+const timeService = require('../service/time_service')
 
 class UserInfoController {
     async create(req, res, next) {
@@ -59,8 +60,12 @@ class UserInfoController {
                 city_longitude,
             })
 
+            let initialTime = new Date();
+            initialTime.setHours(23, 59, 59, 0)
+            let paid_to = timeService.setTime(initialTime, 1440 * 365, 'form')
+
             await NotificationState.create({ userInfoId: user_info.id })
-            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country })
+            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })
             await UserAppState.create({ userInfoId: user_info.id })
             await UserAppLimit.create({ userInfoId: user_info.id })
             await LimitCounter.create({ userInfoId: user_info.id })
