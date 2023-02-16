@@ -20,6 +20,7 @@ const settingRouter = require('./settingRouter')
 const limitRouter = require('./limitRouter')
 const stateRouter = require('./stateRouter')
 const defaultDataRouter = require('./defaultDataRouter')
+const managementRouter = require('./managementRouter')
 
 router.use('/user', userRouter)
 router.use('/user_rating', userRatingRouter)
@@ -41,5 +42,7 @@ router.use('/setting', settingRouter)
 router.use('/limit', limitRouter)
 router.use('/state', stateRouter)
 router.use('/default_data', defaultDataRouter)
+
+router.use('/management', managementRouter)
 
 module.exports = router
