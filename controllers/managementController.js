@@ -32,9 +32,6 @@ class ManagementController {
             let transports = await Transport.findAll({})
 
             //clear that i dont need
-
-
-
             let handledUsers = []
             for (const user of users) {
                 let userPattern = {
@@ -54,7 +51,7 @@ class ManagementController {
                 let userInfo = { ...userInfos.find(el => el.userId === user.id) }
                 userPattern.user_info = { ...userInfo.dataValues }
                 if (user.role === 'carrier' && transports) {
-                    userPattern.transports = [...transports.filter(el => el.userId === userInfos.find(el => el.userId === user.id).id)]
+                    userPattern.transports = [...transports.filter(el => el.userInfoId === userInfos.find(el => el.userId === user.id).id)]
                 }
                 handledUsers.push(userPattern)
             }
