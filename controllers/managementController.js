@@ -1,4 +1,4 @@
-const { Transport, User } = require('../models/models')
+const { Transport, User, UserInfo } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 
 class ManagementController {
@@ -27,10 +27,39 @@ class ManagementController {
             //     thermo_van,
             // } = formData     
 
-            let users = await User.findAll({
-            })
+            let users = await User.findAll({})
+            let userInfos = await UserInfo.findAll({})
+            let transports = await Transport.findAll({})
 
-            return res.json(users)
+            //clear that i dont need
+
+
+
+            let handledUsers = []
+            for (const user of users) {
+                let userPattern = {
+                    id:undefined,
+                    email: '',
+                    role: '',
+                    created_at: '',
+                    //maybe more
+                    user_info: {},
+                    transports: [],
+                }
+                //add what i need
+                userPattern.id = user.id
+                userPattern.email = user.email
+                userPattern.role = user.role
+                userPattern.created_at = user.created_at
+                let userInfo = { ...userInfos.find(el => el.userId === user.id) }
+                userPattern.user_info = { ...userInfo.dataValues }
+                if (user.role === 'carrier' && transports) {
+                    userPattern.transports = [...transports.filter(el => el.userId === userInfos.find(el => el.userId === user.id).id)]
+                }
+                handledUsers.push(userPattern)
+            }
+
+            return res.json(handledUsers)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
