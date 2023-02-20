@@ -1,5 +1,6 @@
 const { Transport, User, UserInfo } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
+const { Op, where } = require("sequelize")
 
 class ManagementController {
 
@@ -27,7 +28,9 @@ class ManagementController {
             //     thermo_van,
             // } = formData     
 
-            let users = await User.findAll({})
+            let { userId } = req.query
+
+            let users = await User.findAll({ where: { id: { [Op.ne]: userId } } })
             let userInfos = await UserInfo.findAll({})
             let transports = await Transport.findAll({})
 
