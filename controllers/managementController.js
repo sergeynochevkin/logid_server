@@ -32,8 +32,9 @@ class ManagementController {
                 userPattern.created_at = user.created_at
                 let userInfo = userInfos.find(el => el.userId === user.id)
                 userPattern.user_info = { ...userInfo.dataValues }
+                let id = userInfo.dataValues.id
                 if (user.role === 'carrier' && transports) {
-                    userPattern.transports = [...transports.filter(el => el.userInfoId === userPattern.user_info.id)]
+                    userPattern.transports = [...transports.filter(el => el.userInfoId === id)]
                 }
                 handledUsers.push(userPattern)
             }
