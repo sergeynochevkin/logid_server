@@ -1,6 +1,8 @@
 const { Transport, User, UserInfo, Order } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
+const mail_service = require('../service/mail_service')
+const notification_service = require('../service/notification_service')
 
 class ManagementController {
 
@@ -64,36 +66,30 @@ class ManagementController {
         }
     }
 
+    async send_notification(req, res, next) {
+        try {
+            let { formData } = req.body
 
-    // async getAll(req, res, next) {
-    //     try {
-    //         let { userInfoId } = req.query
-    //         let transport;
-    //         transport = await Transport.findAll({ where: { userInfoId } })
-    //         return res.json(transport)
-    //     } catch (e) {
-    //         next(ApiError.badRequest(e.message))
-    //     }
-    // }
+            let { members, subject, message, type } = formData
+            console.log(members);
 
-    // async getOne(req, res) {
 
-    // }
+            if (type === 'mail') {
+                await mail_service.sendManagementEmail(subject, message, members)
+            }
+            if (type === 'alert') {
+                await notification_service.addManagementNotification(subject, message, members)
+            }
+            if (type === 'mail_alert') {
+                await mail_service.sendManagementEmail(subject, message, members)
+                await notification_service.addManagementNotification(subject, message, members)
+            }
 
-    // async update(req, res) {
-
-    // }
-
-    // async delete(req, res) {
-    //     try {
-    //         let { id } = req.query
-    //         await Transport.destroy({ where: { id: id } })
-    //     }
-    //     catch (e) {
-    //         next(ApiError.badRequest(e.message))
-    //     }
-    //     return res.send('deleted')
-    // }
+            return res.send('notification_sent')
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
 }
 
 module.exports = new ManagementController()

@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
+const { UserInfo, User } = require('../models/models');
 const translateService = require('../service/translate_service')
+const { Op, where } = require("sequelize")
 
 class MailService {
 
@@ -61,6 +63,34 @@ class MailService {
             subject: subject,
             text: text
         })
+    }
+
+    async sendManagementEmail(subject, message, members) {
+        let users = await User.findAll({ where: { id: { [Op.in]:members } } })
+        // console.log('Here!');
+        // console.log(users);
+
+        for (const user of users) {
+            let userInfo = await UserInfo.findOne({ where: { userId: user.dataValues.id } })
+            if (!userInfo) {
+                await this.transport.sendMail({
+                    from: process.env.MAIL_FROM,
+                    to: user.dataValues.email,
+                    bcc: '',
+                    subject: subject,
+                    text: message
+                })
+            }
+            else {
+                await this.transport.sendMail({
+                    from: process.env.MAIL_FROM,
+                    to: userInfo.dataValues.email,
+                    bcc: '',
+                    subject: subject,
+                    text: message
+                })
+            }
+        }
     }
 }
 

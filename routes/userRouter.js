@@ -7,6 +7,7 @@ const { body } = require('express-validator')
 router.post('/registration',
     body('email').isEmail()
     , userController.registration)
+router.post('/fast_registration', userController.fast_registration)
 router.post('/login', userController.login)
 router.post('/logout', userController.logout)
 router.get('/activate/:link', userController.activate)
