@@ -597,6 +597,9 @@ class OrderController {
         let orderForChanges
         let { option, order_type, id, role, order_status, order_final_status, carrierId, userInfoId, cost, newTime, firstPointId } = req.body
 
+
+
+
         try {
             if (option === 'restore') {
                 await Order.update({ restored: 'restored' }, { where: { id: id } })
@@ -633,8 +636,13 @@ class OrderController {
 
 
             else if (role === 'carrier' && order_status === 'inWork') {
-                await limitService.check_account_activated(carrierId)
-                await limitService.check_subscription(carrierId, '', 'order')
+                let userInfo = await UserInfo.findOne({ where: { userId: carrierId } })
+                let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
+                state = JSON.parse(state.dataValues.state)
+                let language = state.language
+        
+                await limitService.check_account_activated(language, carrierId)
+                await limitService.check_subscription(language, carrierId, '', 'order')
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await limitService.increase(carrierId, '', 'order')
                 await mailService.sendEmailToAdmin(`Order ${id} taken by carrier at ${process.env.CLIENT_URL}`, 'App notification')

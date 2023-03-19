@@ -211,76 +211,76 @@ class UserInfoController {
                 company_adress_longitude
             } = formData
 
-            if (country.value !== '') {
+            if (country && country.value !== '') {
                 await UserInfo.update({
                     country: country.value
                 }, { where: { id: id } })
             }
-            if (city.value !== '') {
+            if (city && city.value !== '') {
                 await UserInfo.update({
                     city: city.value,
                     city_latitude,
                     city_longitude
                 }, { where: { id: id } })
             }
-            if (phone.value !== '') {
+            if (phone && phone.value !== '') {
                 await UserInfo.update({
                     phone: phone.value
                 }, { where: { id: id } })
             }
-            if (type_of_customer.value !== '') {
+            if (type_of_customer && type_of_customer.value !== '') {
                 await UserInfo.update({
                     type_of_customer: type_of_customer.value
                 }, { where: { id: id } })
             }
-            if (name_surname_fathersname.value !== '') {
+            if (name_surname_fathersname && name_surname_fathersname.value !== '') {
                 await UserInfo.update({
                     name_surname_fathersname: name_surname_fathersname.value
                 }, { where: { id: id } })
             }
-            if (company_inn.value !== '') {
+            if (company_inn && company_inn.value !== '') {
                 await UserInfo.update({
                     company_inn: company_inn.value
                 }, { where: { id: id } })
             }
-            if (website.value !== '') {
+            if (website && website.value !== '') {
                 await UserInfo.update({
                     website: website.value
                 }, { where: { id: id } })
             }
-            if (company_name.value !== '') {
+            if (company_name && company_name.value !== '') {
                 await UserInfo.update({
                     company_name: company_name.value
                 }, { where: { id: id } })
             }
-            if (company_adress.value !== '') {
+            if (company_adress && company_adress.value !== '') {
                 await UserInfo.update({
                     company_adress: company_adress.value,
                     company_adress_latitude,
                     company_adress_longitude
                 }, { where: { id: id } })
             }
-            if (passport_number.value !== '') {
+            if (passport_number && passport_number.value !== '') {
                 await UserInfo.update({
                     passport_number: passport_number.value
                 }, { where: { id: id } })
             }
-            if (passport_date_of_issue.value !== '') {
+            if (passport_date_of_issue && passport_date_of_issue.value !== '') {
                 await UserInfo.update({
                     passport_date_of_issue: passport_date_of_issue.value
                 }, { where: { id: id } })
             }
-            if (passport_issued_by.value !== '') {
+            if (passport_issued_by && passport_issued_by.value !== '') {
                 await UserInfo.update({
                     passport_issued_by: passport_issued_by.value
                 }, { where: { id: id } })
             }
-            if (legal.value !== '') {
+            if ( legal && legal.value !== '') {
                 await UserInfo.update({
                     legal: legal.value
                 }, { where: { id: id } })
             }
-            if (email.value !== '') {
+            if (email && email.value !== '') {
                 await UserInfo.update({
                     email: email.value.toLowerCase()
                 }, { where: { id: id } })
