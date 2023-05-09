@@ -29,8 +29,8 @@ class AdController {
                     ]
                 }
             })
-            let customers_count = users.filter(el => el.role === 'customer').length
-            let carriers_count = users.filter(el => el.role === 'carrier').length
+            let customers_count = users.filter(el => el.role === 'customer').length + 112
+            let carriers_count = users.filter(el => el.role === 'carrier').length + 150
 
             let finished_orders = await Order.findAll({ where: { order_status: 'completed' } })
             let finished_orders_count = finished_orders.length + 987
