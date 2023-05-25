@@ -1,4 +1,4 @@
-const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState } = require('../models/models')
+const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const { transportHandler } = require('../modules/transportHandler')
@@ -640,7 +640,7 @@ class OrderController {
                 let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
                 state = JSON.parse(state.dataValues.state)
                 let language = state.language
-        
+
                 await limitService.check_account_activated(language, carrierId)
                 await limitService.check_subscription(language, carrierId, '', 'order')
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
@@ -781,6 +781,19 @@ class OrderController {
         }
         return res.send('deleted')
     }
+
+    async set_viewed(req, res, next) {
+        try {
+            //set viewed logics
+            let { orderId, userInfoId } = req.body
+            await OrderViewed.create({ orderId, userInfoId })
+        }
+        catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+        return res.send('view has been set')
+    }
+
 
 
     // use to display in the order and disable the delete group button if there are orders that are available to the group

@@ -424,6 +424,12 @@ const Adress = sequelize.define('adress', {
     countryId: { type: DataTypes.INTEGER },
 })
 
+const OrderViewed = sequelize.define('order_viewed', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    orderId: { type: DataTypes.INTEGER },
+    userInfoId: { type: DataTypes.INTEGER },
+})
+
 const SafetyOrderHash = sequelize.define('safety_order_hash', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     orderId: { type: DataTypes.INTEGER },
@@ -521,7 +527,8 @@ module.exports = {
     UserAppLimit,
     City,
     SafetyOrderHash,
-    SafetyIpHash
+    SafetyIpHash,
+    OrderViewed
 }
 
 
