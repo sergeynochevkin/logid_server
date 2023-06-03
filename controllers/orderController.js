@@ -134,6 +134,7 @@ class OrderController {
                 rows: [],
                 map_rows: [],
                 added: {},
+                views: []
             }
 
             let orderForPoints
@@ -211,7 +212,6 @@ class OrderController {
                     offset: 0,
                     // limit: filters[order_status].limit
                 })
-                console.log(JSON.stringify(order));
             }
 
             else if (role === 'customer') {
@@ -570,10 +570,14 @@ class OrderController {
 
             order.rows = order.rows.splice(0, filters[order_status].limit)
 
+            if (order_status === 'new' || order_status === 'postponed') {
+                let views = await OrderViewed.findAll({ where: { orderId: order.rows.map(el => el.id) } })
+                order.views = views
+            }
+
             return res.json(order)
 
         } catch (e) {
-            console.log(e);
             next(ApiError.badRequest(e.message))
         }
     }
