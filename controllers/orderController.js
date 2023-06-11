@@ -798,6 +798,20 @@ class OrderController {
         return res.send('view has been set')
     }
 
+    async clear_viewed(req, res, next) {
+        try {
+            //set clear viewed logics
+            let { orderId } = req.body
+            await OrderViewed.destroy({ where: { orderId } })
+        }
+        catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+        return res.send('views cleared')
+    }
+
+
+
 
 
     // use to display in the order and disable the delete group button if there are orders that are available to the group

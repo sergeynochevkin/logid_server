@@ -12,5 +12,6 @@ router.post('/edit', orderController.edit)
 router.delete('/delete_order', orderController.delete)
 
 router.post('/set_viewed', orderController.set_viewed)
+router.post('/clear_viewed', orderController.clear_viewed)
 
 module.exports = router
