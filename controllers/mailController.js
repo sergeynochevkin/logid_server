@@ -95,9 +95,9 @@ class MailController {
                     bcc: group ? group : [],
                     subject: subject,
                     html: `<div>${text}</div>
-                    ${link && `<div>
-                    <a href="${link}">${link}</a>
-                    </div>`} 
+                    ${link ? `<div>
+                    <a href="${link}">${link && link}</a>
+                    </div>` : ''} 
                     `
                 })
             }
