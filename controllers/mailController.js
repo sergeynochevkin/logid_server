@@ -88,13 +88,17 @@ class MailController {
             )
 
 
-            const sendMail = (email, subject, text, order, group) => {
+            const sendMail = (email, subject, text, order, group, link) => {
                 transport.sendMail({
                     from: process.env.MAIL_FROM,
                     to: email ? email : [],
                     bcc: group ? group : [],
                     subject: subject,
-                    html: `${text}`
+                    html: `<div>${text}</div>
+                    ${link && `<div>
+                    <a href="${link}">${link}</a>
+                    </div>`} 
+                    `
                 })
             }
             if (!Array.isArray(orderId)) {
@@ -185,10 +189,19 @@ class MailController {
                         }
                     )
                 }
-                allMembers_text = response_will_not_be_read
+
+
+                let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+
+                allMembers_text = translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Ссылка на', order.order_type === 'order' ? 'заказ' : 'аукцион'],
+                        english: ['Link to', order.order_type === 'order' ? 'order' : 'auction'],
+                    }
+                )
 
                 if (allWhoHaveTransport.length > 0) {
-                    await sendMail([], allMembers_subject, allMembers_text, order, allWhoHaveTransport)
+                    await sendMail([], allMembers_subject, allMembers_text, order, allWhoHaveTransport, link)
                 }
             }
             // mass processing is not planned
@@ -211,9 +224,18 @@ class MailController {
                         }
                     )
 
-                    member_text = response_will_not_be_read
+                    let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+
+                    member_text = order.order_status === 'postponed' ? response_will_not_be_read : translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Ссылка на', order.order_type === 'order' ? 'заказ' : 'аукцион'],
+                            english: ['Link to', order.order_type === 'order' ? 'order' : 'auction'],
+                        }
+                    )
+
+
                     allWhoProposed = allWhoProposed.map(el => el.email).toString()
-                    await sendMail([], member_subject, member_text, order, allWhoProposed)
+                    await sendMail([], member_subject, member_text, order, allWhoProposed, link)
                 }
             }
             // mass processing is not planned
@@ -249,7 +271,15 @@ class MailController {
                         }
                     )
 
-                    member_text = response_will_not_be_read
+                    let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+
+                    member_text = translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Ссылка на', order.order_type === 'order' ? 'заказ' : 'аукцион'],
+                            english: ['Link to', order.order_type === 'order' ? 'order' : 'auction'],
+                        }
+                    )
+
 
                     allMembers_subject = translateService.setNativeTranslate(language,
                         {
@@ -259,6 +289,7 @@ class MailController {
                     )
 
                     allMembers_text = response_will_not_be_read
+
                     if (role === 'customer') {
                         member = allWhoProposed.find(el => el.id === noPartnerId)
                         if (allWhoProposed.length > 1) {
@@ -268,7 +299,7 @@ class MailController {
                     }
                     await sendMail(mover.email, mover_subject, mover_text, order)
                     if (member) {
-                        await sendMail(member.email, member_subject, member_text, order)
+                        await sendMail(member.email, member_subject, member_text, order, link)
                     }
                 }
                 // mass processing of orders is not in progress and is not planned
@@ -353,11 +384,21 @@ class MailController {
                                 }
                             )
                         }
-                        member_text = response_will_not_be_read
+
+                        let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+
+                        member_text = option !== 'new' ? response_will_not_be_read : translateService.setNativeTranslate(language,
+                            {
+                                russian: ['Ссылка на', order.order_type === 'order' ? 'заказ' : 'аукцион'],
+                                english: ['Link to', order.order_type === 'order' ? 'order' : 'auction'],
+                            }
+                        )
+
+
                         if (allWhoProposed) {
                             if (allWhoProposed.length > 0 && option !== 'arc') {
                                 allWhoProposed = allWhoProposed.map(el => el.email).toString()
-                                await sendMail(allWhoProposed, member_subject, member_text, order)
+                                await sendMail(allWhoProposed, member_subject, member_text, order, link)
                             }
                         }
                     }
