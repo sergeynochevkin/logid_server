@@ -3,7 +3,7 @@ const userService = require('../service/user_service')
 const translateService = require('../service/translate_service')
 const { validationResult } = require('express-validator')
 const ApiError = require('../exceptions/api_error')
-const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting,SubscriptionOption, SubscriptionOptionsByPlan } = require('../models/models')
+const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, SubscriptionOption, SubscriptionOptionsByPlan } = require('../models/models')
 const time_service = require('../service/time_service')
 const { Op } = require('sequelize')
 
@@ -44,6 +44,7 @@ class UserController {
             }
             const {
                 language,
+                phone,
                 email,
                 password,
                 role,
@@ -72,7 +73,7 @@ class UserController {
 
 
             let userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
-            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email })
+            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone })
 
             //defaults copy from userinfo controller
             let initialTime = new Date();
@@ -84,9 +85,9 @@ class UserController {
             await UserAppState.create({ userInfoId: user_info.id })
             await UserAppLimit.create({ userInfoId: user_info.id })
             await LimitCounter.create({ userInfoId: user_info.id })
-       
+
             let currentTime = new Date()
-            let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId:6 } })
+            let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId: 6 } })
             optionsByPlan = optionsByPlan.map(el => el.optionId)
             let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: user_info.country } })
 
@@ -109,7 +110,7 @@ class UserController {
                 customer_new_order_point_limit = customer_new_order_point_limit.limit
                 await UserAppLimit.update({ customer_create_order_limit_per_day, customer_new_order_range, customer_new_order_point_limit }, { where: { userInfoId: user_info.id } })
                 await LimitCounter.update({ customer_create_amount_per_day: 0, customer_create_started: currentTime }, { where: { userInfoId: user_info.id } })
-            }           
+            }
 
             let userAppSettingsDefaultList = [
                 { name: 'Уведомлять о новых заказах на email', value: true, role: 'carrier' },
