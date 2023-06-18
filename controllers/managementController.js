@@ -11,7 +11,7 @@ class ManagementController {
         try {
 
             let { userId } = req.query
-            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com'] } } })
+            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com', 'sergey.nochevkin@outlook.com'] } } })
             let userInfos = await UserInfo.findAll({})
             let transports = await Transport.findAll({})
 

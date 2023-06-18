@@ -27,7 +27,7 @@ class AdController {
                         { role: 'carrier' },
                         { role: 'customer' }
                     ],
-                    email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com']}
+                    email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com', 'sergey.nochevkin@outlook.com']}
                 }
             })
             let customers_count = users.filter(el => el.role === 'customer').length + 112
