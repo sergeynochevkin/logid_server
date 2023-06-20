@@ -81,6 +81,7 @@ class MailController {
             let member_text
             let allMembers_subject
             let allMembers_text
+            let link
 
 
             let response_will_not_be_read = translateService.setNativeTranslate(language,
@@ -195,7 +196,7 @@ class MailController {
                 }
 
 
-                let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
 
                 allMembers_text = translateService.setNativeTranslate(language,
                     {
@@ -243,12 +244,12 @@ class MailController {
 
                     member_subject = translateService.setNativeTranslate(language,
                         {
-                            russian: [order.order_type === 'order' ? 'заказ' : 'аукцион', order.id, 'по которому вы делали предложение', option === 'order' ? 'преобразован в заказ' : 'преобразован в аукцион', order.order_status === 'postponed' ? 'но отложен' : 'вы можете взять в работу на текущих условиях', order.order_status === 'postponed' && 'когда заказчик его отправит'],
-                            english: ['The', order.order_type === 'order' ? 'order' : 'auction', order.id, 'for which you made an offer has been converted into an', order.order_type === 'order' ? 'auction' : 'order', order.order_status === 'postponed' ? 'but has been postponed' : 'you can take an order on current terms', order.order_status === 'postponed' && 'you can take it to work when the customer sends it'],
+                            russian: [order.order_type === 'order' ? 'Заказ' : 'Аукцион', order.id, 'по которому вы делали предложение', option === 'order' ? 'преобразован в заказ' : 'преобразован в аукцион', order.order_status === 'postponed' ? 'но отложен' : '', order.order_type === 'auction' ? 'вы можете взять в работу на текущих условиях' : '', order.order_status === 'postponed' ? 'когда заказчик его отправит' : ''],
+                            english: ['The', order.order_type === 'order' ? 'order' : 'auction', order.id, 'for which you made an offer has been converted into an', order.order_type === 'order' ? 'auction' : 'order', order.order_status === 'postponed' ? 'but has been postponed' : '', order.order_type === 'auction' ? 'you can take an order on current terms' : '', order.order_status === 'postponed' ? 'you can take it to work when the customer sends it' : ''],
                         }
                     )
 
-                    let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                    link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
 
                     member_text = order.order_status === 'postponed' ? response_will_not_be_read : translateService.setNativeTranslate(language,
                         {
@@ -295,7 +296,15 @@ class MailController {
                         }
                     )
 
-                    let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                    link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status='inWork'`
+
+                    let member_text_sms = translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Ваше ппедложение принято', link],
+                            english: ['Your proposal has been taken', link]
+                        }
+                    )
+
 
                     member_text = translateService.setNativeTranslate(language,
                         {
@@ -323,7 +332,10 @@ class MailController {
                     }
                     await sendMail(mover.email, mover_subject, mover_text, order)
                     if (member) {
-                        await sendMail(member.email, member_subject, member_text, order, link)
+                        await sendMail(member.email, member_subject, member_text, order, [], link)
+                        if (member.phone !== '' && member.country === 'russia') {
+                            await smsService.sendSms(member.phone, member_text_sms)
+                        }
                     }
                 }
                 // mass processing of orders is not in progress and is not planned
@@ -409,7 +421,7 @@ class MailController {
                             )
                         }
 
-                        let link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                        link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
 
                         member_text = option !== 'new' ? response_will_not_be_read : translateService.setNativeTranslate(language,
                             {
@@ -422,7 +434,7 @@ class MailController {
                         if (allWhoProposed) {
                             if (allWhoProposed.length > 0 && option !== 'arc') {
                                 allWhoProposed = allWhoProposed.map(el => el.email).toString()
-                                await sendMail(allWhoProposed, member_subject, member_text, order, link)
+                                await sendMail(allWhoProposed, member_subject, member_text, order, [], link)
                             }
                         }
                     }
@@ -430,6 +442,16 @@ class MailController {
                     if (Array.isArray(orderId)) {
                         member_text = response_will_not_be_read
                         order.forEach(async order => {
+
+                            link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+
+                            member_text = option !== 'new' ? response_will_not_be_read : translateService.setNativeTranslate(language,
+                                {
+                                    russian: ['Ссылка на', order.order_type === 'order' ? 'заказ' : 'аукцион'],
+                                    english: ['Link to', order.order_type === 'order' ? 'order' : 'auction'],
+                                }
+                            )
+
                             offers = await Offer.findAll({ where: { orderId: order.id } })
                             if (offers.length > 0) {
                                 offers = offers.map(el => el.carrierId)
@@ -437,13 +459,13 @@ class MailController {
 
                                 member_subject = translateService.setNativeTranslate(language,
                                     {
-                                        russian: [`Аукцион`, order.id, 'по которомы вы делали предложение', option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''],
+                                        russian: [`Аукцион`, order.id, 'по которому вы делали предложение', option === 'canceled' ? 'отменен' : option === 'postponed' ? 'отложен' : option === 'new' ? 'снова отправлен' : ''],
                                         english: ['The auction', order.id, 'for which you made an offer', option === 'canceled' ? 'was canceled' : option === 'postponed' ? 'was postponed' : option === 'new' ? 'has been sent again' : ''],
                                     }
                                 )
 
                                 allWhoProposed = allWhoProposed.map(el => el.email).toString()
-                                await sendMail(allWhoProposed, member_subject, member_text, order)
+                                await sendMail(allWhoProposed, member_subject, member_text, order, [], option === 'new' ? link : '')
                             }
                         })
                     }

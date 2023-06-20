@@ -30,7 +30,7 @@ class OfferController {
                 carrier_comment
             })
 
-            await limitService.increase( language, carrierId, '', 'offer')
+            await limitService.increase(  carrierId, '', 'offer')
 
             return res.json(offer)
         } catch (e) {
