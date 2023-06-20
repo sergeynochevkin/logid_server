@@ -196,7 +196,7 @@ class MailController {
                 }
 
 
-                link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                link = `${process.env.CLIENT_URL}?o_i=${order.id}&&o_s=${order.order_status}`
 
                 allMembers_text = translateService.setNativeTranslate(language,
                     {
@@ -249,7 +249,7 @@ class MailController {
                         }
                     )
 
-                    link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                    link = `${process.env.CLIENT_URL}?o_i=${order.id}&&o_s=${order.order_status}`
 
                     member_text = order.order_status === 'postponed' ? response_will_not_be_read : translateService.setNativeTranslate(language,
                         {
@@ -296,11 +296,11 @@ class MailController {
                         }
                     )
 
-                    link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status='inWork'`
+                    link = `${process.env.CLIENT_URL}?o_i=${order.id}&&o_s='inWork'`
 
                     let member_text_sms = translateService.setNativeTranslate(language,
                         {
-                            russian: ['Ваше ппедложение принято', link],
+                            russian: ['Предложение принято', link],
                             english: ['Your proposal has been taken', link]
                         }
                     )
@@ -421,7 +421,7 @@ class MailController {
                             )
                         }
 
-                        link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                        link = `${process.env.CLIENT_URL}?o_i=${order.id}&&o_s=${order.order_status}`
 
                         member_text = option !== 'new' ? response_will_not_be_read : translateService.setNativeTranslate(language,
                             {
@@ -443,7 +443,7 @@ class MailController {
                         member_text = response_will_not_be_read
                         order.forEach(async order => {
 
-                            link = `${process.env.CLIENT_URL}?order_id=${order.id}&&order_status=${order.order_status}`
+                            link = `${process.env.CLIENT_URL}?o_i=${order.id}&&o_s=${order.order_status}`
 
                             member_text = option !== 'new' ? response_will_not_be_read : translateService.setNativeTranslate(language,
                                 {
