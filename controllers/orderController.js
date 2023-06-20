@@ -780,8 +780,8 @@ class OrderController {
             let orderForViews
             //destroy views
             orderForViews = await Order.findOne({ where: { pointsIntegrationId: pointsIntegrationId } })
-            console.log(JSON.stringify(orderForViews));
             await OrderViewed.destroy({ where: { orderId: orderForViews.id } })
+            await Offer.destroy({ where: { orderId: orderForViews.id } })
             await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })
             await Point.destroy({ where: { orderIntegrationId: pointsIntegrationId } })
         }

@@ -5,6 +5,8 @@ const { Op } = require("sequelize")
 const { transportHandler } = require('../modules/transportHandler')
 const { types } = require('pg')
 const translateService = require('../service/translate_service')
+const smsService = require('../service/sms_service')
+
 
 
 class MailController {
@@ -72,6 +74,7 @@ class MailController {
             let transports
             let allWhoProposed
             let allWhoHaveTransport
+            let userInfos
             let mover_subject
             let mover_text
             let member_subject
@@ -161,14 +164,15 @@ class MailController {
                 transports = transports.map(el => el.userInfoId)
 
                 if (!Array.isArray(orderId)) {
-                    allWhoHaveTransport = await UserInfo.findAll({ where: { id: { [Op.in]: transports }, city: order.city } })
+                    userInfos = await UserInfo.findAll({ where: { id: { [Op.in]: transports }, city: order.city } })
                 }
 
                 // here it was possible not to divide, but suddenly transport will be needed in the future for mass processing
                 if (Array.isArray(orderId)) {
-                    allWhoHaveTransport = await UserInfo.findAll({ where: { id: { [Op.in]: transports }, city: { [Op.in]: order.map(el => el.city) } } })
+                    userInfos = await UserInfo.findAll({ where: { id: { [Op.in]: transports }, city: { [Op.in]: order.map(el => el.city) } } })
                 }
-                allWhoHaveTransport = allWhoHaveTransport.map(el => el.email).toString()
+
+                allWhoHaveTransport = userInfos.map(el => el.email).toString()
 
                 if (!Array.isArray(orderId)) {
 
@@ -200,10 +204,30 @@ class MailController {
                     }
                 )
 
+
+                let allMembers_text_sms = translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Новый', order.order_type === 'order' ? 'заказ' : 'аукцион', link],
+                        english: ['New', order.order_type === 'order' ? 'order' : 'auction', link]
+                    }
+                )
+
                 if (allWhoHaveTransport.length > 0) {
                     await sendMail([], allMembers_subject, allMembers_text, order, allWhoHaveTransport, link)
                 }
+
+                if (userInfos.length > 0) {
+                    for (const user of userInfos) {
+                        if (user.country === 'russia' && user.phone !== '') {
+                            //user.phone prepare when reg or put or update
+                            let to = user.phone
+                            await smsService.sendSms(to, allMembers_text_sms)
+                        }
+                    }
+                }
+
             }
+
             // mass processing is not planned
             if (mailFunction === 'order_type') {
                 mover_subject = translateService.setNativeTranslate(language,

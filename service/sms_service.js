@@ -3,7 +3,7 @@ const SMSru = require('sms_ru');
 class SmsService {
 
     constructor() {
-        this.sms = new SMSru('B8AA97C4-1BDE-87EF-25D8-2B5D81E586D6');
+        this.sms = new SMSru(process.env.SMS_RU_API_ID);
     }
 
     async sendSms(to, text) {
@@ -14,18 +14,20 @@ class SmsService {
               console.log(e.description);
         })
     }
-
+   
 }
 
 module.exports = new SmsService()
 
 // const smsService = require('../service/sms_service')
 
-// Отправка SMS:
+// smsService.sendSms('79118338221', 'Postupil novyj zakaz 5, podhodjashhij dlja vashego transporta. logid.app/?order_id=1&&order_status=inWork')
+
+// SMS send:
 
 // sms.sms_send({
 //   to: '79112223344',
-//   text: 'Текст SMS'
+//   text: 'SMS text'
 // }, function(e){
 //   console.log(e.description);
 // });
@@ -33,48 +35,48 @@ module.exports = new SmsService()
  
 // sms.sms_send({
 //   multi: [
-//     ['79112223344', 'Текст СМС'],
-//     ['79115556677', 'Текст СМС'],
-//     ['79115552255', 'Текст СМС']
+//     ['79112223344', 'SMS text'],
+//     ['79115556677', 'SMS text'],
+//     ['79115552255', 'SMS text']
 //   ], function(e){
 //     console.log(e.description);
 // });
 // Статус SMS:
 
 // sms.sms_status('SMS id', callback);
-// Стоимость SMS:
+//  SMS cost:
 
 // sms.sms_cost({
 //   to: '79112223344',
-//   text: 'Текст SMS'
+//   text: 'SMS text'
 // }, callback);
-// Баланс:
+// Balance:
 
 // sms.my_balance(function(e){
 //   console.log(e.balance);
 // })
-// Дневной лимит:
+// Day лимит:
 
 // sms.my_limit(function(e){
 //   console.log(e.current+' / '+e.total);
 // })
-// Отправители:
+// Movers:
 
 // sms.my_senders(function(e){
 //   console.log(e.senders);
 // })
-// Добавить номер в стоплист:
+// Add number to stoplist:
 
 // sms.stoplist_add({
 //   phone:'79112223344',
-//   text:'Примечание'
+//   text:'Comment'
 // }, callback)
-// Удалить номер из стоп-листа:
+// Stop_list delete:
 
 // sms.stoplist_del({
 //   phone:'79112223344',
 // }, callback)
-// Получить номера стоплиста:
+// Recieve stoplist:
 
 // sms.stoplist_get(function(e){
 //   console.log(e.stoplist);
