@@ -46,7 +46,7 @@ class UserService {
     }
 
     async registration_presets(user_info, userData) {
-        
+
         let initialTime = new Date();
         initialTime.setHours(23, 59, 59, 0)
         let paid_to = time_service.setTime(initialTime, 1440 * 365, 'form')
@@ -84,15 +84,8 @@ class UserService {
         }
 
         let userAppSettingsDefaultList = [
-            // { name: 'Уведомлять о новых заказах на email', value: true, role: 'carrier' }, - переименовать у действующих
-            // { name: 'Перевозчик должен завершить точки перед завершением заказа', value: false, role: 'customer' }, - удалить у действующих
-            // { name: 'Показывать новые заказы только партнерам из списка избранного', value: false, role: 'customer' }, - удалить у действующих
-            // { name: 'Темная тема приложения', value: false, role: 'both' }, - удалить у действующих
-            // { name: 'Мелкий шрифт приложения', value: false, role: 'both' }, - удалить у действующих
-            // { name: 'Компактный показ заказов', value: false, role: 'both' }, - удалить у действующих
-            // new settings
-            { name: 'sms_messaging', value: true, role: 'both' }, //- создать у действующих
-            { name: 'email_messaging', value: true, role: 'both' }, //- переименовать у действующих
+            { name: 'sms_messaging', value: true, role: 'both' },
+            { name: 'email_messaging', value: true, role: 'both' }
         ]
 
         userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')

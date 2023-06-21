@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Translation, SubscriptionPlan, SubscriptionOption, SubscriptionOptionsByPlan, Equipment, TransportLoadCapacity, TransportSideType, TransportType, Country } = require('../models/models')
+const { Translation, SubscriptionPlan, SubscriptionOption, SubscriptionOptionsByPlan, Equipment, TransportLoadCapacity, TransportSideType, TransportType, Country, UserInfo, UserAppSetting } = require('../models/models')
 
 module.exports = async function () {
     console.log('default data handler started...');
@@ -445,9 +445,22 @@ module.exports = async function () {
     for (const row of countries) {
         let checkItem = await Country.findOne({ where: { value: row.value } })
         if (checkItem) {
-            await Country.update({ default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance ,country_code_iso3: row.country_code_iso3, sector: row.sector, google_language: row.google_language  }, { where: { value: row.value }})
+            await Country.update({ default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance, country_code_iso3: row.country_code_iso3, sector: row.sector, google_language: row.google_language }, { where: { value: row.value } })
         } else {
             await Country.create({ value: row.value, default_language: row.default_language, google_code: row.google_code, currency: row.currency, weight: row.weight, distance: row.distance, country_code_iso3: row.country_code_iso3, sector: row.sector, google_language: row.google_language })
+        }
+    }
+
+    let userAppSettingsDefaultList = [
+        { name: 'sms_messaging', value: true, role: 'both' },
+        { name: 'email_messaging', value: true, role: 'both' }
+    ]
+
+    let userInfos = await UserInfo.findAll()
+
+    for (const userInfo of userInfos) {
+        for (const setting of userAppSettingsDefaultList) {
+            await UserAppSetting.findOrCreate({ where: { name: setting.name, userInfoId: userInfo.id}, defaults: { value: true  } })
         }
     }
 
