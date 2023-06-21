@@ -72,7 +72,7 @@ class UserInfoController {
             await LimitCounter.create({ userInfoId: user_info.id })
 
             let currentTime = new Date()
-            let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId:6 } })
+            let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId: 6 } })
             optionsByPlan = optionsByPlan.map(el => el.optionId)
             let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: user_info.country } })
 
@@ -98,12 +98,8 @@ class UserInfoController {
             }
 
             let userAppSettingsDefaultList = [
-                { name: 'Уведомлять о новых заказах на email', value: true, role: 'carrier' },
-                { name: 'Перевозчик должен завершить точки перед завершением заказа', value: false, role: 'customer' },
-                { name: 'Показывать новые заказы только партнерам из списка избранного', value: false, role: 'customer' },
-                { name: 'Темная тема приложения', value: false, role: 'both' },
-                { name: 'Мелкий шрифт приложения', value: false, role: 'both' },
-                { name: 'Компактный показ заказов', value: false, role: 'both' },
+                { name: 'sms_messaging', value: true, role: 'both' },
+                { name: 'email_messaging', value: true, role: 'both' }
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === user.role || el.role === 'both')
@@ -275,7 +271,7 @@ class UserInfoController {
                     passport_issued_by: passport_issued_by.value
                 }, { where: { id: id } })
             }
-            if ( legal && legal.value !== '') {
+            if (legal && legal.value !== '') {
                 await UserInfo.update({
                     legal: legal.value
                 }, { where: { id: id } })

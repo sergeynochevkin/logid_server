@@ -113,12 +113,8 @@ class UserController {
             }
 
             let userAppSettingsDefaultList = [
-                { name: 'Уведомлять о новых заказах на email', value: true, role: 'carrier' },
-                { name: 'Перевозчик должен завершить точки перед завершением заказа', value: false, role: 'customer' },
-                { name: 'Показывать новые заказы только партнерам из списка избранного', value: false, role: 'customer' },
-                { name: 'Темная тема приложения', value: false, role: 'both' },
-                { name: 'Мелкий шрифт приложения', value: false, role: 'both' },
-                { name: 'Компактный показ заказов', value: false, role: 'both' },
+                { name: 'sms_messaging', value: true, role: 'both' },
+                { name: 'email_messaging', value: true, role: 'both' }
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')
