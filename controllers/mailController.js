@@ -6,6 +6,8 @@ const { transportHandler } = require('../modules/transportHandler')
 const { types } = require('pg')
 const translateService = require('../service/translate_service')
 const smsService = require('../service/sms_service')
+const settingService = require('../service/setting_service')
+
 
 
 
@@ -219,7 +221,8 @@ class MailController {
 
                 if (userInfos.length > 0) {
                     for (const user of userInfos) {
-                        if (user.country === 'russia' && user.phone !== '') {
+                        let checkedSetting = await settingService.checkUserAppSetting('sms_messaging', user.id)
+                        if (user.country === 'russia' && user.phone !== '' && checkedSetting) {
                             //user.phone prepare when reg or put or update
                             let to = user.phone
                             await smsService.sendSms(to, allMembers_text_sms)

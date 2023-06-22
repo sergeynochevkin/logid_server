@@ -66,7 +66,7 @@ class MailService {
     }
 
     async sendManagementEmail(subject, message, members) {
-        let users = await User.findAll({ where: { id: { [Op.in]:members } } })
+        let users = await User.findAll({ where: { id: { [Op.in]: members } } })
         // console.log('Here!');
         // console.log(users);
 
