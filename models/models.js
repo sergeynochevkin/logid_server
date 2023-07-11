@@ -104,6 +104,16 @@ const Transport = sequelize.define('transport', {
     // files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
 })
 
+
+const TransportByOrder = sequelize.define('transport_by_order', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    transportId: { type: DataTypes.INTEGER },
+    orderId: { type: DataTypes.INTEGER },
+})
+
+// what to do if transport deleted cut it from user info
+
+
 const Equipment = sequelize.define('equipment', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     type: { type: DataTypes.STRING, defaultValue: '' },
@@ -194,6 +204,7 @@ const Offer = sequelize.define('offer', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     userInfoId: { type: DataTypes.INTEGER },
     carrierId: { type: DataTypes.INTEGER },
+    transportid: { type: DataTypes.INTEGER },
     cost: { type: DataTypes.INTEGER },
     time_from: { type: DataTypes.DATE },
     carrier_comment: { type: DataTypes.STRING },
@@ -388,6 +399,17 @@ const SubscriptionOption = sequelize.define('subscription_option', {
     country: { type: DataTypes.STRING, defaultValue: '' },
 })
 
+const Invoice = sequelize.define('invoice', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    userInfoId: { type: DataTypes.INTEGER },
+    payment_id: { type: DataTypes.STRING },
+    type: { type: DataTypes.STRING },
+    price: { type: DataTypes.INTEGER },
+    status: { type: DataTypes.STRING },
+    order_details: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
+})
+
+
 const SubscriptionOptionsByPlan = sequelize.define('subscription_options_by_plan', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     optionId: { type: DataTypes.INTEGER },
@@ -528,7 +550,9 @@ module.exports = {
     City,
     SafetyOrderHash,
     SafetyIpHash,
-    OrderViewed
+    OrderViewed,
+    TransportByOrder,
+    Invoice
 }
 
 

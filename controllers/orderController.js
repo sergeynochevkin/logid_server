@@ -1,4 +1,4 @@
-const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed } = require('../models/models')
+const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed, TransportByOrder } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const { transportHandler } = require('../modules/transportHandler')
@@ -599,7 +599,7 @@ class OrderController {
         let carrierUserInfo
         let customerUserInfo
         let orderForChanges
-        let { option, order_type, id, role, order_status, order_final_status, carrierId, userInfoId, cost, newTime, firstPointId } = req.body
+        let { option, order_type, id, role, order_status, order_final_status, carrierId, userInfoId, cost, newTime, firstPointId, transport } = req.body
 
 
 
@@ -640,6 +640,7 @@ class OrderController {
 
 
             else if (role === 'carrier' && order_status === 'inWork') {
+                await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
                 let userInfo = await UserInfo.findOne({ where: { userId: carrierId } })
                 let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
                 state = JSON.parse(state.dataValues.state)
@@ -653,6 +654,7 @@ class OrderController {
             }
 
             else if (role === 'customer' && order_status === 'inWork') {
+                await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await mailService.sendEmailToAdmin(`Order ${id} taken by customer offer accept at ${process.env.CLIENT_URL}`, 'App notification')
             }
@@ -778,8 +780,8 @@ class OrderController {
         try {
             let { pointsIntegrationId } = req.query
             let orderForViews
-            //destroy views
             orderForViews = await Order.findOne({ where: { pointsIntegrationId: pointsIntegrationId } })
+            await TransportByOrder.destroy({ where: { orderId: orderForViews.id } })
             await OrderViewed.destroy({ where: { orderId: orderForViews.id } })
             await Offer.destroy({ where: { orderId: orderForViews.id } })
             await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })

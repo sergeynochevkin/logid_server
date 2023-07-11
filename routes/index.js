@@ -44,7 +44,9 @@ router.use('/limit', limitRouter)
 router.use('/ad', adRouter)
 router.use('/state', stateRouter)
 router.use('/default_data', defaultDataRouter)
-
 router.use('/management', managementRouter)
+
+
+
 
 module.exports = router

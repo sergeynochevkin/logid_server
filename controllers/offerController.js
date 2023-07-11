@@ -15,6 +15,7 @@ class OfferController {
             time_from: { value: time_from },
             orderId,
             carrier_comment: { value: carrier_comment },
+            transportid
         } = formData
         try {
 
@@ -27,7 +28,8 @@ class OfferController {
                 cost,
                 time_from,
                 orderId,
-                carrier_comment
+                carrier_comment,
+                transportid
             })
 
             await limitService.increase(  carrierId, '', 'offer')
@@ -98,13 +100,15 @@ class OfferController {
                 cost: { value: cost },
                 time_from: { value: time_from },
                 carrier_comment: { value: carrier_comment },
-                this_carrier_offer_id
+                this_carrier_offer_id, 
+                transportid
             } = formData
 
             await Offer.update({
                 cost,
                 time_from,
-                carrier_comment
+                carrier_comment, 
+                transportid
             },
                 {
                     where: { id: this_carrier_offer_id }
