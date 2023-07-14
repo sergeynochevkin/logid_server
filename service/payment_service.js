@@ -38,7 +38,7 @@ class PaymentService {
                         description: order_details.description,
                         quantity: order_details.quantity,
                         amount: {
-                            value: 10,
+                            value: "10",
                             currency: "RUB"
                         },
                         vat_code: "1"
