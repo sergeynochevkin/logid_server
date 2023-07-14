@@ -11,7 +11,7 @@ class SubscriptionController {
 
 
     async update(req, res, next) {
-        let { language, userInfoId, plan, payment_id } = req.body
+        let { language, description, userInfoId, plan, payment_id } = req.body
         let planId
         let currentPlan
         let initialTime
@@ -43,14 +43,10 @@ class SubscriptionController {
                 userInfoId = body.dataValues.userInfoId
 
                 userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
-                
-                let order_details = {...JSON.parse(body.dataValues.order_details)}
+
+                let order_details = { ...JSON.parse(body.dataValues.order_details) }
                 planId = order_details.plan.plan_id
-                
                 currentPlan = await Subscription.findOne({ where: { userInfoId } })
-                console.log('PLANID');
-                console.log(order_details);
-                console.log(planId);
                 plan = await SubscriptionPlan.findOne({ where: { plan_id: planId, country: userInfo.dataValues.country } })
 
 
@@ -84,9 +80,14 @@ class SubscriptionController {
                 //payment logics
 
                 if (planId !== 1 && planId !== 2 && userInfo.country === 'russia' && !payment_id) {
-                    let invoice = await Invoice.create({ userInfoId, type, price, status, order_details: JSON.stringify(req.body) }) // create if not paid if paid update!
+                    let order_details = { ...req.body, email: userInfo.email, quantity: 1 }
+                    let invoice = await Invoice.create({ userInfoId, type, price, status, order_details: JSON.stringify(order_details) })
+                    
+                    // order_details = { ...JSON.parse(invoice.order_details) }
+                    // console.log(order_details);
+
                     res_object.invoice_id = invoice.id
-                    let payment = await paymentService.createPayment(price, invoice)
+                    let payment = await paymentService.createPayment(invoice)
                     res_object.token = payment.confirmation.confirmation_token
                     res_object.payment_id = payment.id
                     res_object.message = translateService.setNativeTranslate(language,

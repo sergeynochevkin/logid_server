@@ -1,6 +1,6 @@
 const { Op, where } = require("sequelize")
 const YooKassa = require('yookassa');
-const { Invoice } = require("../models/models");
+const { Invoice, UserInfo } = require("../models/models");
 
 class PaymentService {
 
@@ -11,24 +11,41 @@ class PaymentService {
         })
     }
 
-    async createPayment( price, invoice) {
-      
+    async createPayment(invoice) {
+        let order_details = { ...JSON.parse(invoice.order_details) }
+
 
         const payment = await this.yooKassa.createPayment({
             amount: {
-                value: price,
+                value: invoice.price,
                 currency: "RUB"
             },
             confirmation: {
                 type: "embedded",
                 locale: "en_US"
             },
-            customization:{
-              modal:true  
+            customization: {
+                modal: true
             },
-            capture: false, 
+            capture: false,
             description: `${invoice.id}`,
-                         
+
+            receipt: {
+                customer: {
+                    email: order_details.email
+                },
+                items: [
+                    {
+                        description: order_details.description,
+                        quantity: order_details.quantity,
+                        amount: {
+                            value: invoice.price,
+                            currency: "RUB"
+                        },
+                        vat_code: "1"
+                    }
+                ]
+            }
         });
 
         await Invoice.update({ payment_id: payment.id }, { where: { id: invoice.id } }) //put it when paiment is success
