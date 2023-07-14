@@ -11,12 +11,15 @@ class SubscriptionController {
 
 
     async update(req, res, next) {
-        let { language, description, userInfoId, plan, payment_id } = req.body
+        let { language, desсription, userInfoId, plan, payment_id } = req.body
         let planId
         let currentPlan
         let initialTime
         let paid_to
         let userInfo
+
+        console.log('DESCR!!!');
+        console.log(desсription);
 
         try {
 
@@ -82,9 +85,6 @@ class SubscriptionController {
                 if (planId !== 1 && planId !== 2 && userInfo.country === 'russia' && !payment_id) {
                     let order_details = { ...req.body, email: userInfo.email, quantity: 1 }
                     let invoice = await Invoice.create({ userInfoId, type, price, status, order_details: JSON.stringify(order_details) })
-                    
-                    // order_details = { ...JSON.parse(invoice.order_details) }
-                    // console.log(order_details);
 
                     res_object.invoice_id = invoice.id
                     let payment = await paymentService.createPayment(invoice)

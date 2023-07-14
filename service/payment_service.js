@@ -13,8 +13,7 @@ class PaymentService {
 
     async createPayment(invoice) {
         let order_details = { ...JSON.parse(invoice.order_details) }
-
-
+        
         const payment = await this.yooKassa.createPayment({
             amount: {
                 value: invoice.price,
@@ -36,7 +35,7 @@ class PaymentService {
                 },
                 items: [
                     {
-                        description: order_details.description,
+                        description: order_details.desсription,
                         quantity: order_details.quantity,
                         amount: {
                             value: invoice.price,
