@@ -35,7 +35,7 @@ class PaymentService {
                 },
                 items: [
                     {
-                        description: order_details.desсription,
+                        description: order_details.description,
                         quantity: order_details.quantity,
                         amount: {
                             value: invoice.price,

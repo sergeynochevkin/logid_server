@@ -11,7 +11,7 @@ class SubscriptionController {
 
 
     async update(req, res, next) {
-        let { language, desсription, userInfoId, plan, payment_id } = req.body
+        let { language, description, userInfoId, plan, payment_id } = req.body
         let planId
         let currentPlan
         let initialTime
@@ -19,7 +19,7 @@ class SubscriptionController {
         let userInfo
 
         console.log('DESCR!!!');
-        console.log(desсription);
+        console.log(description);
 
         try {
 
