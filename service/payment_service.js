@@ -26,7 +26,7 @@ class PaymentService {
             customization: {
                 modal: true
             },
-            capture: false,
+            capture: true,
             description: `${invoice.id}`,
 
             receipt: {
