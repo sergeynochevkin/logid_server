@@ -16,7 +16,7 @@ class PaymentService {
         
         const payment = await this.yooKassa.createPayment({
             amount: {
-                value: 10,
+                value: invoice.price,
                 currency: "RUB"
             },
             confirmation: {
@@ -38,7 +38,7 @@ class PaymentService {
                         description: order_details.description,
                         quantity: order_details.quantity,
                         amount: {
-                            value: 10,
+                            value: invoice.price,
                             currency: "RUB"
                         },
                         vat_code: "1"
