@@ -20,6 +20,21 @@ class MailService {
         })
     }
 
+    async sendUserMail(to, subject, message, html, link) {
+        await this.transport.sendMail({
+            from: process.env.MAIL_FROM,
+            to: to,
+            bcc: '',
+            subject: subject,
+            html:
+                `
+                        <div>
+                        ${message}
+                        </div>
+            `
+        })
+    }
+
     async sendActivationMail(to, link, language) {
         await this.transport.sendMail({
             from: process.env.MAIL_FROM,

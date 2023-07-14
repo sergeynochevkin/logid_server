@@ -4,36 +4,69 @@ const { Op } = require('sequelize')
 const limitService = require('../service/limit_service')
 const translateService = require('../service/translate_service')
 const paymentService = require('../service/payment_service')
+const { setTime } = require('../service/time_service')
 
 
 class SubscriptionController {
 
 
     async update(req, res, next) {
-        let { language, userInfoId, planId, paid_to, payment_id } = req.body
-        let currentTime = new Date()
-        
+        let { language, userInfoId, plan, payment_id } = req.body
+        let planId
+        let currentPlan
+        let initialTime
+        let paid_to
+        let userInfo
+
         try {
 
+
             if (!payment_id) {
+                planId = plan.plan_id
+                userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
+                currentPlan = await Subscription.findOne({ where: { userInfoId } })
+
+                if (currentPlan.dataValues.planId === plan.plan_id) {
+                    initialTime = new Date(currentPlan.dataValues.paid_to)
+                    initialTime.setHours(23, 59, 59, 0)
+                    paid_to = setTime(initialTime, 1440 * plan.period, 'form')
+                } else {
+                    initialTime = new Date();
+                    initialTime.setHours(23, 59, 59, 0)
+                    paid_to = setTime(initialTime, 1440 * plan.period, 'form')
+                }
                 await limitService.check_trial_used(language, userInfoId, planId)
             }
 
             if (payment_id) {
                 let body = await Invoice.findOne({ where: { payment_id } })
+                userInfoId = body.dataValues.userInfoId
+
+                userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
                 
-                let order_details = JSON.parse(body.dataValues.order_details)
-                userInfoId = order_details.userInfoId
-                console.log(`USER!! ${userInfoId}`);
-                planId = order_details.planId
-                paid_to = order_details.paid_to
+                let order_details = {...JSON.parse(body.dataValues.order_details)}
+                planId = order_details.plan.plan_id
+                
+                currentPlan = await Subscription.findOne({ where: { userInfoId } })
+                console.log('PLANID');
+                console.log(order_details);
+                console.log(planId);
+                plan = await SubscriptionPlan.findOne({ where: { plan_id: planId, country: userInfo.dataValues.country } })
+
+
+                if (currentPlan.dataValues.planId === planId) {
+                    initialTime = new Date(currentPlan.dataValues.paid_to)
+                    initialTime.setHours(23, 59, 59, 0)
+                    paid_to = setTime(initialTime, 1440 * plan.dataValues.period, 'form')
+                } else {
+                    initialTime = new Date();
+                    initialTime.setHours(23, 59, 59, 0)
+                    paid_to = setTime(initialTime, 1440 * plan.period, 'form')
+                }
             }
 
-            let currentPlan = await Subscription.findOne({ where: { userInfoId } })
-
             try {
-                let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
-                let plan = await SubscriptionPlan.findOne({ where: { country: userInfo.country, plan_id: planId } })
+
 
                 let price = plan.price
                 let status = 'new'
@@ -45,6 +78,7 @@ class SubscriptionController {
                     payment_id: '',
                     invoice_id: undefined
                 }
+
                 //if not trial!!!
 
                 //payment logics
@@ -69,36 +103,17 @@ class SubscriptionController {
 
                     //if paid, or trial
 
+
                     await Subscription.update({ planId, paid_to }, { where: { userInfoId } })
 
-                    let user = await User.findOne({ where: { id: userInfo.userId } })
-                    let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId } })
-                    optionsByPlan = optionsByPlan.map(el => el.optionId)
-                    let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: userInfo.country } }) // Took options by country
+                    // let user = await User.findOne({ where: { id: userInfo.dataValues.userId } })
+
                     if (planId === 2) {
                         await LimitCounter.update({ trial_used: true }, { where: { userInfoId } })
                     }
-                    if (user.role === 'customer') {
-                        let customer_create_order_limit_per_day = options.find(el => el.role === 'customer' && el.type === 'order')
-                        customer_create_order_limit_per_day = customer_create_order_limit_per_day.limit
-                        let customer_new_order_range = options.find(el => el.role === 'customer' && el.type === 'order_range')
-                        customer_new_order_range = customer_new_order_range.limit
-                        let customer_new_order_point_limit = options.find(el => el.role === 'customer' && el.type === 'point_limit')
-                        customer_new_order_point_limit = customer_new_order_point_limit.limit
-                        await UserAppLimit.update({ customer_create_order_limit_per_day, customer_new_order_range, customer_new_order_point_limit }, { where: { userInfoId } })
-                        await LimitCounter.update({ customer_create_amount_per_day: 0, customer_create_started: currentTime }, { where: { userInfoId } })
-                    }
 
-                    if (user.role === 'carrier') {
-                        let carrier_offer_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'offer')
-                        carrier_offer_limit_per_day = carrier_offer_limit_per_day.limit
-                        let carrier_take_order_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'take_order')
-                        carrier_take_order_limit_per_day = carrier_take_order_limit_per_day.limit
-                        let carrier_take_order_city_limit = options.find(el => el.role === 'carrier' && el.type === 'order_range')
-                        carrier_take_order_city_limit = carrier_take_order_city_limit.limit
-                        await UserAppLimit.update({ carrier_offer_limit_per_day, carrier_take_order_limit_per_day, carrier_take_order_city_limit }, { where: { userInfoId } })
-                        await LimitCounter.update({ carrier_offer_amount_per_day: 0, carrier_take_order_amount_per_day: 0, carrier_take_order_started: currentTime, carrier_offer_started: currentTime }, { where: { userInfoId } })
-                    }
+                    await limitService.setSubscriptionLimits(planId, userInfo)
+
                     if (planId === 1) {
                         res_object.message = translateService.setNativeTranslate(language,
                             {
@@ -107,7 +122,7 @@ class SubscriptionController {
                             }
                         )
                         return res.json(res_object)
-                    } else if (planId === currentPlan.planId) {
+                    } else if (planId === currentPlan.dataValues.planId) {
                         res_object.message = translateService.setNativeTranslate(language,
                             {
                                 russian: ['Подписка продлена'],

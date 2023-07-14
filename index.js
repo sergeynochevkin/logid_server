@@ -14,7 +14,8 @@ const handlerTimer = require('./backGroundHandlers/handlerTimer');
 const changeOrderStatusHandler = require('./backGroundHandlers/changeOrderStatusHandler');
 const cleanNotificationsHandler = require('./backGroundHandlers/cleanNotificationsHandler');
 const https = require('https')
-const fs = require('fs')
+const fs = require('fs');
+const subscriptionHandler = require('./backGroundHandlers/subscriptionHandler');
 
 
 const PORT = process.env.PORT || 4000
@@ -32,6 +33,8 @@ app.use(bodyParser.json({ limit: '5mb' }))
 
 var privateKey = fs.readFileSync('ssl/logid_app.key');
 var certificate = fs.readFileSync('ssl/logid_app.crt');
+
+handlerTimer(subscriptionHandler, 1, 'hour', 1, 'day')
 
 handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
 

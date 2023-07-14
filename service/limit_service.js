@@ -1,10 +1,47 @@
-const { LimitCounter, User, UserInfo, UserAppLimit } = require('../models/models')
+const { LimitCounter, User, UserInfo, UserAppLimit, SubscriptionOptionsByPlan, SubscriptionOption } = require('../models/models')
 const mailService = require('./mail_service')
 const ApiError = require('../exceptions/api_error');
 const timeService = require('./time_service')
 const translateService = require('../service/translate_service')
+const { Op } = require("sequelize")
 
 class LimitService {
+
+    async setSubscriptionLimits(planId, userInfo) {
+
+        let userObject = await User.findOne({ where: { id: userInfo.userId } })
+        let user = { ...userObject.dataValues }
+
+        let currentTime = new Date()
+        let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId } })
+        optionsByPlan = optionsByPlan.map(el => el.optionId)
+        let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: userInfo.country } })
+        let userInfoId = userInfo.id
+
+        if (user.role === 'customer') {
+            let customer_create_order_limit_per_day = options.find(el => el.role === 'customer' && el.type === 'order')
+            customer_create_order_limit_per_day = customer_create_order_limit_per_day.limit
+            let customer_new_order_range = options.find(el => el.role === 'customer' && el.type === 'order_range')
+            customer_new_order_range = customer_new_order_range.limit
+            let customer_new_order_point_limit = options.find(el => el.role === 'customer' && el.type === 'point_limit')
+            customer_new_order_point_limit = customer_new_order_point_limit.limit
+            await UserAppLimit.update({ customer_create_order_limit_per_day, customer_new_order_range, customer_new_order_point_limit }, { where: { userInfoId } })
+            await LimitCounter.update({ customer_create_amount_per_day: 0, customer_create_started: currentTime }, { where: { userInfoId } })
+        }
+
+        if (user.role === 'carrier') {
+            let carrier_offer_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'offer')
+            carrier_offer_limit_per_day = carrier_offer_limit_per_day.limit
+            let carrier_take_order_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'take_order')
+            carrier_take_order_limit_per_day = carrier_take_order_limit_per_day.limit
+            let carrier_take_order_city_limit = options.find(el => el.role === 'carrier' && el.type === 'order_range')
+            carrier_take_order_city_limit = carrier_take_order_city_limit.limit
+            await UserAppLimit.update({ carrier_offer_limit_per_day, carrier_take_order_limit_per_day, carrier_take_order_city_limit }, { where: { userInfoId } })
+            await LimitCounter.update({ carrier_offer_amount_per_day: 0, carrier_take_order_amount_per_day: 0, carrier_take_order_started: currentTime, carrier_offer_started: currentTime }, { where: { userInfoId } })
+        }
+
+        return null
+    }
 
     async check_trial_used(language, userInfoId, planId) {
         let limit = await LimitCounter.findOne({ where: { userInfoId } })
@@ -102,7 +139,7 @@ class LimitService {
             await LimitCounter.update({ carrier_offer_amount_per_day: currentCount + 1 }, { where: { userInfoId } })
         }
     }
-    async check_account_activated(language,userInfoId) {
+    async check_account_activated(language, userInfoId) {
         let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
         let user = await User.findOne({ where: { id: userInfo.userId } })
         if (!user.isActivated) {
@@ -127,17 +164,17 @@ class LimitService {
         }
         // признак немодерированного - аккаунта - выставлять после каждого изименения профиля в юзеринфо
     }
-    async check_account_checked(language,userInfoId) {
+    async check_account_checked(language, userInfoId) {
         let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
         let user = await User.findOne({ where: { id: userInfo.userId } })
         if (!user.isChecked) {
             throw ApiError.badRequest(
-            translateService.setNativeTranslate(language,
-                {
-                    russian: ['Для выполнения действия необходим подтвержденный аккаунт, загрузите документы, мы проверим их в течении 24 часов'],
-                    english: ['To perform the action, you need a verified account, upload the documents, we will check them within 24 hours']
-                }
-            ))
+                translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Для выполнения действия необходим подтвержденный аккаунт, загрузите документы, мы проверим их в течении 24 часов'],
+                        english: ['To perform the action, you need a verified account, upload the documents, we will check them within 24 hours']
+                    }
+                ))
         }
         // признак непроверенного - аккаунта - выставлять после каждого изименения профиля в юзеринфо
     }
