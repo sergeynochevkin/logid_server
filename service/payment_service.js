@@ -20,13 +20,15 @@ class PaymentService {
                 currency: "RUB"
             },
             confirmation: {
-                type: "embedded"
+                type: "embedded",
+                locale: "en_US"
             },
             customization:{
               modal:true  
             },
-            capture: true,
-            description: `${invoice.id}`
+            capture: false, 
+            description: `${invoice.id}`,
+                         
         });
 
         await Invoice.update({ payment_id: payment.id }, { where: { id: invoice.id } }) //put it when paiment is success
