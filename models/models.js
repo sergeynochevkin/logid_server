@@ -100,8 +100,8 @@ const Transport = sequelize.define('transport', {
     refrigerator_minus: { type: DataTypes.BOOLEAN },
     refrigerator_plus: { type: DataTypes.BOOLEAN },
     thermo_van: { type: DataTypes.BOOLEAN },
-    image: { type: DataTypes.STRING, defaultValue: '' },
-    // files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
+    // image: { type: DataTypes.STRING, defaultValue: '' }, 
+    files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
 })
 
 

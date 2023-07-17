@@ -40,32 +40,15 @@ class FileController {
         },
     })
         // .single('image')
-        .array('files', 10)
+        .array('files[]', 10);
 
-    async uploadImages(req, res, next) {
+    async uploadFiles(req, res, next) {
         try {
             const { id, option, language, images } = req.body
             const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
-            await Transport.update({ image: path }, { where: { id: id } })
-            console.log('FILES!');
-            console.log(req.files);
-            console.log('BODY!');
-            console.log(req.body);
-
-            //no need!
-            // let filesReady = []
-            // function getExtension(filename) {
-            //     return filename.split('.').pop()
-            // }
-            // переименовать файлы по uuid + ext
-            // files.forEach(file => {
-            //     let fileExtention = getExtension(file.name).toLowerCase()
-            //     file.name = uuid.v4 + fileExtention
-            //     // перемещение в папку
-            //     file.mv(path.resolve(__dirname, '..', 'static', file.name))
-            //     filesReady.push(file)
-            // });
-            // let filesList = JSON.stringify(filesReady.map(el => el.name))
+            let names = req.files.map(file => file.filename);
+            // edit, attach images paths in array?!
+            await Transport.update({ files: JSON.stringify(names) }, { where: { id: id } })
 
             res.send('uploaded')
         } catch (e) {
@@ -81,6 +64,24 @@ class FileController {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async getFile(req, res, next) {
+        let {type, id, name} = req.query
+       
+        res.download(`./uploads/${type}/${id}/${name}`)
+    }
+
+    async deleteFile(req, res, next) {
+
+    }
+
+    async updateFile(req, res, next) {
+
+    }
+
+
+
+
 }
 
 module.exports = new FileController()
