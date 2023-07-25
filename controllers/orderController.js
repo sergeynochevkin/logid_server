@@ -1,4 +1,4 @@
-const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed, TransportByOrder } = require('../models/models')
+const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed, TransportByOrder, Transport } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const { transportHandler } = require('../modules/transportHandler')
@@ -134,7 +134,8 @@ class OrderController {
                 rows: [],
                 map_rows: [],
                 added: {},
-                views: []
+                views: [],
+                transport: []
             }
 
             let orderForPoints
@@ -514,7 +515,8 @@ class OrderController {
                         inWork: '',
                         arc: '',
                         pattern: '',
-                        ids: []
+                        ids: [],
+                        transport: []
                     }
 
                     totalCountObj.new = actual_new.length
@@ -525,6 +527,7 @@ class OrderController {
                     totalCountObj.arc = actual_arc.length
                     totalCountObj.pattern = actual_pattern.length
                     totalCountObj.ids = state.filter(el => ((el.carrier_arc_status !== 'arc' && role === 'carrier') || (el.customer_arc_status !== 'arc' && role === 'customer'))).map(el => el.id)
+                    totalCountObj.transport = await TransportByOrder.findAll({ where: { orderId: { [Op.in]: totalCountObj.ids } } })
                     order.total_count = totalCountObj
 
                     let addedObj = {
@@ -569,6 +572,14 @@ class OrderController {
             order.filtered_count = order.rows.length
 
             order.rows = order.rows.splice(0, filters[order_status].limit)
+
+            //get transport
+
+            let transportIdsForObject = await TransportByOrder.findAll({ where: { orderId: { [Op.in]: order.rows.map(el => el.id) } } })
+
+            let transportIds = [...transportIdsForObject.map(el => el.transportId)]
+
+            order.transport = await Transport.findAll({ where: { id: { [Op.in]: transportIds } } })
 
             if (order_status === 'new' || order_status === 'postponed') {
                 let views = await OrderViewed.findAll({ where: { orderId: order.rows.map(el => el.id) } })
@@ -640,6 +651,7 @@ class OrderController {
 
 
             else if (role === 'carrier' && order_status === 'inWork') {
+                await Offer.destroy({ where: { orderId: id } })
                 await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
                 let userInfo = await UserInfo.findOne({ where: { userId: carrierId } })
                 let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
@@ -654,6 +666,7 @@ class OrderController {
             }
 
             else if (role === 'customer' && order_status === 'inWork') {
+                await Offer.destroy({ where: { orderId: id } })
                 await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await mailService.sendEmailToAdmin(`Order ${id} taken by customer offer accept at ${process.env.CLIENT_URL}`, 'App notification')

@@ -102,6 +102,10 @@ const Transport = sequelize.define('transport', {
     thermo_van: { type: DataTypes.BOOLEAN },
     // image: { type: DataTypes.STRING, defaultValue: '' }, 
     files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
+
+    ad_text: { type: DataTypes.STRING, defaultValue: '' },
+    ad_show: { type: DataTypes.BOOLEAN, defaultValue: false },
+    moderated: { type: DataTypes.BOOLEAN, defaultValue: false },
 })
 
 

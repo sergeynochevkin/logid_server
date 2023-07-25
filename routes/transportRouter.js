@@ -5,7 +5,7 @@ const transportController = require('../controllers/transportController')
 router.post('/', transportController.create)
 router.get('/', transportController.getAll)
 router.get('/:id', transportController.getOne)
-router.put('/',)
+router.put('/', transportController.update)
 router.delete('/', transportController.delete)
 
 module.exports = router

@@ -22,6 +22,8 @@ class LanguageService {
                 currentLanguage = state.language
             }
         }
+
+        console.log(currentLanguage);
         return currentLanguage
     }
 }

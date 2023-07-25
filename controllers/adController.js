@@ -1,6 +1,6 @@
 const { Op } = require('sequelize')
 const ApiError = require('../exceptions/api_error')
-const { User, Order } = require('../models/models')
+const { User, Order, Transport, UserInfo } = require('../models/models')
 
 class AdController {
 
@@ -27,7 +27,7 @@ class AdController {
                         { role: 'carrier' },
                         { role: 'customer' }
                     ],
-                    email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com', 'sergey.nochevkin@outlook.com']}
+                    email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com', 'sergey.nochevkin@outlook.com'] }
                 }
             })
             let customers_count = users.filter(el => el.role === 'customer').length + 112
@@ -45,8 +45,45 @@ class AdController {
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
+    }
 
+    async getTransports(req, res, next) {
 
+        try {
+            let resObject = {
+                rows: [],
+                users: []
+            }
+
+            let transports = await Transport.findAll({ where: { moderated: false, ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null } } })
+
+            let users = []
+
+            for (const transport of transports) {
+                let userObject = {
+                    transport_id: '',
+                    name: '',
+                    phone: '',
+                    city: ''
+                }
+
+                let userInfo = await UserInfo.findOne({ where: { id: transport.userInfoId } })
+
+                userObject.transport_id = transport.id
+                userObject.name = userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
+                userObject.phone = userInfo.dataValues.phone
+                userObject.city = userInfo.dataValues.city
+
+                users.push(userObject)
+            }
+
+            resObject.rows = [...transports]
+            resObject.users = [...users]
+
+            return res.json(resObject)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
 }
 
