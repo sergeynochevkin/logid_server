@@ -1,6 +1,6 @@
 const { Transport } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
-const { Op } = require("sequelize")
+const { Op, where } = require("sequelize")
 const path = require('path')
 const fs = require('fs')
 const multer = require('multer')
@@ -14,7 +14,7 @@ class FileController {
                 const { id, option, action } = req.body
                 const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
                 // action === 'update' && fs.rmSync(`./uploads/transport/${id}`, { recursive: true, force: true });
-                fs.mkdirSync(path, { recursive: true })
+                action !== 'update' && fs.mkdirSync(path, { recursive: true })
                 cb(null, path)
             },
             filename: function (req, file, cb) {
@@ -45,8 +45,19 @@ class FileController {
 
     async uploadFiles(req, res, next) {
         try {
-            const { id, option, language, images } = req.body
-            const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
+            const { id, option, language, images, action } = req.body
+
+            if (action === 'update') {
+                let transport = await Transport.findOne({ where: {id} })
+                let fileNames = JSON.parse(transport.dataValues.files)
+                for (const name of fileNames) {
+                   fs.unlink(`./uploads/${option}/${id}/${name}`,
+                   err => {
+                    if (err) {console.log(err)}
+                })
+            }}
+
+            // const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
             let names = req.files.map(file => file.filename);
             // edit, attach images paths in array?!
             await Transport.update({ files: JSON.stringify(names) }, { where: { id: id } })
