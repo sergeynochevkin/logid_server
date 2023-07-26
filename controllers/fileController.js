@@ -13,7 +13,7 @@ class FileController {
             destination: function (req, file, cb) {
                 const { id, option, action } = req.body
                 const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
-                action === 'update' && fs.rmSync(`./uploads/transport/${id}`, { recursive: true, force: true });
+                // action === 'update' && fs.rmSync(`./uploads/transport/${id}`, { recursive: true, force: true });
                 fs.mkdirSync(path, { recursive: true })
                 cb(null, path)
             },
