@@ -5,6 +5,8 @@ const path = require('path')
 const fs = require('fs')
 const multer = require('multer')
 const translateService = require('../service/translate_service')
+const sharp = require('sharp')
+const { check } = require('express-validator')
 
 class FileController {
 
@@ -48,19 +50,56 @@ class FileController {
             const { id, option, language, images, action } = req.body
 
             if (action === 'update') {
-                let transport = await Transport.findOne({ where: {id} })
+                let transport = await Transport.findOne({ where: { id } })
                 let fileNames = JSON.parse(transport.dataValues.files)
                 for (const name of fileNames) {
-                   fs.unlink(`./uploads/${option}/${id}/${name}`,
-                   err => {
-                    if (err) {console.log(err)}
-                })
-            }}
+                    fs.unlink(`./uploads/${option}/${id}/${name}`,
+                        err => {
+                            if (err) { console.log(err) }
+                        })
+                }
+            }
 
             // const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
             let names = req.files.map(file => file.filename);
+            let compressed_names = []
+            
+
+            //sharp images here
+
+            sharp.cache(false)
+
+            for (const name of names) {
+                //check extention
+                let nameArray = name.split('.')
+                let ext = nameArray[1]
+
+                //if jpeg, jpg
+                if (ext === 'jpeg' || 'jpg') {
+                    await sharp(`./uploads/${option}/${id}/${name}`)
+                        .withMetadata()
+                        .jpeg({ quality: 20 })
+                        .toFile(`./uploads/${option}/${id}/_${name}`);
+                }
+
+                //if png
+                if (ext === 'png') {
+                    await sharp(`./uploads/${option}/${id}/${name}`)
+                    .withMetadata()
+                    .png({ quality: 20 })
+                    .toFile(`./uploads/${option}/${id}/_${name}`);
+                }
+
+                fs.unlink(`./uploads/${option}/${id}/${name}`,
+                err => {
+                    if (err) { console.log(err) }
+                })
+                
+                compressed_names.push(`_${name}`)
+            }
+
             // edit, attach images paths in array?!
-            await Transport.update({ files: JSON.stringify(names) }, { where: { id: id } })
+            await Transport.update({ files: JSON.stringify(compressed_names) }, { where: { id: id } })
 
             res.send('uploaded')
         } catch (e) {
