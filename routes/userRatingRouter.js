@@ -1,11 +1,12 @@
 const Router = require('express')
 const router = new Router()
 const userRatingController = require('../controllers/userRatingController')
+const auth_middleware = require('../middleware/auth_middleware')
 
-router.post('/',userRatingController.create)
-router.get('/',userRatingController.getAll)
-router.get('/:id',userRatingController.getOne)
-router.put('/',)
-router.delete('/',)
+router.post('/',auth_middleware,userRatingController.create)
+router.get('/',auth_middleware,userRatingController.getAll)
+router.get('/:id',auth_middleware,userRatingController.getOne)
+// router.put('/',)
+// router.delete('/',)
 
 module.exports = router

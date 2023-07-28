@@ -4,9 +4,9 @@ const fileController = require('../controllers/fileController')
 const checkRole = require('../middleware/checkRoleMiddleware')
 const authMiddleware = require('../middleware/auth_middleware')
 
-router.post('/', fileController.upload, fileController.uploadFiles)
-router.get('/', fileController.getFile)
-router.delete('/', fileController.deleteFile)
-router.put('/', fileController.updateFile)
+router.post('/', authMiddleware, fileController.upload, fileController.uploadFiles)
+router.get('/', authMiddleware, fileController.getFile)
+router.delete('/', authMiddleware, fileController.deleteFile)
+router.put('/', authMiddleware, fileController.updateFile)
 
 module.exports = router
