@@ -76,14 +76,14 @@ class ManagementController {
             for (const user of users) {
                 let userInfo = await UserInfo.findOne({ where: { userId: user.id } })
                 if (type === 'mail') {
-                    await mail_service.sendManagementEmail(subject, message, userInfo ? userInfo.dataValues.email : user.email, user.id, userInfo ? userInfo.dataValues.id : '')
+                    await mail_service.sendManagementEmail(subject, message, userInfo ? userInfo.dataValues.email : user.email, user.id, userInfo ? userInfo.dataValues.id : null)
                 }
                 if (type === 'alert') {
                     await notification_service.addManagementNotification(subject, message, members)
                 }
                 if (type === 'mail_alert') {
                     await mail_service.sendManagementEmail(subject, message, members)
-                    await mail_service.sendManagementEmail(subject, message, userInfo ? userInfo.dataValues.email : user.email, user.id, userInfo ? userInfo.dataValues.id : '')
+                    await mail_service.sendManagementEmail(subject, message, userInfo ? userInfo.dataValues.email : user.email, user.id, userInfo ? userInfo.dataValues.id : null)
                     await notification_service.addManagementNotification(subject, message, members)
                 }
             }
