@@ -80,47 +80,24 @@ class MailService {
         })
     }
 
-    async sendManagementEmail(subject, message, members) {
-        let users = await User.findAll({ where: { id: { [Op.in]: members } } })
-        // console.log('Here!');
-        // console.log(users);
+    async sendManagementEmail(subject, message, to) {   
 
-        for (const user of users) {
-            let userInfo = await UserInfo.findOne({ where: { userId: user.dataValues.id } })
-            if (!userInfo) {
-                await this.transport.sendMail({
-                    from: process.env.MAIL_FROM,
-                    to: user.dataValues.email,
-                    bcc: '',
-                    subject: subject,
-                    // text: message,
-                    html:
-                        `
+        await this.transport.sendMail({
+            from: process.env.MAIL_FROM,
+            to: to,
+            bcc: '',
+            subject: subject,
+            // text: message,
+            html:
+                `
                             <div>${message}</div>
                             <br/>
                             <div>
                             <a href="https://logid.app/">https://logid.app/</a>
                             </div>`
-                })
-            }
-            else {
-                await this.transport.sendMail({
-                    from: process.env.MAIL_FROM,
-                    to: userInfo.dataValues.email,
-                    bcc: '',
-                    subject: subject,
-                    text: message,
-                    html:
-                        `
-                        <div>${message}</div>
-                        <br/>
-                        <div>
-                        <a href="https://logid.app/">https://logid.app/</a>
-                        </div>`
-                })
-            }
-        }
+        })
     }
+
 }
 
 module.exports = new MailService()

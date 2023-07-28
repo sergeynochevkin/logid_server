@@ -11,7 +11,7 @@ class ManagementController {
         try {
 
             let { userId } = req.query
-            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [ 'sergey.nochevkin@yandex.com'] } } })
+            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: ['sergey.nochevkin@yandex.com'] } } })
             let userInfos = await UserInfo.findAll({})
             let transports = await Transport.findAll({})
 
@@ -71,16 +71,21 @@ class ManagementController {
             let { formData } = req.body
 
             let { members, subject, message, type } = formData
+            let users = await User.findAll({ where: { id: { [Op.in]: members } } })
 
-            if (type === 'mail') {
-                await mail_service.sendManagementEmail(subject, message, members)
-            }
-            if (type === 'alert') {
-                await notification_service.addManagementNotification(subject, message, members)
-            }
-            if (type === 'mail_alert') {
-                await mail_service.sendManagementEmail(subject, message, members)
-                await notification_service.addManagementNotification(subject, message, members)
+            for (const user of users) {
+                let userInfo = await UserInfo.findOne({ where: { userId: user.id } })             
+                if (type === 'mail') {
+                    await mail_service.sendManagementEmail(subject, message, userInfo ? userInfo.dataValues.email : user.email)
+                }
+                if (type === 'alert') {
+                    await notification_service.addManagementNotification(subject, message, members)
+                }
+                if (type === 'mail_alert') {
+                    await mail_service.sendManagementEmail(subject, message, members)
+                    await mail_service.sendManagementEmail(subject, message, userInfo ? userInfo.dataValues.email : user.email)
+                    await notification_service.addManagementNotification(subject, message, members)
+                }
             }
 
             return res.send('notification_sent')
@@ -91,7 +96,7 @@ class ManagementController {
 
     async updateField(req, res, next) {
         try {
-         
+
             let {
                 id,
                 option,
@@ -100,7 +105,7 @@ class ManagementController {
             } = req.body
 
             if (option === 'transport') {
-                Transport.update({ [field]: new_value  }, { where: { id } })
+                Transport.update({ [field]: new_value }, { where: { id } })
                 return res.send(new_value === true ? `Transport ${id} moderated` : `Transport ${id} not moderated`)
             }
 
