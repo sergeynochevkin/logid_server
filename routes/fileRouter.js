@@ -5,7 +5,7 @@ const checkRole = require('../middleware/checkRoleMiddleware')
 const authMiddleware = require('../middleware/auth_middleware')
 
 router.post('/', authMiddleware, fileController.upload, fileController.uploadFiles)
-router.get('/', authMiddleware, fileController.getFile)
+router.get('/', fileController.getFile)
 router.delete('/', authMiddleware, fileController.deleteFile)
 router.put('/', authMiddleware, fileController.updateFile)
 
