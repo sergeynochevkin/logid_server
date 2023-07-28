@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { UserInfo, User } = require('../models/models');
+const { UserInfo, User, NotificationHistory } = require('../models/models');
 const translateService = require('../service/translate_service')
 const { Op, where } = require("sequelize")
 
@@ -80,7 +80,7 @@ class MailService {
         })
     }
 
-    async sendManagementEmail(subject, message, to) {
+    async sendManagementEmail(subject, message, to, userId, userInfoId) {
         try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
@@ -96,7 +96,10 @@ class MailService {
                         <a href="https://logid.app/">https://logid.app/</a>
                         </div>`
             })
+            NotificationHistory.create({ userId, userInfoId, type: 'email', subject, message, status: 'success' })
+
         } catch (error) {
+            NotificationHistory.create({ userId, userInfoId, type: 'email', subject, message, status: 'error' })
             console.log(error);
         }
     }

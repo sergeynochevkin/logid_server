@@ -469,6 +469,17 @@ const SafetyIpHash = sequelize.define('safety_ip_hash', {
     ip: { type: DataTypes.STRING },
 })
 
+const NotificationHistory = sequelize.define('notification_history', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    userId: { type: DataTypes.INTEGER },
+    userInfoId: { type: DataTypes.INTEGER },
+    memberUserInfoId: { type: DataTypes.INTEGER },
+    type: { type: DataTypes.STRING, defaultValue: '' },
+    subject: { type: DataTypes.STRING, defaultValue: '' },
+    message: { type: DataTypes.STRING, defaultValue: '' },
+    status: { type: DataTypes.STRING, defaultValue: '' }
+})
+
 
 UserInfo.hasOne(LimitCounter)
 LimitCounter.belongsTo(UserInfo)
@@ -556,7 +567,8 @@ module.exports = {
     SafetyIpHash,
     OrderViewed,
     TransportByOrder,
-    Invoice
+    Invoice,
+    NotificationHistory
 }
 
 
