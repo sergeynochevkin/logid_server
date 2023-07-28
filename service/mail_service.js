@@ -93,7 +93,14 @@ class MailService {
                     to: user.dataValues.email,
                     bcc: '',
                     subject: subject,
-                    text: message
+                    // text: message,
+                    html:
+                        `
+                            <div>${message}</div>
+                            <br/>
+                            <div>
+                            <a href="https://logid.app/">https://logid.app/</a>
+                            </div>`
                 })
             }
             else {
@@ -102,7 +109,14 @@ class MailService {
                     to: userInfo.dataValues.email,
                     bcc: '',
                     subject: subject,
-                    text: message
+                    text: message,
+                    html:
+                        `
+                        <div>${message}</div>
+                        <br/>
+                        <div>
+                        <a href="https://logid.app/">https://logid.app/</a>
+                        </div>`
                 })
             }
         }

@@ -11,7 +11,7 @@ class ManagementController {
         try {
 
             let { userId } = req.query
-            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: ['sergey.nochevkin@gmail.com', 'sergey.nochevkin@hotmail.com', 'sergey.nochevkin@yandex.com', 'sergey.nochevkin@outlook.com'] } } })
+            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [ 'sergey.nochevkin@yandex.com'] } } })
             let userInfos = await UserInfo.findAll({})
             let transports = await Transport.findAll({})
 
@@ -71,8 +71,6 @@ class ManagementController {
             let { formData } = req.body
 
             let { members, subject, message, type } = formData
-            console.log(members);
-
 
             if (type === 'mail') {
                 await mail_service.sendManagementEmail(subject, message, members)
@@ -87,6 +85,26 @@ class ManagementController {
 
             return res.send('notification_sent')
         } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async updateField(req, res, next) {
+        try {
+         
+            let {
+                id,
+                option,
+                field,
+                new_value
+            } = req.body
+
+            if (option === 'transport') {
+                Transport.update({ [field]: new_value  }, { where: { id } })
+                return res.send(new_value === true ? `Transport ${id} moderated` : `Transport ${id} not moderated`)
+            }
+
+        } catch (error) {
             next(ApiError.badRequest(e.message))
         }
     }

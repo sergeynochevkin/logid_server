@@ -63,7 +63,7 @@ class FileController {
             // const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
             let names = req.files.map(file => file.filename);
             let compressed_names = []
-            
+
 
             //sharp images here
 
@@ -85,16 +85,16 @@ class FileController {
                 //if png
                 if (ext === 'png') {
                     await sharp(`./uploads/${option}/${id}/${name}`)
-                    .withMetadata()
-                    .png({ quality: 20 })
-                    .toFile(`./uploads/${option}/${id}/_${name}`);
+                        .withMetadata()
+                        .png({ quality: 20 })//works but incorrect!
+                        .toFile(`./uploads/${option}/${id}/_${name}`);
                 }
 
                 fs.unlink(`./uploads/${option}/${id}/${name}`,
-                err => {
-                    if (err) { console.log(err) }
-                })
-                
+                    err => {
+                        if (err) { console.log(err) }
+                    })
+
                 compressed_names.push(`_${name}`)
             }
 
