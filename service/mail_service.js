@@ -80,24 +80,26 @@ class MailService {
         })
     }
 
-    async sendManagementEmail(subject, message, to) {   
-
-        await this.transport.sendMail({
-            from: process.env.MAIL_FROM,
-            to: to,
-            bcc: '',
-            subject: subject,
-            // text: message,
-            html:
-                `
-                            <div>${message}</div>
-                            <br/>
-                            <div>
-                            <a href="https://logid.app/">https://logid.app/</a>
-                            </div>`
-        })
+    async sendManagementEmail(subject, message, to) {
+        try {
+            await this.transport.sendMail({
+                from: process.env.MAIL_FROM,
+                to: to,
+                bcc: '',
+                subject: subject,
+                // text: message,
+                html:
+                    `
+                        <div>${message}</div>
+                        <br/>
+                        <div>
+                        <a href="https://logid.app/">https://logid.app/</a>
+                        </div>`
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
-
 }
 
 module.exports = new MailService()
