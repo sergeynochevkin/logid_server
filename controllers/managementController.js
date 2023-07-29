@@ -96,20 +96,21 @@ class ManagementController {
 
     async updateField(req, res, next) {
         try {
+            let { formData } = req.body
 
             let {
                 id,
                 option,
-                field,
-                new_value
-            } = req.body
+                moderated,
+                moderation_comment
+            } = formData
 
             if (option === 'transport') {
-                Transport.update({ [field]: new_value }, { where: { id } })
-                return res.send(new_value === true ? `Transport ${id} moderated` : `Transport ${id} not moderated`)
+                await Transport.update({ moderated, moderation_comment }, { where: { id } })
+                return res.send(moderated === 'checked_accepted' ? `Transport ${id} moderated` : `Transport ${id} not moderated`)
             }
 
-        } catch (error) {
+        } catch (e) {
             next(ApiError.badRequest(e.message))
         }
     }
