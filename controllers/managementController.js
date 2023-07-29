@@ -114,7 +114,8 @@ class ManagementController {
 
                 let transport = await Transport.findOne({ where: { id } })
                 let user_info = await UserInfo.findOne({ where: { id: transport.dataValues.userInfoId } })
-                let language = language_service.setLanguage(user_info.dataValues.id)
+                let language = await language_service.setLanguage(user_info.dataValues.id)
+                console.log(language);
 
 
                 if (moderated === 'checked_accepted') {
