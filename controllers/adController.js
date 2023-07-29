@@ -55,7 +55,7 @@ class AdController {
                 users: []
             }
 
-            let transports = await Transport.findAll({ where: { moderated: true, ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null } } })
+            let transports = await Transport.findAll({ where: { moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null } } })
 
             let users = []
 

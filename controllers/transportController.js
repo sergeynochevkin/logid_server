@@ -115,9 +115,9 @@ class TransportController {
                 ad_show
             }, { where: { id } })
 
-            if (transport.dataValues.ad_text !== ad_text && transport.dataValues.moderated) {
+            if (transport.dataValues.ad_text !== ad_text && transport.dataValues.moderated ==='checked_accepted' ) {
                 await Transport.update({
-                    moderated: false
+                    moderated: 'not_checked'
                 }, { where: { id } })
             }
 
