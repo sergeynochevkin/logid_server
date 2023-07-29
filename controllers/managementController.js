@@ -6,6 +6,7 @@ const notification_service = require('../service/notification_service')
 const translate_service = require('../service/translate_service')
 const { v4 } = require('uuid');
 const { defaults } = require('pg');
+const language_service = require('../service/language_service')
 
 class ManagementController {
 
@@ -113,7 +114,7 @@ class ManagementController {
 
                 let transport = await Transport.findOne({ where: { id } })
                 let user_info = await UserInfo.findOne({ where: { id: transport.dataValues.userInfoId } })
-                let language = user_info.dataValues.language
+                let language = language_service.setLanguage(user_info.dataValues.id)
 
 
                 if (moderated === 'checked_accepted') {
