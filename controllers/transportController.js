@@ -121,6 +121,12 @@ class TransportController {
                 }, { where: { id } })
             }
 
+            if (transport.dataValues.from_fast) {
+                await Transport.update({
+                    from_fast: false
+                }, { where: { id } })
+            }
+
             return res.json(transportForRes)
 
         } catch (e) {

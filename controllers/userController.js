@@ -68,7 +68,8 @@ class UserController {
                 tag,
                 load_capacity,
                 side_type,
-                type
+                type,
+                from_fast
             } = req.body
 
 
@@ -143,6 +144,7 @@ class UserController {
                     type,
                     load_capacity,
                     side_type,
+                    from_fast
                 })
             }
 

@@ -106,7 +106,9 @@ const Transport = sequelize.define('transport', {
     ad_text: { type: DataTypes.STRING, defaultValue: '' },
     ad_show: { type: DataTypes.BOOLEAN, defaultValue: false },
     moderated: { type: DataTypes.STRING, defaultValue: '' },
-    moderation_comment: { type: DataTypes.STRING, defaultValue: '' },
+    moderation_comment: { type: DataTypes.STRING, defaultValue: '' },    
+
+    from_fast: { type: DataTypes.BOOLEAN, defaultValue: false },
 
 })
 
