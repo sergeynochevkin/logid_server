@@ -5,6 +5,9 @@ const limitService = require('../service/limit_service');
 const language_service = require('../service/language_service');
 const mail_service = require('../service/mail_service');
 const translate_service = require('../service/translate_service');
+const { v4 } = require('uuid');
+const { defaults } = require('pg');
+
 
 class OfferController {
 
@@ -167,7 +170,8 @@ class OfferController {
                                 english: [`Your offer for auction ${offer.dataValues.orderId} has been rejected by customer`]
                             }),
                         type: 'error'
-                    }
+                    },
+                    defaults:{uuid:v4()}
                 })
             }
 

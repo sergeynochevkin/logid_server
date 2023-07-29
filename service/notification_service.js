@@ -1,5 +1,8 @@
 const { User, UserInfo, ServerNotification } = require('../models/models');
 const { Op, where } = require("sequelize")
+const { v4 } = require('uuid');
+const { defaults } = require('pg');
+
 
 class NotificationService {
 
@@ -30,7 +33,8 @@ class NotificationService {
                         userInfoId: userInfo.id,
                         message: message,
                         type: !type ? 'success' : type
-                    }
+                    },
+                    defaults:{uuid:v4()}
                 })
             }
         }

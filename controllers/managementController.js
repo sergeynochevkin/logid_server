@@ -1,8 +1,11 @@
-const { Transport, User, UserInfo, Order } = require('../models/models')
+const { Transport, User, UserInfo, Order, ServerNotification } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const mail_service = require('../service/mail_service')
 const notification_service = require('../service/notification_service')
+const translate_service = require('../service/translate_service')
+const { v4 } = require('uuid');
+const { defaults } = require('pg');
 
 class ManagementController {
 
@@ -107,8 +110,69 @@ class ManagementController {
 
             if (option === 'transport') {
                 await Transport.update({ moderated, moderation_comment }, { where: { id } })
+
+                let transport = await Transport.findOne({ where: { id } })
+                let user_info = await UserInfo.findOne({ where: { id: transport.dataValues.userInfoId } })
+                let language = user_info.dataValues.language
+
+
+                if (moderated === 'checked_accepted') {
+
+                    let message = translate_service.setNativeTranslate(language, {
+                        russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию и допущен к показу на главной странице`],
+                        english: [`Your transport ${transport.dataValues.tag} has been moderated and allowed to be displayed on the main page`]
+                    })
+
+                    await mail_service.sendUserMail(user_info.dataValues.email,
+                        translate_service.setNativeTranslate(language, {
+                            russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию`],
+                            english: [`Your transport ${transport.dataValues.tag} has been moderated`]
+                        })
+                        , message
+                    )
+
+                    await ServerNotification.findOrCreate({
+                        where: {
+                            userInfoId: user_info.dataValues.id,
+                            message: message,
+                            type: 'success'
+                        }
+                        ,
+                defaults:{uuid:v4()}
+                    })
+                }
+                if (moderated === 'checked_not_accepted') {
+                    let message = translate_service.setNativeTranslate(language, {
+                        russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию и не допущен к показу на главной странице. Подробности в разделе транспорт`],
+                        english: [`Your transport ${transport.dataValues.tag} did not pass moderation and not allowed to be displayed on the main page. Details in the transport section`]
+                    })
+
+
+                    await mail_service.sendUserMail(user_info.dataValues.email,
+                        translate_service.setNativeTranslate(language, {
+                            russian: [`Ваш транспорт ${transport.dataValues.tag} не прошел модерацию`],
+                            english: [`Your transport ${transport.dataValues.tag}  did not pass moderation`]
+                        })
+                        , message
+
+                    )
+
+                    await ServerNotification.findOrCreate({
+                        where: {
+                            userInfoId: user_info.dataValues.id,
+                            message: message,
+                            type: 'error'
+                        },
+                        defaults:{uuid:v4()}
+                    })
+                }
+
+
                 return res.send(moderated === 'checked_accepted' ? `Transport ${id} moderated` : `Transport ${id} not moderated`)
             }
+
+
+
 
         } catch (e) {
             next(ApiError.badRequest(e.message))

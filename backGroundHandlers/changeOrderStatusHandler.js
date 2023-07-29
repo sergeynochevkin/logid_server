@@ -3,6 +3,8 @@ const { Op } = require("sequelize")
 const nodemailer = require('nodemailer');
 const translateService = require('../service/translate_service');
 const language_service = require('../service/language_service');
+const { v4 } = require('uuid');
+const { defaults } = require('pg');
 
 module.exports = async function (handlerArgs) {
     console.log(`${handlerArgs.statusArray.toString()} to ${handlerArgs.newStatus} handling started...`);
@@ -143,7 +145,8 @@ module.exports = async function (handlerArgs) {
                     userInfoId: userInfo.id,
                     message: message,
                     type: handlerArgs.newStatus === 'completed' || handlerArgs.newStatus === 'arc' ? 'success' : handlerArgs.newStatus === 'canceled' ? 'error' : ''
-                }
+                },
+                defaults:{uuid:v4()}
             }).then(async data => {
                 if (data[1] === true) {
                     await sendMail(userInfo.email, message, text)
@@ -166,7 +169,8 @@ module.exports = async function (handlerArgs) {
                     userInfoId: userInfo.id,
                     message: message,
                     type: handlerArgs.newStatus === 'completed' || handlerArgs.newStatus === 'arc' ? 'success' : handlerArgs.newStatus === 'canceled' ? 'error' : ''
-                }
+                },
+                defaults:{uuid:v4()}
             }).then(async data => {
                 if (data[1] === true) {
                     await sendMail(userInfo.email, message, text)
@@ -185,7 +189,8 @@ module.exports = async function (handlerArgs) {
                     userInfoId: userInfo.id,
                     message: message,
                     type: handlerArgs.newStatus === 'completed' || handlerArgs.newStatus === 'arc' ? 'success' : handlerArgs.newStatus === 'canceled' ? 'error' : ''
-                }
+                },
+                defaults:{uuid:v4()}
             }).then(async data => {
                 if (data[1] === true) {
                     await sendMail(userInfo.email, message, text)

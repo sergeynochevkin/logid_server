@@ -28,10 +28,11 @@ class MailService {
             subject: subject,
             html:
                 `
-                        <div>
-                        ${message}
-                        </div>
-            `
+            <div>${message}</div>
+            <br/>
+            <div>
+            <a href="https://logid.app/">https://logid.app/</a>
+            </div>`
         })
     }
 
