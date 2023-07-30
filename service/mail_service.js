@@ -21,19 +21,24 @@ class MailService {
     }
 
     async sendUserMail(to, subject, message, html, link) {
-        await this.transport.sendMail({
-            from: process.env.MAIL_FROM,
-            to: to,
-            bcc: '',
-            subject: subject,
-            html:
-                `
-            <div>${message}</div>
-            <br/>
-            <div>
-            <a href="https://logid.app/">https://logid.app/</a>
-            </div>`
-        })
+        try {
+            await this.transport.sendMail({
+                from: process.env.MAIL_FROM,
+                to: to,
+                bcc: '',
+                subject: subject,
+                html:
+                    `
+                <div>${message}</div>
+                <br/>
+                <div>
+                <a href="https://logid.app/">https://logid.app/</a>
+                </div>`
+            })
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     async sendActivationMail(to, link, language) {

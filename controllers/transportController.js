@@ -115,7 +115,7 @@ class TransportController {
                 ad_show
             }, { where: { id } })
 
-            if (transport.dataValues.ad_show) {
+            if (ad_show) {
                 await Transport.update({
                     moderated: 'not_checked'
                 }, { where: { id } })
