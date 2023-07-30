@@ -1,7 +1,8 @@
 const nodemailer = require('nodemailer');
 const { UserInfo, User, NotificationHistory } = require('../models/models');
 const translateService = require('../service/translate_service')
-const { Op, where } = require("sequelize")
+const { Op, where } = require("sequelize");
+const ApiError = require('../exceptions/api_error');
 
 class MailService {
 
@@ -35,9 +36,8 @@ class MailService {
                 <a href="https://logid.app/">https://logid.app/</a>
                 </div>`
             })
-
         } catch (error) {
-            console.log(error);
+            next(ApiError.badRequest(error.message))
         }
     }
 
