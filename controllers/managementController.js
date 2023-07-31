@@ -1,4 +1,4 @@
-const { Transport, User, UserInfo, Order, ServerNotification } = require('../models/models')
+const { Transport, User, UserInfo, Order, ServerNotification, Visit } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const mail_service = require('../service/mail_service')
@@ -9,6 +9,40 @@ const { defaults } = require('pg');
 const language_service = require('../service/language_service')
 
 class ManagementController {
+
+    async get_visits(req, res, next) {
+        try {
+            let resObject = {
+                toDay: '',
+                week: '',
+                month: ''
+            }
+
+            let currentTime = new Date()
+
+            let dayStart = currentTime.setHours(0, 0, 0, 0)
+
+            let monthOlder = currentTime - 1000 * 60 * 60 * 24 * 30.5
+            let weekOlder = currentTime - 1000 * 60 * 60 * 24 * 7
+
+            await Visit.destroy({ where: { createdAt: { [Op.lt]: monthOlder } } })
+            let visitsMonth = await Visit.findAll({ where: { createdAt: { [Op.gt]: monthOlder } } })
+            visitsMonth = new Set(visitsMonth.map(el => el.ip))
+            let visitsWeek = await Visit.findAll({ where: { createdAt: { [Op.gt]: weekOlder } } })
+            visitsWeek = new Set(visitsWeek.map(el => el.ip))
+            let visitsToDay = await Visit.findAll({ where: { createdAt: { [Op.gt]: dayStart } } })
+            visitsToDay = new Set(visitsToDay.map(el => el.ip))
+
+            resObject.month = [...visitsMonth].length
+            resObject.week = [...visitsWeek].length
+            resObject.toDay = [...visitsToDay].length
+
+            return res.json(resObject)
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
 
     async get_users(req, res, next) {
 
@@ -138,10 +172,10 @@ class ManagementController {
                             type: 'success'
                         }
                         ,
-                defaults:{uuid:v4()}
+                        defaults: { uuid: v4() }
                     })
                 }
-                
+
                 if (moderated === 'checked_not_accepted') {
                     let message = translate_service.setNativeTranslate(language, {
                         russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию и не допущен к показу на главной странице. Подробности в разделе транспорт`],
@@ -164,7 +198,7 @@ class ManagementController {
                             message: message,
                             type: 'error'
                         },
-                        defaults:{uuid:v4()}
+                        defaults: { uuid: v4() }
                     })
                 }
 

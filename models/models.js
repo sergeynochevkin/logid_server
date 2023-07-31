@@ -106,7 +106,7 @@ const Transport = sequelize.define('transport', {
     ad_text: { type: DataTypes.STRING, defaultValue: '' },
     ad_show: { type: DataTypes.BOOLEAN, defaultValue: false },
     moderated: { type: DataTypes.STRING, defaultValue: '' },
-    moderation_comment: { type: DataTypes.STRING, defaultValue: '' },    
+    moderation_comment: { type: DataTypes.STRING, defaultValue: '' },
 
     from_fast: { type: DataTypes.BOOLEAN, defaultValue: false },
 
@@ -484,6 +484,11 @@ const NotificationHistory = sequelize.define('notification_history', {
     status: { type: DataTypes.STRING, defaultValue: '' }
 })
 
+const Visit = sequelize.define('visit', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    ip: { type: DataTypes.STRING, defaultValue: '' },
+})
+
 
 UserInfo.hasOne(LimitCounter)
 LimitCounter.belongsTo(UserInfo)
@@ -572,7 +577,8 @@ module.exports = {
     OrderViewed,
     TransportByOrder,
     Invoice,
-    NotificationHistory
+    NotificationHistory,
+    Visit
 }
 
 

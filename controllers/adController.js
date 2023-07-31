@@ -1,9 +1,18 @@
 const { Op } = require('sequelize')
 const ApiError = require('../exceptions/api_error')
-const { User, Order, Transport, UserInfo } = require('../models/models')
+const { User, Order, Transport, UserInfo, Visit } = require('../models/models')
 
 class AdController {
 
+
+    async addVisit(req, res, next) {
+        try {
+            let { ip } = req.body
+            Visit.create({ ip } )
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
+        }
+    }
 
     async getMainCountersData(req, res, next) {
 
