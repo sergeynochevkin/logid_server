@@ -6,11 +6,12 @@ const ApiError = require('../exceptions/api_error')
 const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, SubscriptionOption, SubscriptionOptionsByPlan } = require('../models/models')
 const time_service = require('../service/time_service')
 const { Op } = require('sequelize')
+const limit_service = require('../service/limit_service')
 
 
 class UserController {
 
-
+    //not in use
     async registration(req, res, next) {
         try {
             const errors = validationResult(req)
@@ -30,6 +31,8 @@ class UserController {
             next(e);
         }
     }
+    //not in use
+
 
     async fast_registration(req, res, next) {
         try {
@@ -87,31 +90,7 @@ class UserController {
             await UserAppLimit.create({ userInfoId: user_info.id })
             await LimitCounter.create({ userInfoId: user_info.id })
 
-            let currentTime = new Date()
-            let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId: 6 } })
-            optionsByPlan = optionsByPlan.map(el => el.optionId)
-            let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: user_info.country } })
-
-            if (userData.user.role === 'carrier') {
-                let carrier_offer_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'offer')
-                carrier_offer_limit_per_day = carrier_offer_limit_per_day.limit
-                let carrier_take_order_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'take_order')
-                carrier_take_order_limit_per_day = carrier_take_order_limit_per_day.limit
-                let carrier_take_order_city_limit = options.find(el => el.role === 'carrier' && el.type === 'order_range')
-                carrier_take_order_city_limit = carrier_take_order_city_limit.limit
-                await UserAppLimit.update({ carrier_offer_limit_per_day, carrier_take_order_limit_per_day, carrier_take_order_city_limit }, { where: { userInfoId: user_info.id } })
-                await LimitCounter.update({ carrier_offer_amount_per_day: 0, carrier_take_order_amount_per_day: 0, carrier_take_order_started: currentTime, carrier_offer_started: currentTime }, { where: { userInfoId: user_info.id } })
-            }
-            if (userData.user.role === 'customer') {
-                let customer_create_order_limit_per_day = options.find(el => el.role === 'customer' && el.type === 'order')
-                customer_create_order_limit_per_day = customer_create_order_limit_per_day.limit
-                let customer_new_order_range = options.find(el => el.role === 'customer' && el.type === 'order_range')
-                customer_new_order_range = customer_new_order_range.limit
-                let customer_new_order_point_limit = options.find(el => el.role === 'customer' && el.type === 'point_limit')
-                customer_new_order_point_limit = customer_new_order_point_limit.limit
-                await UserAppLimit.update({ customer_create_order_limit_per_day, customer_new_order_range, customer_new_order_point_limit }, { where: { userInfoId: user_info.id } })
-                await LimitCounter.update({ customer_create_amount_per_day: 0, customer_create_started: currentTime }, { where: { userInfoId: user_info.id } })
-            }
+            await limit_service.setSubscriptionLimits(6, user_info)
 
             let userAppSettingsDefaultList = [
                 { name: 'sms_messaging', value: true, role: 'both' },

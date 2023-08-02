@@ -47,8 +47,11 @@ class TransportController {
                 refrigerator_plus,
                 thermo_van,
                 ad_text: ad_text.value,
-                ad_show
+                ad_show,
+                moderated:ad_show ? 'not_checked' : ''
             })
+
+        
 
             return res.json(transport)
         } catch (e) {
