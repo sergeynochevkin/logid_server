@@ -496,7 +496,7 @@ const NotificationHistory = sequelize.define('notification_history', {
     memberUserInfoId: { type: DataTypes.INTEGER },
     type: { type: DataTypes.STRING, defaultValue: '' },
     subject: { type: DataTypes.STRING, defaultValue: '' },
-    message: { type: DataTypes.STRING, defaultValue: '' },
+    message: { type: DataTypes.TEXT, defaultValue: '' },
     status: { type: DataTypes.STRING, defaultValue: '' }
 })
 
