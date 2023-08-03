@@ -271,8 +271,8 @@ class MailController {
 
                 member_subject = translateService.setNativeTranslate(language,
                     {
-                        russian: [option === 'create' ? 'Поступило' : option === 'update' ? 'Изменено' : option === 'delete' ? 'Удалено' : '', 'предложение по аукциону', order.id, 'предложений', option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length - 1 : option === 'update' ? offers.length : ''],
-                        english: [option === 'create' ? 'Recieved' : option === 'update' ? 'Updated' : option === 'delete' ? 'Deleted' : '', 'an offer for an auction', order.id, option === 'create' ? offers.length + 1 : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length - 1 : option === 'update' ? offers.length : '', 'proposals'],
+                        russian: [option === 'create' ? 'Поступило' : option === 'update' ? 'Изменено' : option === 'delete' ? 'Удалено' : '', 'предложение по аукциону', order.id, 'предложений', option === 'create' ? offers.length : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length : option === 'update' ? offers.length : ''],
+                        english: [option === 'create' ? 'Recieved' : option === 'update' ? 'Updated' : option === 'delete' ? 'Deleted' : '', 'an offer for an auction', order.id, option === 'create' ? offers.length : option === 'delete' && offers.length === 1 ? 'нет' : option === 'delete' && offers.length !== 1 ? offers.length : option === 'update' ? offers.length : '', 'proposals'],
                     }
                 )
 
