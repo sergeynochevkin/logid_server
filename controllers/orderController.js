@@ -612,9 +612,6 @@ class OrderController {
         let orderForChanges
         let { option, order_type, id, role, order_status, order_final_status, carrierId, userInfoId, cost, newTime, firstPointId, transport } = req.body
 
-
-
-
         try {
             if (option === 'restore') {
                 await Order.update({ restored: 'restored' }, { where: { id: id } })
@@ -649,10 +646,9 @@ class OrderController {
 
             }
 
-
             else if (role === 'carrier' && order_status === 'inWork') {
                 await Offer.destroy({ where: { orderId: id } })
-                await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
+                await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })//error
                 let userInfo = await UserInfo.findOne({ where: { userId: carrierId } })
                 let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
                 state = JSON.parse(state.dataValues.state)
