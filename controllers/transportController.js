@@ -1,4 +1,4 @@
-const { Transport, Offer, TransportByOrder, Order } = require('../models/models')
+const { Transport, Offer, TransportByOrder, Order, TransportViewed } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const fs = require('fs')
 const { setNativeTranslate } = require('../service/translate_service')
@@ -48,10 +48,10 @@ class TransportController {
                 thermo_van,
                 ad_text: ad_text.value,
                 ad_show,
-                moderated:ad_show ? 'not_checked' : ''
+                moderated: ad_show ? 'not_checked' : ''
             })
 
-        
+
 
             return res.json(transport)
         } catch (e) {
@@ -171,6 +171,7 @@ class TransportController {
             } else {
                 await Transport.destroy({ where: { id: id } })
                 await TransportByOrder.destroy({ where: { transportId: id } })
+                await TransportViewed.destroy({ where: { transportId: id } })
                 fs.rmSync(`./uploads/transport/${id}`, { recursive: true, force: true });
                 message = setNativeTranslate('russian', {
                     russian: ['Транспорт удален'],
@@ -182,6 +183,31 @@ class TransportController {
         }
         catch (e) {
             next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async viewed(req, res, next) {
+        try {
+            let { transportId, userInfoId } = req.body
+            await TransportViewed.findOrCreate({ where: { transportId, userInfoId } })
+            return res.send('viewed')
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
+        }
+    }
+
+    async contact_viewed(req, res, next) {
+        try {
+            let { transportId, userInfoId } = req.body
+            let transport = await TransportViewed.findOne({ where: { transportId, userInfoId } })
+            if (transport) {
+                await TransportViewed.update({ contact_viewed: true }, { where: { transportId, userInfoId } })
+            } else {
+                await TransportViewed.create({ transportId, userInfoId, contact_viewed: true })
+            }
+            return res.send('contact viewed')
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
         }
     }
 }

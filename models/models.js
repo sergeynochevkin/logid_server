@@ -458,7 +458,23 @@ const OrderViewed = sequelize.define('order_viewed', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     orderId: { type: DataTypes.INTEGER },
     userInfoId: { type: DataTypes.INTEGER },
+    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false }
 })
+
+const TransportViewed = sequelize.define('transport_viewed', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    transportId: { type: DataTypes.INTEGER },
+    userInfoId: { type: DataTypes.INTEGER },
+    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false }
+})
+
+const AdViewed = sequelize.define('ad_viewed', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    adId: { type: DataTypes.INTEGER },
+    userInfoId: { type: DataTypes.INTEGER },
+    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false }
+})
+
 
 const SafetyOrderHash = sequelize.define('safety_order_hash', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -578,7 +594,9 @@ module.exports = {
     TransportByOrder,
     Invoice,
     NotificationHistory,
-    Visit
+    Visit,
+    TransportViewed,
+    AdViewed
 }
 
 
