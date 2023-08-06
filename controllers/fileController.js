@@ -1,4 +1,4 @@
-const { Transport } = require('../models/models')
+const { Transport, Order } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const path = require('path')
@@ -49,9 +49,19 @@ class FileController {
         try {
             const { id, option, language, images, action } = req.body
 
-            if (action === 'update') {
+            if (action === 'update' && option ==='transport') {
                 let transport = await Transport.findOne({ where: { id } })
                 let fileNames = JSON.parse(transport.dataValues.files)
+                for (const name of fileNames) {
+                    fs.unlink(`./uploads/${option}/${id}/${name}`,
+                        err => {
+                            if (err) { console.log(err) }
+                        })
+                }
+            }
+            if (action === 'update'&& option ==='order') {
+                let order = await Order.findOne({ where: { id } })
+                let fileNames = JSON.parse(order.dataValues.files)
                 for (const name of fileNames) {
                     fs.unlink(`./uploads/${option}/${id}/${name}`,
                         err => {
@@ -99,7 +109,12 @@ class FileController {
             }
 
             // edit, attach images paths in array?!
-            await Transport.update({ files: JSON.stringify(compressed_names) }, { where: { id: id } })
+            if (option === 'transport') {
+                await Transport.update({ files: JSON.stringify(compressed_names) }, { where: { id: id } })
+            }
+            if (option === 'order') {
+                await Order.update({ files: JSON.stringify(compressed_names) }, { where: { id: id } })
+            }
 
             res.send('uploaded')
         } catch (e) {

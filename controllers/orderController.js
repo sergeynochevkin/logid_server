@@ -6,6 +6,8 @@ const { notificationHandler } = require('../modules/notificationHandler')
 const { filterHandler } = require('../modules/filterHandler')
 const limitService = require('../service/limit_service')
 const mailService = require('../service/mail_service')
+const fs = require('fs')
+
 
 class OrderController {
 
@@ -795,6 +797,7 @@ class OrderController {
             await Offer.destroy({ where: { orderId: orderForViews.id } })
             await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })
             await Point.destroy({ where: { orderIntegrationId: pointsIntegrationId } })
+            fs.rmSync(`./uploads/order/${orderForViews.dataValues.id}`, { recursive: true, force: true });
         }
         catch (e) {
             next(ApiError.badRequest(e.message))

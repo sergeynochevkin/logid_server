@@ -184,7 +184,7 @@ const Order = sequelize.define('order', {
 
     userInfoId: { type: DataTypes.INTEGER },
     pointsIntegrationId: { type: DataTypes.STRING },
-    // files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
+    files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
 
     direction_response: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
 })
