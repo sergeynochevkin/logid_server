@@ -64,6 +64,7 @@ const UserInfo = sequelize.define('user_info', {
     complete_orders_amount: { type: DataTypes.INTEGER, defaultValue: 0 },
     files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
     uuid: { type: DataTypes.STRING, defaultValue: v4() },
+    referal_id: { type: DataTypes.STRING },
 
     isModerated: { type: DataTypes.BOOLEAN, defaultValue: false },
     isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },

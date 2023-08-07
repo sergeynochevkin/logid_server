@@ -36,7 +36,7 @@ var certificate = fs.readFileSync('ssl/logid_app.crt');
 
 handlerTimer(subscriptionHandler, 1, 'hour', 1, 'day')
 
-handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
+// handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
 
 //в архив отмененные и завершенные + предупреждение
 handlerTimer(changeOrderStatusHandler, 2, 'hour', 1, 'day',
@@ -56,7 +56,7 @@ handlerTimer(changeOrderStatusHandler, 2, 'hour', 1, 'day',
     }
 )
 //отменять новые предложив сменить статус + предупреждение
-handlerTimer(changeOrderStatusHandler, 15, 'minute', 15, 'minute', // 15 минут для уведомления о смене типа на аукцион!
+handlerTimer(changeOrderStatusHandler, 2, 'hour', 1, 'day', // 15 минут для уведомления о смене типа на аукцион!
     {
         statusArray: ['new'],
         newStatus: 'canceled',
