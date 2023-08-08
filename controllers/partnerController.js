@@ -28,10 +28,15 @@ class PartnerController {
     async addPartnerByKey(req, res, next) {
         try {
             const {
-               language, role, userInfoId, key
+                language, role, userInfoId, key
             } = req.body
 
             let newPartner = await UserInfo.findOne({ where: { uuid: key } })
+
+            let user_info = await UserInfo.findOne({ where: { id: userInfoId } })
+
+            let partners = await Partner.findAll({ where: { userInfoId } })
+            partners = partners.map(el => el.partnerUserInfoId)
             let newPartnerRole
             if (newPartner) {
                 newPartnerRole = await User.findOne({ where: { id: newPartner.userId } })
@@ -41,7 +46,25 @@ class PartnerController {
             let partner
             let addedPartner
 
-            if (newPartner && (role !== newPartnerRole)) {
+
+            // myself
+            if (newPartner.dataValues.id === user_info.dataValues.id) {
+                partner = translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Вы не можете добавить партнером себя'],
+                        english: ['You cannot add yourself as a partner']
+                    }
+                )
+            }
+            else if (partners.includes(newPartner.id)) {
+                partner = translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Такой партнер уже есть'],
+                        english: ['Such a partner already exists']
+                    }
+                )
+            }
+            else if (newPartner && (role !== newPartnerRole)) {
                 partner = await Partner.findOrCreate({
                     where: {
                         userInfoId, partnerUserInfoId: newPartner.id
@@ -77,12 +100,14 @@ class PartnerController {
                     }
                 )}`
             }
-            else { partner = translateService.setNativeTranslate(language,
-                {
-                    russian: ['Партнер не найден'],
-                    english: ['Partner not found']
-                }
-            )}
+            else {
+                partner = translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Партнер не найден'],
+                        english: ['Partner not found']
+                    }
+                )
+            }
             return res.json(partner)
         } catch (e) {
             next(ApiError.badRequest(e.message))

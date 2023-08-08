@@ -7,6 +7,7 @@ const { User, ServerNotification, Translation, UserInfo, Transport, Notification
 const time_service = require('../service/time_service')
 const { Op } = require('sequelize')
 const limit_service = require('../service/limit_service')
+const { v4 } = require('uuid');
 
 
 class UserController {
@@ -77,7 +78,7 @@ class UserController {
 
 
             let userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
-            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone })
+            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid:v4() })
 
             //defaults copy from userinfo controller
             let initialTime = new Date();
