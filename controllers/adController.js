@@ -1,6 +1,6 @@
 const { Op } = require('sequelize')
 const ApiError = require('../exceptions/api_error')
-const { User, Order, Transport, UserInfo, Visit } = require('../models/models')
+const { User, Order, Transport, UserInfo, Visit, TransportViewed } = require('../models/models')
 
 class AdController {
 
@@ -8,7 +8,7 @@ class AdController {
     async addVisit(req, res, next) {
         try {
             let { ip } = req.body
-            Visit.create({ ip } )
+            Visit.create({ ip })
         } catch (error) {
             next(ApiError.badRequest(error.message))
         }
@@ -67,21 +67,46 @@ class AdController {
             let transports = await Transport.findAll({ where: { moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null } } })
 
             let users = []
+            let currentTime = new Date()
+            let dayStart = currentTime.setHours(0, 0, 0, 0)
 
             for (const transport of transports) {
                 let userObject = {
                     transport_id: '',
                     name: '',
                     phone: '',
-                    city: ''
+                    city: '',
+                    viewed: 0,
+                    viewed_today: 0,
+                    contact_viewed: 0,
+                    contact_viewed_today: 0
                 }
 
                 let userInfo = await UserInfo.findOne({ where: { id: transport.userInfoId } })
+                let views = await TransportViewed.findAll({ where: { transportId: transport.id } })
+
+                let views_today
+                let contact_views
+                let contact_views_today
+
+                if (views) {
+                    views_today = views.filter(el => el.createdAt > dayStart);
+                    contact_views = views.filter(el => el.contact_viewed);
+                    if (contact_views) {
+                        contact_views_today = contact_views.filter(el => el.createdAt > dayStart)
+                    }
+
+                }
 
                 userObject.transport_id = transport.id
                 userObject.name = userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
                 userObject.phone = userInfo.dataValues.phone
                 userObject.city = userInfo.dataValues.city
+                if (views) { userObject.viewed = views.length }
+                if (views_today) { userObject.viewed_today = views_today.length }
+                if (contact_views) { userObject.contact_viewed = contact_views.length }
+                if (contact_views_today) { userObject.contact_viewed_today = contact_views_today.length }
+                // and i need today
 
                 users.push(userObject)
             }
