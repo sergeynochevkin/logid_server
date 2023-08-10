@@ -7,6 +7,7 @@ const { filterHandler } = require('../modules/filterHandler')
 const limitService = require('../service/limit_service')
 const mailService = require('../service/mail_service')
 const fs = require('fs')
+const point_service = require('../service/point_service')
 
 
 class OrderController {
@@ -42,7 +43,8 @@ class OrderController {
             previousId,
             for_partner,
             for_group,
-            direction_response
+            direction_response,
+            pointFormData
         } = req.body
 
         try {
@@ -92,6 +94,9 @@ class OrderController {
                     for_group,
                     direction_response
                 })
+
+                await point_service.createPoints(pointFormData)
+
                 if (group.length !== 0) {
                     group.forEach(async element => {
                         await OrderByGroup.create({ orderId: order.id, groupId: element })
@@ -105,7 +110,7 @@ class OrderController {
                 await limitService.increase(userInfoId)
                 await mailService.sendEmailToAdmin(`New ${order_type} in ${city} created at ${process.env.CLIENT_URL}`, 'App notification')
                 return res.json(order)
-            } catch (error) {
+            } catch (e) {
                 next(e)
             }
         } catch (e) {
@@ -745,7 +750,8 @@ class OrderController {
                 for_partner,
                 for_group,
                 oldPointsId,
-                direction_response
+                direction_response,
+                pointFormData
             } = req.body
 
             await Point.destroy({ where: { orderIntegrationId: oldPointsId } }).then(
@@ -776,6 +782,8 @@ class OrderController {
                     for_group,
                     direction_response
                 }, { where: { id } })
+            ).then(
+                await point_service.createPoints(pointFormData)
             )
 
             return res.send('edited')
