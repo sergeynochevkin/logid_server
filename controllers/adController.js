@@ -59,12 +59,76 @@ class AdController {
     async getTransports(req, res, next) {
 
         try {
+
+            let { filters } = req.body
+
+            console.log(filters);
+
+            // let sortDirection
+            // let sortColumn
+
+            // if (filters.selectedSort === '') {
+            //     sortDirection = 'id'
+            //     sortColumn = 'ASC'
+            // }
+            // if (filters[order_status].selectedSort === 'default') {
+            //     sortDirection = 'id'
+            //     sortColumn = 'DESC'
+            // }
+            // if (filters[order_status].selectedSort === 'auctionFirst') {
+            //     sortDirection = 'order_type'
+            //     sortColumn = 'ASC'
+            // }
+            // if (filters[order_status].selectedSort === 'orderFirst') {
+            //     sortDirection = 'order_type'
+            //     sortColumn = 'DESC'
+            // }
+            // if (filters[order_status].selectedSort === 'costUp') {
+            //     sortDirection = 'cost'
+            //     sortColumn = 'ASC'
+            // }
+            // if (filters[order_status].selectedSort === 'costDown') {
+            //     sortDirection = 'cost'
+            //     sortColumn = 'DESC'
+            // }
+            // if (filters[order_status].selectedSort === 'firstCreated') {
+            //     sortDirection = 'createdAt'
+            //     sortColumn = 'DESC'
+            // }
+            // if (filters[order_status].selectedSort === 'lastCreated') {
+            //     sortDirection = 'createdAt'
+            //     sortColumn = 'ASC'
+            // }
+            // if (filters[order_status].selectedSort === 'finalStatus') {
+            //     sortDirection = 'order_final_status'
+            //     sortColumn = 'ASC'
+            // }
+            // if (filters[order_status].selectedSort === 'transportType') {
+            //     sortDirection = 'type'
+            //     sortColumn = 'ASC'
+            // }
+
             let resObject = {
                 rows: [],
                 users: []
             }
 
-            let transports = await Transport.findAll({ where: { moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null } } })
+            let transports = await Transport.findAll({
+                where: {
+                    moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
+                    type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
+                    load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
+                    side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
+                    refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
+                    refrigerator_plus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
+                    thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
+                    thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
+                    side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
+                    glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
+                    hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] }
+                }
+            })
+
 
             let users = []
             let currentTime = new Date()
