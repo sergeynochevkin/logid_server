@@ -120,7 +120,7 @@ class AdController {
                     load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
                     side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
                     refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
-                    refrigerator_plus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
+                    refrigerator_plus: filters.transports.refrigerator_plus ? filters.transports.refrigerator_plus : { [Op.in]: [false, true] },
                     thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
                     thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
                     side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
