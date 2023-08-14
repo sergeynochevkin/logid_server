@@ -184,32 +184,8 @@ class TransportController {
         catch (e) {
             next(ApiError.badRequest(e.message))
         }
-    }
-
-    async viewed(req, res, next) {
-        try {
-            let { transportId, userInfoId } = req.body
-            await TransportViewed.findOrCreate({ where: { transportId, userInfoId } })
-            return res.send('viewed')
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
-    }
-
-    async contact_viewed(req, res, next) {
-        try {
-            let { transportId, userInfoId } = req.body
-            let transport = await TransportViewed.findOne({ where: { transportId, userInfoId } })
-            if (transport) {
-                await TransportViewed.update({ contact_viewed: true }, { where: { transportId, userInfoId } })
-            } else {
-                await TransportViewed.create({ transportId, userInfoId, contact_viewed: true })
-            }
-            return res.send('contact viewed')
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
-    }
+    } 
+  
 }
 
 module.exports = new TransportController()

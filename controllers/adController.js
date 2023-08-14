@@ -1,9 +1,40 @@
-const { Op } = require('sequelize')
+const { Op, where } = require('sequelize')
 const ApiError = require('../exceptions/api_error')
 const { User, Order, Transport, UserInfo, Visit, TransportViewed } = require('../models/models')
+const { defaults } = require('pg')
 
 class AdController {
 
+    async addView(req, res, next) {
+        try {
+            let { option, item_id, ip } = req.body
+            if (option === 'transport') {
+                await TransportViewed.findOrCreate({ where: { transportId: item_id, ip } })
+            }
+
+            return res.send('viewed')
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
+        }
+    }
+
+    async addContactView(req, res, next) {
+        try {
+            let { option, item_id, ip, id } = req.body
+            if (option === 'transport') {
+                await TransportViewed.findOrCreate({ where: { transportId: item_id, userInfoId: id }, defaults: { contact_viewed: true } })
+
+                let view = await TransportViewed.findOne({ where: { ip } })
+                if (!view) {
+                    await TransportViewed.findOrCreate({ where: { transportId: item_id, ip } })
+                }
+            }
+
+            return res.send('contact viewed')
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
+        }
+    }
 
     async addVisit(req, res, next) {
         try {
@@ -147,19 +178,18 @@ class AdController {
                 }
 
                 let userInfo = await UserInfo.findOne({ where: { id: transport.userInfoId } })
-                let views = await TransportViewed.findAll({ where: { transportId: transport.id } })
+                let views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: false } })
+                let contact_views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: true } })
+
 
                 let views_today
-                let contact_views
                 let contact_views_today
 
                 if (views) {
-                    views_today = views.filter(el => el.createdAt > dayStart);
-                    contact_views = views.filter(el => el.contact_viewed);
-                    if (contact_views) {
-                        contact_views_today = contact_views.filter(el => el.createdAt > dayStart)
-                    }
-
+                    views_today = views.filter(el => el.createdAt > dayStart)
+                }
+                if (contact_views) {
+                    contact_views_today = contact_views.filter(el => el.createdAt > dayStart)
                 }
 
                 userObject.transport_id = transport.id

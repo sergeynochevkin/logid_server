@@ -466,14 +466,16 @@ const TransportViewed = sequelize.define('transport_viewed', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     transportId: { type: DataTypes.INTEGER },
     userInfoId: { type: DataTypes.INTEGER },
-    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false }
+    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false },
+    ip: { type: DataTypes.STRING }
 })
 
 const AdViewed = sequelize.define('ad_viewed', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     adId: { type: DataTypes.INTEGER },
     userInfoId: { type: DataTypes.INTEGER },
-    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false }
+    contact_viewed: { type: DataTypes.BOOLEAN, defaultValue: false },
+    ip: { type: DataTypes.STRING }
 })
 
 
