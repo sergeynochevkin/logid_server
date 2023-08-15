@@ -87,13 +87,10 @@ class AdController {
         }
     }
 
+
     async getTransports(req, res, next) {
-
         try {
-
-            let { filters } = req.body
-
-            console.log(filters);
+            let { filters, option } = req.body
 
             // let sortDirection
             // let sortColumn
@@ -138,33 +135,50 @@ class AdController {
             //     sortDirection = 'type'
             //     sortColumn = 'ASC'
             // }
-
             let resObject = {
                 rows: [],
                 users: []
             }
-
-            let transports = await Transport.findAll({
-                where: {
-                    moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
-                    type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
-                    load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
-                    side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
-                    refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
-                    refrigerator_plus: filters.transports.refrigerator_plus ? filters.transports.refrigerator_plus : { [Op.in]: [false, true] },
-                    thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
-                    thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
-                    side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
-                    glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
-                    hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] }
-                }
-            })
-
-
+            let transports
+            if (option !== 'random') {
+                transports = await Transport.findAll({
+                    where: {
+                        moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
+                        type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
+                        load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
+                        side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
+                        refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
+                        refrigerator_plus: filters.transports.refrigerator_plus ? filters.transports.refrigerator_plus : { [Op.in]: [false, true] },
+                        thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
+                        thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
+                        side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
+                        glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
+                        hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] }
+                    }
+                })
+            } else {
+                let i = 0
+                let indexArray = []
+                transports = []
+                let all_transport = await Transport.findAll({raw: true})
+                let length = filters.transports.main_limit              
+                for (; i < length + 10; i++) {
+                    let index = Math.floor(Math.random() * all_transport.length);
+                    if (!indexArray.includes(index)) {
+                        indexArray.push(index)
+                        if (indexArray.length === length) {
+                            break
+                        }
+                    }
+                }          
+                for (const index of indexArray) {
+                    transports.push(all_transport[index])
+                }             
+                // console.log(transports);
+            }
             let users = []
             let currentTime = new Date()
             let dayStart = currentTime.setHours(0, 0, 0, 0)
-
             for (const transport of transports) {
                 let userObject = {
                     transport_id: '',
@@ -176,22 +190,17 @@ class AdController {
                     contact_viewed: 0,
                     contact_viewed_today: 0
                 }
-
                 let userInfo = await UserInfo.findOne({ where: { id: transport.userInfoId } })
                 let views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: false } })
                 let contact_views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: true } })
-
-
                 let views_today
                 let contact_views_today
-
                 if (views) {
                     views_today = views.filter(el => el.createdAt > dayStart)
                 }
                 if (contact_views) {
                     contact_views_today = contact_views.filter(el => el.createdAt > dayStart)
                 }
-
                 userObject.transport_id = transport.id
                 userObject.name = userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
                 userObject.name = userObject.name.trim()
@@ -202,13 +211,10 @@ class AdController {
                 if (contact_views) { userObject.contact_viewed = contact_views.length }
                 if (contact_views_today) { userObject.contact_viewed_today = contact_views_today.length }
                 // and i need today
-
                 users.push(userObject)
             }
-
             resObject.rows = [...transports]
             resObject.users = [...users]
-
             return res.json(resObject)
         } catch (e) {
             next(ApiError.badRequest(e.message))
