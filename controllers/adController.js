@@ -194,6 +194,7 @@ class AdController {
 
                 userObject.transport_id = transport.id
                 userObject.name = userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
+                userObject.name = userObject.name.trim()
                 userObject.phone = userInfo.dataValues.phone
                 userObject.city = userInfo.dataValues.city
                 if (views) { userObject.viewed = views.length }
