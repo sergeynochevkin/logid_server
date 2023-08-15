@@ -160,8 +160,8 @@ class AdController {
                 let i = 0
                 let indexArray = []
                 transports = []
-                let all_transport = await Transport.findAll({raw: true})
-                let length = filters.transports.main_limit              
+                let all_transport = await Transport.findAll({ raw: true, where: { moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null } } })
+                let length = filters.transports.main_limit
                 for (; i < length + 10; i++) {
                     let index = Math.floor(Math.random() * all_transport.length);
                     if (!indexArray.includes(index)) {
@@ -170,10 +170,10 @@ class AdController {
                             break
                         }
                     }
-                }          
+                }
                 for (const index of indexArray) {
                     transports.push(all_transport[index])
-                }             
+                }
                 // console.log(transports);
             }
             let users = []
