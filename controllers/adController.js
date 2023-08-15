@@ -140,7 +140,7 @@ class AdController {
                 users: []
             }
             let transports
-            if (option !== 'random') {
+            if (option !== 'main') {
                 transports = await Transport.findAll({
                     where: {
                         moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
