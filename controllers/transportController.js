@@ -30,7 +30,8 @@ class TransportController {
                 refrigerator_plus,
                 thermo_van,
                 ad_text,
-                ad_show
+                ad_show,
+                ad_name
             } = formData
 
             let transport = await Transport.create({
@@ -48,6 +49,7 @@ class TransportController {
                 thermo_van,
                 ad_text: ad_text.value,
                 ad_show,
+                ad_name: ad_name.value,
                 moderated: ad_show ? 'not_checked' : ''
             })
 
@@ -96,7 +98,8 @@ class TransportController {
                 refrigerator_plus,
                 thermo_van,
                 ad_text,
-                ad_show
+                ad_show,
+                ad_name
             } = formData
 
             let transport = await Transport.findOne({ where: { id } })
@@ -115,7 +118,8 @@ class TransportController {
                 refrigerator_plus,
                 thermo_van,
                 ad_text: ad_text.value,
-                ad_show
+                ad_show,
+                ad_name: ad_name.value
             }, { where: { id } })
 
             if (ad_show) {

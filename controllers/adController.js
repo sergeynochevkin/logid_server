@@ -202,7 +202,7 @@ class AdController {
                     contact_views_today = contact_views.filter(el => el.createdAt > dayStart)
                 }
                 userObject.transport_id = transport.id
-                userObject.name = userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
+                userObject.name = transport.ad_name ? transport.ad_name : userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
                 userObject.name = userObject.name.trim()
                 userObject.phone = userInfo.dataValues.phone
                 userObject.city = userInfo.dataValues.city
