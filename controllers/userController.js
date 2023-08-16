@@ -110,7 +110,7 @@ class UserController {
             }
             //defaults the end
 
-            if (role === 'carrier') {
+            if (role === 'carrier' && type) {
                 const transport = await Transport.create({
                     userInfoId: user_info.id,
                     thermo_bag,
