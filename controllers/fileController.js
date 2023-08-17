@@ -49,7 +49,7 @@ class FileController {
         try {
             const { id, option, language, images, action } = req.body
 
-            if (action === 'update' && option ==='transport') {
+            if (action === 'update' && option === 'transport') {
                 let transport = await Transport.findOne({ where: { id } })
                 let fileNames = JSON.parse(transport.dataValues.files)
                 for (const name of fileNames) {
@@ -59,7 +59,7 @@ class FileController {
                         })
                 }
             }
-            if (action === 'update'&& option ==='order') {
+            if (action === 'update' && option === 'order') {
                 let order = await Order.findOne({ where: { id } })
                 let fileNames = JSON.parse(order.dataValues.files)
                 for (const name of fileNames) {
@@ -83,21 +83,23 @@ class FileController {
                 //check extention
                 let nameArray = name.split('.')
                 let ext = nameArray[1]
+                let clean_name = nameArray[0]
+
 
                 //if jpeg, jpg
                 if (ext === 'jpeg' || 'jpg') {
                     await sharp(`./uploads/${option}/${id}/${name}`)
                         .withMetadata()
-                        .jpeg({ quality: 20 })
-                        .toFile(`./uploads/${option}/${id}/_${name}`);
+                        .webp({ quality: 30 })
+                        .toFile(`./uploads/${option}/${id}/_${clean_name}.webp`);
                 }
 
                 //if png
                 if (ext === 'png') {
                     await sharp(`./uploads/${option}/${id}/${name}`)
                         .withMetadata()
-                        .png({ quality: 20 })//works but incorrect!
-                        .toFile(`./uploads/${option}/${id}/_${name}`);
+                        .webp({ quality: 30 })
+                        .toFile(`./uploads/${option}/${id}/_${clean_name}.webp`);
                 }
 
                 fs.unlink(`./uploads/${option}/${id}/${name}`,
@@ -105,7 +107,7 @@ class FileController {
                         if (err) { console.log(err) }
                     })
 
-                compressed_names.push(`_${name}`)
+                compressed_names.push(`_${clean_name}.webp`)
             }
 
             // edit, attach images paths in array?!
