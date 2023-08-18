@@ -141,6 +141,7 @@ class AdController {
             }
             let transports
             if (option !== 'main') {
+                //search logics
                 transports = await Transport.findAll({
                     where: {
                         moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
@@ -153,7 +154,7 @@ class AdController {
                         thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
                         side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
                         glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
-                        hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] }
+                        hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] },                        
                     }
                 })
             } else {
