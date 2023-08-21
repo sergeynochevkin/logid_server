@@ -4,6 +4,7 @@ const fs = require('fs')
 const { setNativeTranslate } = require('../service/translate_service')
 const language_service = require('../service/language_service');
 const { Op } = require('sequelize')
+const mail_service = require('../service/mail_service');
 
 
 
@@ -53,6 +54,9 @@ class TransportController {
                 moderated: ad_show ? 'not_checked' : ''
             })
 
+            if (ad_show) {
+                await mail_service.sendEmailToAdmin(`New transport ${transport.id} for moderation`, `New transport ${transport.id} for moderation`)
+            }
 
 
             return res.json(transport)
@@ -126,6 +130,8 @@ class TransportController {
                 await Transport.update({
                     moderated: 'not_checked'
                 }, { where: { id } })
+                await mail_service.sendEmailToAdmin(`Updated transport ${id} for moderation`, `Updated transport ${id} for moderation`)
+
             }
 
             if (transport.dataValues.from_fast) {
@@ -188,8 +194,8 @@ class TransportController {
         catch (e) {
             next(ApiError.badRequest(e.message))
         }
-    } 
-  
+    }
+
 }
 
 module.exports = new TransportController()
