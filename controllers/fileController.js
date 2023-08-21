@@ -26,7 +26,7 @@ class FileController {
         limits: { fileSize: '10000000' },
         fileFilter: function (req, file, cb) {
             const { language } = req.body
-            const fileTypes = /jpeg|jpg|png/
+            const fileTypes = /jpeg|jpg|png|webp/
             const mimeType = fileTypes.test(file.mimetype)
             // const extname = fileTypes.test(file.extname(file.originalname))
             if (mimeType /*&& extname*/) {
