@@ -139,24 +139,59 @@ class AdController {
                 rows: [],
                 users: []
             }
+
+
+
             let transports
             if (option !== 'main') {
                 //search logics
-                transports = await Transport.findAll({
-                    where: {
-                        moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
-                        type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
-                        load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
-                        side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
-                        refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
-                        refrigerator_plus: filters.transports.refrigerator_plus ? filters.transports.refrigerator_plus : { [Op.in]: [false, true] },
-                        thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
-                        thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
-                        side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
-                        glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
-                        hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] },                        
-                    }
-                })
+                if (filters.transports.city && filters.transports.city !== 'All' && filters.transports.city !== 'Все') {
+                    let user_infos
+                    user_infos = await UserInfo.findAll({
+                        where: {
+                            city: filters.transports.city
+                        }
+                    })
+                    user_infos = user_infos.map(el => el.id)
+                    transports = await Transport.findAll({
+                        where: {
+                            moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
+                            type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
+                            load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
+                            side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
+                            refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
+                            refrigerator_plus: filters.transports.refrigerator_plus ? filters.transports.refrigerator_plus : { [Op.in]: [false, true] },
+                            thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
+                            thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
+                            side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
+                            glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
+                            hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] },
+                            [Op.or]: [{ ad_text: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.transports.searchString}%` : '%%' } }, , { ad_name: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }],
+                            userInfoId: { [Op.in]: user_infos }
+                        },
+                        offset: 0,
+                        limit: filters.transports.limit
+                    })
+                } else {
+                    transports = await Transport.findAll({
+                        where: {
+                            moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
+                            type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
+                            load_capacity: filters.transports.load_capacity !== '' ? filters.transports.load_capacity : { [Op.ne]: 'all' },
+                            side_type: filters.transports.side_type !== '' ? filters.transports.side_type : { [Op.ne]: 'all' },
+                            refrigerator_minus: filters.transports.refrigerator_minus ? filters.transports.refrigerator_minus : { [Op.in]: [false, true] },
+                            refrigerator_plus: filters.transports.refrigerator_plus ? filters.transports.refrigerator_plus : { [Op.in]: [false, true] },
+                            thermo_van: filters.transports.thermo_van ? filters.transports.thermo_van : { [Op.in]: [false, true] },
+                            thermo_bag: filters.transports.thermo_bag ? filters.transports.thermo_bag : { [Op.in]: [false, true] },
+                            side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
+                            glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
+                            hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] },
+                            [Op.or]: [{ ad_text: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }, , { ad_name: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }]
+                        },
+                        offset: 0,
+                        limit: filters.transports.limit
+                    })
+                }
             } else {
                 let i = 0
                 let indexArray = []

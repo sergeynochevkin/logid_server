@@ -1,5 +1,6 @@
-const { SubscriptionPlan, SubscriptionOptionsByPlan, SubscriptionOption, Equipment, TransportType, TransportLoadCapacity, Translation, TransportSideType, Country } = require('../models/models')
+const { SubscriptionPlan, SubscriptionOptionsByPlan, SubscriptionOption, Equipment, TransportType, TransportLoadCapacity, Translation, TransportSideType, Country, UserInfo } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
+const { where } = require('sequelize')
 
 class DefaultDataController {
 
@@ -12,7 +13,8 @@ class DefaultDataController {
             subscripton_plans: [],
             subscripton_options: [],
             subscripton_options_by_plans: [],
-            countries: []
+            countries: [],
+            cities: []
         }
 
         let subscripton_plans = await SubscriptionPlan.findAll()
@@ -24,6 +26,10 @@ class DefaultDataController {
         let transport_load_capacities = await TransportLoadCapacity.findAll()
         let countries = await Country.findAll()
 
+        let user_infos = await UserInfo.findAll()
+        let cities = user_infos.map(el => el.city)
+        cities = [...new Set(cities)]
+
         data.subscripton_plans = subscripton_plans
         data.subscripton_options = subscripton_options
         data.subscripton_options_by_plans = subscripton_options_by_plans
@@ -32,6 +38,7 @@ class DefaultDataController {
         data.transport_side_types = transport_side_types
         data.transport_load_capacities = transport_load_capacities
         data.countries = countries
+        data.cities = cities
 
         return res.json(data)
     }
