@@ -2,6 +2,7 @@ const { Op, where } = require('sequelize')
 const ApiError = require('../exceptions/api_error')
 const { User, Order, Transport, UserInfo, Visit, TransportViewed } = require('../models/models')
 const { defaults } = require('pg')
+const translate_service = require('../service/translate_service')
 
 class AdController {
 
@@ -199,7 +200,7 @@ class AdController {
                 if (userInfoId) {
                     console.log('!!!!!');
                     console.log(userInfoId);
-                    let self_transports = await Transport.findAll({ raw: true, where: { userInfoId:userInfoId } })
+                    let self_transports = await Transport.findAll({ raw: true, where: { userInfoId: userInfoId } })
                     transports = transports.filter(el => el.userInfoId !== userInfoId)
                     transports = [...transports, ...self_transports]
                 }
@@ -235,7 +236,8 @@ class AdController {
                     viewed: 0,
                     viewed_today: 0,
                     contact_viewed: 0,
-                    contact_viewed_today: 0
+                    contact_viewed_today: 0,
+                    rating: ''
                 }
                 let userInfo = await UserInfo.findOne({ raw: true, where: { id: transport.userInfoId } })
                 let views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: false } })
@@ -257,7 +259,8 @@ class AdController {
                 if (views_today) { userObject.viewed_today = views_today.length }
                 if (contact_views) { userObject.contact_viewed = contact_views.length }
                 if (contact_views_today) { userObject.contact_viewed_today = contact_views_today.length }
-                // and i need today
+                userObject.rating = userInfo.total_rating > 0 ? userInfo.total_rating :
+                    userInfo.solvency_amount > 0 || userInfo.politeness_amount > 0 || userInfo.facilities_amount > 0 || userInfo.in_time_amount > 0 ? userInfo.total_rating : 'no_rating'
                 users.push(userObject)
             }
             resObject.rows = [...transports]
