@@ -142,7 +142,7 @@ class AdController {
 
 
 
-            let transports
+            let transports = []
             if (option !== 'main') {
                 //search logics
                 if (filters.transports.city && filters.transports.city !== 'All' && filters.transports.city !== 'Все') {
@@ -153,7 +153,9 @@ class AdController {
                         }
                     })
                     user_infos = user_infos.map(el => el.id)
+
                     transports = await Transport.findAll({
+                        raw: true,
                         where: {
                             moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
                             type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
@@ -174,6 +176,7 @@ class AdController {
                     })
                 } else {
                     transports = await Transport.findAll({
+                        raw: true,
                         where: {
                             moderated: 'checked_accepted', ad_show: true, ad_text: { [Op.ne]: null }, files: { [Op.ne]: null },
                             type: filters.transports.type !== '' ? filters.transports.type : { [Op.ne]: 'all' },
@@ -186,16 +189,19 @@ class AdController {
                             side_loading: filters.transports.side_loading ? filters.transports.side_loading : { [Op.in]: [false, true] },
                             glass_stand: filters.transports.glass_stand ? filters.transports.glass_stand : { [Op.in]: [false, true] },
                             hydraulic_platform: filters.transports.hydraulic_platform ? filters.transports.hydraulic_platform : { [Op.in]: [false, true] },
-                            [Op.or]: [{ ad_text: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }, , { ad_name: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }]
+                            [Op.or]: [{ ad_text: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }, , { ad_name: { [Op.iLike]: filters.transports.searchString.length > 0 ? `%${filters.transports.searchString}%` : '%%' } }],
                         },
                         offset: 0,
                         limit: filters.transports.limit
-                    })
+                    }
+                    )
                 }
-
                 if (userInfoId) {
-                    self_transports = await Transport.findAll({ where: { userInfoId } })
-                    transports = { ...transports, self_transports }
+                    console.log('!!!!!');
+                    console.log(userInfoId);
+                    let self_transports = await Transport.findAll({ raw: true, where: { userInfoId:userInfoId } })
+                    transports = transports.filter(el => el.userInfoId !== userInfoId)
+                    transports = [...transports, ...self_transports]
                 }
             } else {
                 let i = 0
@@ -215,7 +221,7 @@ class AdController {
                 for (const index of indexArray) {
                     transports.push(all_transport[index])
                 }
-                // console.log(transports);
+
             }
             let users = []
             let currentTime = new Date()
@@ -231,7 +237,7 @@ class AdController {
                     contact_viewed: 0,
                     contact_viewed_today: 0
                 }
-                let userInfo = await UserInfo.findOne({ where: { id: transport.userInfoId } })
+                let userInfo = await UserInfo.findOne({ raw: true, where: { id: transport.userInfoId } })
                 let views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: false } })
                 let contact_views = await TransportViewed.findAll({ where: { transportId: transport.id, contact_viewed: true } })
                 let views_today
@@ -243,10 +249,10 @@ class AdController {
                     contact_views_today = contact_views.filter(el => el.createdAt > dayStart)
                 }
                 userObject.transport_id = transport.id
-                userObject.name = transport.ad_name ? transport.ad_name : userInfo.dataValues.legal === 'person' ? userInfo.dataValues.name_surname_fathersname : userInfo.dataValues.company_name
+                userObject.name = transport.ad_name ? transport.ad_name : userInfo.legal === 'person' ? userInfo.name_surname_fathersname : userInfo.company_name
                 userObject.name = userObject.name.trim()
-                userObject.phone = userInfo.dataValues.phone
-                userObject.city = userInfo.dataValues.city
+                userObject.phone = userInfo.phone
+                userObject.city = userInfo.city
                 if (views) { userObject.viewed = views.length }
                 if (views_today) { userObject.viewed_today = views_today.length }
                 if (contact_views) { userObject.contact_viewed = contact_views.length }
