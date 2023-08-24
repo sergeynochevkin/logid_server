@@ -90,7 +90,7 @@ class AdController {
 
     async getTransports(req, res, next) {
         try {
-            let { filters, option } = req.body
+            let { filters, option, userInfoId } = req.body
 
             // let sortDirection
             // let sortColumn
@@ -191,6 +191,11 @@ class AdController {
                         offset: 0,
                         limit: filters.transports.limit
                     })
+                }
+
+                if (userInfoId) {
+                    self_transports = await Transport.findAll({ where: { userInfoId } })
+                    transports = { ...transports, self_transports }
                 }
             } else {
                 let i = 0
