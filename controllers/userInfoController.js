@@ -267,6 +267,26 @@ class UserInfoController {
 
         }
     }
+
+    async updateLocation(req, res, next) {
+        try {
+            let {
+                location
+            } = req.body
+
+            let id = location.id
+            delete location.id
+
+            await UserInfo.update({location:JSON.stringify(location)}, { where: { id } })
+
+            return res.send('updated')
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+
 }
 
 module.exports = new UserInfoController()

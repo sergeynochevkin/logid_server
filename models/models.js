@@ -66,6 +66,8 @@ const UserInfo = sequelize.define('user_info', {
     uuid: { type: DataTypes.STRING, defaultValue: '' },
     referal_id: { type: DataTypes.STRING },
 
+    location: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
+
     isModerated: { type: DataTypes.BOOLEAN, defaultValue: false },
     isChecked: { type: DataTypes.BOOLEAN, defaultValue: false },
 })

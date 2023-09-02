@@ -24,6 +24,7 @@
     "path": "^0.12.7",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
+    "react-geolocated": "^4.1.2",
     "sequelize": "^6.19.0",
     "sharp": "^0.32.4",
     "sms_ru": "^0.0.1",
