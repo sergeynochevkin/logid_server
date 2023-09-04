@@ -81,8 +81,8 @@ class OrderController {
                     userInfoId,
                     pointsIntegrationId,
                     carrierId,
-                    for_partner,
-                    for_group,
+                    for_partner: for_partner ? for_partner : null,
+                    for_group: for_group ? for_group : null,
                     direction_response,
                     yandex_url,
                     google_url
@@ -352,21 +352,18 @@ class OrderController {
 
                     let currentRows = []
                     for (const row of order.rows) {
-                        let for_partner = await OrderByPartner.findAll({ where: { orderId: row.id } })
-                        for_partner = for_partner.map(el => el.partnerId)
-
-                        let for_group = await OrderByGroup.findAll({ where: { orderId: row.id } })
-                        for_group = for_group.map(el => el.groupId)
+                        let for_partner = row.for_partner
+                        let for_group = row.for_group
 
                         let partners = []
 
-                        if (for_partner.length !== 0 || for_group.length !== 0) {
+                        if (for_partner || for_group) {
                             let partnersByGroups = []
-                            if (for_group.length !== 0) {
-                                partnersByGroups = await PartnerByGroup.findAll({ where: { partnerGroupId: { [Op.in]: for_group } } })
+                            if (for_group) {
+                                partnersByGroups = await PartnerByGroup.findAll({ where: { partnerGroupId: for_group } })
                                 partnersByGroups = partnersByGroups.length > 0 ? partnersByGroups.map(el => el.partnerId) : []
                             }
-                            partners = [...partnersByGroups, ...for_partner]
+                            partners = [...partnersByGroups, for_partner]
                             partners = [...new Set(partners)];
 
                             if (partners.includes(userInfoId)) {
@@ -412,21 +409,18 @@ class OrderController {
 
                 let currentNewOrdersState = []
                 for (const row of newOrdersState) {
-                    let for_partner = await OrderByPartner.findAll({ where: { orderId: row.id } })
-                    for_partner = for_partner.map(el => el.partnerId)
-
-                    let for_group = await OrderByGroup.findAll({ where: { orderId: row.id } })
-                    for_group = for_group.map(el => el.groupId)
+                    let for_partner = row.for_partner
+                    let for_group = row.for_group
 
                     let partners = []
 
-                    if (for_group.length !== 0 || for_partner.length !== 0) {
+                    if (for_group || for_partner) {
                         let partnersByGroups = []
-                        if (for_group.length !== 0) {
-                            partnersByGroups = await PartnerByGroup.findAll({ where: { partnerGroupId: { [Op.in]: for_group } } })
+                        if (for_group) {
+                            partnersByGroups = await PartnerByGroup.findAll({ where: { partnerGroupId: for_group } })
                             partnersByGroups = partnersByGroups.length > 0 ? partnersByGroups.map(el => el.partnerId) : []
                         }
-                        partners = [...partnersByGroups, ...for_partner]
+                        partners = [...partnersByGroups, for_partner]
                         partners = [...new Set(partners)];
 
                         if (partners.includes(userInfoId)) {
@@ -701,11 +695,7 @@ class OrderController {
 
     async edit(req, res, next) {
         try {
-            let order
-            let complete_orders_amount
-            let carrierUserInfo
-            let customerUserInfo
-            let orderForChanges
+        
             let {
                 id,
                 order_comment,
@@ -761,8 +751,8 @@ class OrderController {
                     order_type,
                     pointsIntegrationId,
                     files,
-                    for_partner,
-                    for_group,
+                    for_partner: for_partner ? for_partner : null,
+                    for_group: for_group ? for_group : null,
                     direction_response
                 }, { where: { id } })
             ).then(
