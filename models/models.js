@@ -18,6 +18,9 @@ const User = sequelize.define('user', {
     cookies_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
     age_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
     personal_data_agreement_accepted: { type: DataTypes.BOOLEAN, defaultValue: false },
+
+    user_id: { type: DataTypes.INTEGER },
+    user_info_uuid: { type: DataTypes.STRING, defaultValue: '' }
 })
 
 const Token = sequelize.define('token', {
@@ -121,6 +124,18 @@ const TransportByOrder = sequelize.define('transport_by_order', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     transportId: { type: DataTypes.INTEGER },
     orderId: { type: DataTypes.INTEGER },
+})
+
+const DriverByOrder = sequelize.define('driver_by_order', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    driverId: { type: DataTypes.INTEGER },
+    orderId: { type: DataTypes.INTEGER },
+})
+
+const TransportByDriver = sequelize.define('transport_by_driver', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    driverId: { type: DataTypes.INTEGER },
+    transportId: { type: DataTypes.INTEGER },
 })
 
 // what to do if transport deleted cut it from user info
@@ -602,7 +617,9 @@ module.exports = {
     NotificationHistory,
     Visit,
     TransportViewed,
-    AdViewed
+    AdViewed,
+    DriverByOrder,
+    TransportByDriver
 }
 
 

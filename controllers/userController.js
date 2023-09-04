@@ -12,26 +12,57 @@ const { v4 } = require('uuid');
 
 class UserController {
 
-    //not in use
-    async registration(req, res, next) {
-        try {
-            const errors = validationResult(req)
-            if (!errors.isEmpty()) {
-                return next(ApiError.badRequest(translateService.setNativeTranslate('english',
-                    {
-                        russian: ['Ошибка валидации'],
-                        english: ['Validation error']
-                    }
-                ), errors.array()))//at last
+        //driver
+        async driver_registration(req, res, next) {
+            try {
+                let { } = req.body
+            } catch (error) {
+    
             }
-            const { email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted } = req.body
-            const userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
-            res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
-            return res.json(userData)
-        } catch (e) {
-            next(e);
         }
-    }
+        async get_drivers(req, res, next) {
+            try {
+    
+            } catch (error) {
+    
+            }
+        }
+        async update_driver(req, res, next) {
+            try {
+    
+            } catch (error) {
+    
+            }
+        }
+        async delete_driver(req, res, next) {
+            try {
+    
+            } catch (error) {
+    
+            }
+        }
+        //driver
+
+    //not in use
+    // async registration(req, res, next) {
+    //     try {
+    //         const errors = validationResult(req)
+    //         if (!errors.isEmpty()) {
+    //             return next(ApiError.badRequest(translateService.setNativeTranslate('english',
+    //                 {
+    //                     russian: ['Ошибка валидации'],
+    //                     english: ['Validation error']
+    //                 }
+    //             ), errors.array()))//at last
+    //         }
+    //         const { email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted } = req.body
+    //         const userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
+    //         res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
+    //         return res.json(userData)
+    //     } catch (e) {
+    //         next(e);
+    //     }
+    // }
     //not in use
 
 
@@ -78,7 +109,7 @@ class UserController {
 
 
             let userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
-            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid:v4() })
+            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4() })
 
             //defaults copy from userinfo controller
             let initialTime = new Date();

@@ -786,56 +786,68 @@ class OrderController {
                 await point_service.createPoints(pointFormData)
             )
 
-            return res.send('edited')
+            await OrderByGroup.destroy({ where: { orderId: id } })
+            await OrderByPartner.destroy({ where: { orderId: id } })
 
+            if (for_group) {
+                let group = JSON.parse(for_group)
+                await OrderByGroup.create({ orderId: id, groupId: group })
+            }
+        
+            if (for_partner) {
+            let partner = JSON.parse(for_partner)
+            await OrderByPartner.create({ orderId: id, partnerId: partner })
         }
-        catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
+        return res.send('edited')
+
     }
-
-
-    async delete(req, res, next) {
-        try {
-            let { pointsIntegrationId } = req.query
-            let orderForViews
-            orderForViews = await Order.findOne({ where: { pointsIntegrationId: pointsIntegrationId } })
-            await TransportByOrder.destroy({ where: { orderId: orderForViews.id } })
-            await OrderViewed.destroy({ where: { orderId: orderForViews.id } })
-            await Offer.destroy({ where: { orderId: orderForViews.id } })
-            await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })
-            await Point.destroy({ where: { orderIntegrationId: pointsIntegrationId } })
-            fs.rmSync(`./uploads/order/${orderForViews.dataValues.id}`, { recursive: true, force: true });
-        }
-        catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
-        return res.send('deleted')
+    catch(e) {
+        next(ApiError.badRequest(e.message))
     }
+}
+
+
+    async delete (req, res, next) {
+    try {
+        let { pointsIntegrationId } = req.query
+        let orderForViews
+        orderForViews = await Order.findOne({ where: { pointsIntegrationId: pointsIntegrationId } })
+        await TransportByOrder.destroy({ where: { orderId: orderForViews.id } })
+        await OrderViewed.destroy({ where: { orderId: orderForViews.id } })
+        await Offer.destroy({ where: { orderId: orderForViews.id } })
+        await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })
+        await Point.destroy({ where: { orderIntegrationId: pointsIntegrationId } })
+        fs.rmSync(`./uploads/order/${orderForViews.dataValues.id}`, { recursive: true, force: true });
+    }
+    catch (e) {
+        next(ApiError.badRequest(e.message))
+    }
+    return res.send('deleted')
+}
 
     async set_viewed(req, res, next) {
-        try {
-            //set viewed logics
-            let { orderId, userInfoId } = req.body
-            await OrderViewed.create({ orderId, userInfoId })
-        }
-        catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
-        return res.send('view has been set')
+    try {
+        //set viewed logics
+        let { orderId, userInfoId } = req.body
+        await OrderViewed.create({ orderId, userInfoId })
     }
+    catch (e) {
+        next(ApiError.badRequest(e.message))
+    }
+    return res.send('view has been set')
+}
 
     async clear_viewed(req, res, next) {
-        try {
-            //set clear viewed logics
-            let { orderId } = req.body
-            await OrderViewed.destroy({ where: { orderId } })
-        }
-        catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
-        return res.send('views cleared')
+    try {
+        //set clear viewed logics
+        let { orderId } = req.body
+        await OrderViewed.destroy({ where: { orderId } })
     }
+    catch (e) {
+        next(ApiError.badRequest(e.message))
+    }
+    return res.send('views cleared')
+}
 
 
 
@@ -843,21 +855,21 @@ class OrderController {
 
     // use to display in the order and disable the delete group button if there are orders that are available to the group
     async getOrderConnections(req, res, next) {
-        try {
-            let { orderIds, option } = req.body
-            let connections;
+    try {
+        let { orderIds, option } = req.body
+        let connections;
 
-            if (option === 'partners') {
-                connections = await OrderByPartner.findAll({ where: { orderId: { [Op.in]: orderIds } } })
-            }
-            if (option === 'groups') {
-                connections = await OrderByGroup.findAll({ where: { orderId: { [Op.in]: orderIds } } })
-            }
-            return res.json(connections)
-        } catch (e) {
-            next(ApiError.badRequest(e.message))
+        if (option === 'partners') {
+            connections = await OrderByPartner.findAll({ where: { orderId: { [Op.in]: orderIds } } })
         }
+        if (option === 'groups') {
+            connections = await OrderByGroup.findAll({ where: { orderId: { [Op.in]: orderIds } } })
+        }
+        return res.json(connections)
+    } catch (e) {
+        next(ApiError.badRequest(e.message))
     }
+}
 }
 
 module.exports = new OrderController()
