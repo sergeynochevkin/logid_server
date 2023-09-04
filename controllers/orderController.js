@@ -51,20 +51,7 @@ class OrderController {
             await limitService.check_account_activated(language, userInfoId)
             await limitService.check_subscription(language, userInfoId, order_status)
             try {
-                let partner = []
-                if (for_partner.length !== 0) {
-                    partner.push(Number(for_partner))
-                    for_partner = JSON.stringify(partner)
-                } else {
-                    for_partner = JSON.stringify(for_partner)
-                }
-                let group = []
-                if (for_group.length !== 0) {
-                    group.push(Number(for_group))
-                    for_group = JSON.stringify(group)
-                } else {
-                    for_group = JSON.stringify(for_group)
-                }
+
                 let order = await Order.create({
                     order_comment,
                     cost,
@@ -97,16 +84,6 @@ class OrderController {
 
                 await point_service.createPoints(pointFormData)
 
-                if (group.length !== 0) {
-                    group.forEach(async element => {
-                        await OrderByGroup.create({ orderId: order.id, groupId: element })
-                    });
-                }
-                if (partner.length !== 0) {
-                    partner.forEach(async element => {
-                        await OrderByPartner.create({ orderId: order.id, partnerId: element })
-                    });
-                }
                 await limitService.increase(userInfoId)
                 await mailService.sendEmailToAdmin(`New ${order_type} in ${city} created at ${process.env.CLIENT_URL}`, 'App notification')
                 return res.json(order)
@@ -681,8 +658,7 @@ class OrderController {
                 } else {
                     await Order.update({ carrier_arc_status: order_status, order_final_status: orderForChanges.disrupted_by ? 'disrupt' : order_final_status, updated_by_role: role }, { where: { id: id } })
                 }
-                await OrderByGroup.destroy({ where: { orderId: id } })
-                await OrderByPartner.destroy({ where: { orderId: id } })
+
             }
             else if (role === 'customer' && order_status === 'arc') {
                 orderForChanges = await Order.findOne({ where: { id: id } })
@@ -693,8 +669,7 @@ class OrderController {
                 } else {
                     await Order.update({ customer_arc_status: order_status, order_final_status: order_final_status, updated_by_role: role }, { where: { id: id } })
                 }
-                await OrderByGroup.destroy({ where: { orderId: id } })
-                await OrderByPartner.destroy({ where: { orderId: id } })
+
             }
             else if (option === 'disrupt') {
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, disrupted_by: role === 'carrier' ? 'customer' : role === 'customer' ? 'carrier' : '', updated_by_role: role }, { where: { id: id } })
@@ -786,90 +761,57 @@ class OrderController {
                 await point_service.createPoints(pointFormData)
             )
 
-            await OrderByGroup.destroy({ where: { orderId: id } })
-            await OrderByPartner.destroy({ where: { orderId: id } })
+            return res.send('edited')
 
-            if (for_group) {
-                let group = JSON.parse(for_group)
-                await OrderByGroup.create({ orderId: id, groupId: group })
-            }
-        
-            if (for_partner) {
-            let partner = JSON.parse(for_partner)
-            await OrderByPartner.create({ orderId: id, partnerId: partner })
         }
-        return res.send('edited')
-
+        catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
-    catch(e) {
-        next(ApiError.badRequest(e.message))
-    }
-}
 
 
-    async delete (req, res, next) {
-    try {
-        let { pointsIntegrationId } = req.query
-        let orderForViews
-        orderForViews = await Order.findOne({ where: { pointsIntegrationId: pointsIntegrationId } })
-        await TransportByOrder.destroy({ where: { orderId: orderForViews.id } })
-        await OrderViewed.destroy({ where: { orderId: orderForViews.id } })
-        await Offer.destroy({ where: { orderId: orderForViews.id } })
-        await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })
-        await Point.destroy({ where: { orderIntegrationId: pointsIntegrationId } })
-        fs.rmSync(`./uploads/order/${orderForViews.dataValues.id}`, { recursive: true, force: true });
+    async delete(req, res, next) {
+        try {
+            let { pointsIntegrationId } = req.query
+            let orderForViews
+            orderForViews = await Order.findOne({ where: { pointsIntegrationId: pointsIntegrationId } })
+            await TransportByOrder.destroy({ where: { orderId: orderForViews.id } })
+            await OrderViewed.destroy({ where: { orderId: orderForViews.id } })
+            await Offer.destroy({ where: { orderId: orderForViews.id } })
+            await Order.destroy({ where: { pointsIntegrationId: pointsIntegrationId } })
+            await Point.destroy({ where: { orderIntegrationId: pointsIntegrationId } })
+            fs.rmSync(`./uploads/order/${orderForViews.dataValues.id}`, { recursive: true, force: true });
+        }
+        catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+        return res.send('deleted')
     }
-    catch (e) {
-        next(ApiError.badRequest(e.message))
-    }
-    return res.send('deleted')
-}
 
     async set_viewed(req, res, next) {
-    try {
-        //set viewed logics
-        let { orderId, userInfoId } = req.body
-        await OrderViewed.create({ orderId, userInfoId })
+        try {
+            //set viewed logics
+            let { orderId, userInfoId } = req.body
+            await OrderViewed.create({ orderId, userInfoId })
+        }
+        catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+        return res.send('view has been set')
     }
-    catch (e) {
-        next(ApiError.badRequest(e.message))
-    }
-    return res.send('view has been set')
-}
 
     async clear_viewed(req, res, next) {
-    try {
-        //set clear viewed logics
-        let { orderId } = req.body
-        await OrderViewed.destroy({ where: { orderId } })
-    }
-    catch (e) {
-        next(ApiError.badRequest(e.message))
-    }
-    return res.send('views cleared')
-}
-
-
-
-
-
-    // use to display in the order and disable the delete group button if there are orders that are available to the group
-    async getOrderConnections(req, res, next) {
-    try {
-        let { orderIds, option } = req.body
-        let connections;
-
-        if (option === 'partners') {
-            connections = await OrderByPartner.findAll({ where: { orderId: { [Op.in]: orderIds } } })
+        try {
+            //set clear viewed logics
+            let { orderId } = req.body
+            await OrderViewed.destroy({ where: { orderId } })
         }
-        if (option === 'groups') {
-            connections = await OrderByGroup.findAll({ where: { orderId: { [Op.in]: orderIds } } })
+        catch (e) {
+            next(ApiError.badRequest(e.message))
         }
-        return res.json(connections)
-    } catch (e) {
-        next(ApiError.badRequest(e.message))
+        return res.send('views cleared')
     }
-}
+
 }
 
 module.exports = new OrderController()

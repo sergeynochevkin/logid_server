@@ -206,6 +206,10 @@ const Order = sequelize.define('order', {
     files: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
 
     direction_response: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
+
+    for_group: { type: DataTypes.INTEGER },
+    for_partner: { type: DataTypes.INTEGER }
+
 })
 
 const CarriagePrice = sequelize.define('carriage_price', {

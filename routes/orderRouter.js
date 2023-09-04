@@ -6,7 +6,6 @@ const authMiddleware = require('../middleware/auth_middleware')
 
 router.post('/', authMiddleware, orderController.create)
 router.post('/get_orders', authMiddleware, orderController.getAll)
-router.post('/get_order_connections', authMiddleware, orderController.getOrderConnections)
 router.get('/get_order', authMiddleware, orderController.getOne)
 router.post('/update', authMiddleware, orderController.update)
 router.post('/edit', authMiddleware, orderController.edit)
