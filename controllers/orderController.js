@@ -8,6 +8,7 @@ const limitService = require('../service/limit_service')
 const mailService = require('../service/mail_service')
 const fs = require('fs')
 const point_service = require('../service/point_service')
+const url_service = require('../service/url_service')
 
 
 class OrderController {
@@ -47,6 +48,9 @@ class OrderController {
             pointFormData
         } = req.body
 
+        let yandex_url = await url_service.createYandexUrl(pointFormData, type)
+        let google_url = await url_service.createGoogleUrl(pointFormData, type)
+
         try {
             await limitService.check_account_activated(language, userInfoId)
             await limitService.check_subscription(language, userInfoId, order_status)
@@ -79,10 +83,14 @@ class OrderController {
                     carrierId,
                     for_partner,
                     for_group,
-                    direction_response
+                    direction_response,
+                    yandex_url,
+                    google_url
                 })
 
                 await point_service.createPoints(pointFormData)
+
+
 
                 await limitService.increase(userInfoId)
                 await mailService.sendEmailToAdmin(`New ${order_type} in ${city} created at ${process.env.CLIENT_URL}`, 'App notification')

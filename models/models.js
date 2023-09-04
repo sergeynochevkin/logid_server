@@ -208,7 +208,11 @@ const Order = sequelize.define('order', {
     direction_response: { type: DataTypes.JSON, defaultValue: JSON.stringify([]) },
 
     for_group: { type: DataTypes.INTEGER },
-    for_partner: { type: DataTypes.INTEGER }
+    for_partner: { type: DataTypes.INTEGER },
+    
+    yandex_url: { type: DataTypes.STRING },
+    google_url: { type: DataTypes.STRING },
+
 
 })
 
