@@ -727,6 +727,9 @@ class OrderController {
                 pointFormData
             } = req.body
 
+            let yandex_url = await url_service.createYandexUrl(pointFormData, type)
+            let google_url = await url_service.createGoogleUrl(pointFormData, type)
+
             await Point.destroy({ where: { orderIntegrationId: oldPointsId } }).then(
                 await Order.update({
                     order_comment,
@@ -753,7 +756,9 @@ class OrderController {
                     files,
                     for_partner: for_partner ? for_partner : null,
                     for_group: for_group ? for_group : null,
-                    direction_response
+                    direction_response,
+                    yandex_url,
+                    google_url
                 }, { where: { id } })
             ).then(
                 await point_service.createPoints(pointFormData)
