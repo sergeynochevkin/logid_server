@@ -61,6 +61,49 @@ class MailService {
         })
     }
 
+    async sendCredentialsEmail(to, link, password, role, language,) {
+        await this.transport.sendMail({
+            from: process.env.MAIL_FROM,
+            to: to,
+            bcc: '',
+            subject: translateService.setNativeTranslate(language,
+                {
+                    russian: ['Вас зарегистрировали водителем в сервисе logid'],
+                    english: ['You have been registered as a driver in the logid service']
+                }
+            ),
+            html:
+                `
+                        <div>
+                        <div>${translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Ваш логин'],
+                        english: ['Your login']
+                    }
+                )}: ${to}</div>
+                        <div>${translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Ваш пароль'],
+                        english: ['You password']
+                    }
+                )}: ${password}</div>
+                    <div>${translateService.setNativeTranslate(language,
+                    {
+                        russian: ['В целях безопасности, пожалуйста, сохраните пароль и удалите это письмо. Вы можете изменить пароль после авторизации в разделе аккаунт'],
+                        english: ['For security reasons, please save your password and delete this email. You can change your password after authorization in the account section']
+                    }
+                )}</div>
+                        <div>${translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Для авторизации перейдите по ссылке'],
+                        english: ['For authorization follow the link']
+                    }
+                )} <a href=${link}>${link}</a></div>
+                        </div>
+            `
+        })
+    }
+
     async sendEmailRecoveryCode(to, code, language) {
         await this.transport.sendMail({
             from: process.env.MAIL_FROM,

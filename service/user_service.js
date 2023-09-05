@@ -32,8 +32,12 @@ class UserService {
         const hashPassword = await bcrypt.hash(password, 5)
         const activationLink = v4()
         const user = await User.create({ email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
-        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
-
+        if (role !== 'driver') {
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
+        } else {
+            //send letter with email and password
+            await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?language=${language}&&action=driver_activation`, password, role, language)
+        }
         await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
 
         const userDto = new UserDTO(user)
@@ -146,7 +150,7 @@ class UserService {
             const activationLink = v4()
             await User.update({ email, activationLink, isActivated: false }, { where: { id: userId } })
             const user = await User.findOne({ where: { id: userId } })
-            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
+            await mailService.sendActivationMail(email, `${process.env.API_URL} / api / user / activate / ${activationLink} ? language = ${language}`, language)
             const userDto = new UserDTO(user)
             const tokens = await tokenService.generateTokens({ ...userDto })
             await tokenService.saveToken(userDto.id, tokens.refreshToken)

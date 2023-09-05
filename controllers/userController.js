@@ -8,40 +8,88 @@ const time_service = require('../service/time_service')
 const { Op } = require('sequelize')
 const limit_service = require('../service/limit_service')
 const { v4 } = require('uuid');
+const generator = require('generate-password');
 
 
 class UserController {
 
-        //driver
-        async driver_registration(req, res, next) {
-            try {
-                let { } = req.body
-            } catch (error) {
-    
+    //driver
+    async driver_registration(req, res, next) {
+        try {
+            let {
+                language,
+                email,
+                role,
+                phone,
+
+                user_id,
+                user_info_uuid,
+
+                country,
+                legal,
+                city,
+                city_place_id,
+                city_latitude,
+                city_longitude
+            } = req.body
+
+            let password = generator.generate({
+                length: 20,
+                numbers: true,
+                symbols: true,
+                uppercase: true,
+                lowercase: true,
+                excludeSimilarCharacters: true
+            });
+
+            let userInfo = await UserInfo.findOne({ where: { uuid: user_info_uuid } })
+            await limit_service.check_account_activated(language, userInfo.id)
+
+            let userData = await userService.registration(email.toLowerCase(), password, role, language, country)
+            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4(), legal, user_id, user_info_uuid })
+            let userAppSettingsDefaultList = [
+                { name: 'sms_messaging', value: true, role: 'both' },
+                { name: 'email_messaging', value: true, role: 'both' }
+            ]
+
+            userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')
+
+            for (const setting of userAppSettingsDefaultList) {
+                await UserAppSetting.findOrCreate({
+                    where: {
+                        name: setting.name, value: setting.value, userInfoId: user_info.id
+                    }
+                }
+                )
             }
+            return res.send('added') //password to activation email!
+
+        } catch (e) {
+            next(e)
         }
-        async get_drivers(req, res, next) {
-            try {
-    
-            } catch (error) {
-    
-            }
+    }
+    async get_drivers(req, res, next) {
+        try {
+
+        } catch (error) {
+
         }
-        async update_driver(req, res, next) {
-            try {
-    
-            } catch (error) {
-    
-            }
+    }
+    async update_driver(req, res, next) {
+        try {
+
+        } catch (error) {
+
         }
-        async delete_driver(req, res, next) {
-            try {
-    
-            } catch (error) {
-    
-            }
+    }
+    async delete_driver(req, res, next) {
+        try {
+
+        } catch (e) {
+
         }
-        //driver
+    }
+    //driver
 
     //not in use
     // async registration(req, res, next) {
