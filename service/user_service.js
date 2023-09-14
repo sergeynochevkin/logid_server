@@ -11,7 +11,7 @@ const { Op } = require("sequelize")
 
 class UserService {
 
-    async registration(email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted) {
+    async registration(user_id, user_info_uuid, email, password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted) {
         if (!email || !password) {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
@@ -31,12 +31,12 @@ class UserService {
         }
         const hashPassword = await bcrypt.hash(password, 5)
         const activationLink = v4()
-        const user = await User.create({ email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
+        const user = await User.create({ user_id, user_info_uuid, email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
         if (role !== 'driver') {
             await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
         } else {
             //send letter with email and password
-            await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?language=${language}&&action=driver_activation`, password, role, language)
+            await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?action=driver_activation`, password, role, language)
         }
         await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
 
@@ -150,7 +150,7 @@ class UserService {
             const activationLink = v4()
             await User.update({ email, activationLink, isActivated: false }, { where: { id: userId } })
             const user = await User.findOne({ where: { id: userId } })
-            await mailService.sendActivationMail(email, `${process.env.API_URL} / api / user / activate / ${activationLink} ? language = ${language}`, language)
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
             const userDto = new UserDTO(user)
             const tokens = await tokenService.generateTokens({ ...userDto })
             await tokenService.saveToken(userDto.id, tokens.refreshToken)
@@ -254,7 +254,11 @@ class UserService {
         return uuid
     }
 
-    async login(email, password, language) {
+    async login(email, password, language, user_agreement_accepted,
+        privacy_policy_accepted,
+        age_accepted,
+        personal_data_agreement_accepted,
+        cookies_accepted) {
         const user = await User.findOne({ where: { email } })
         if (!user) {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
@@ -272,6 +276,19 @@ class UserService {
                     english: ['Incorrect password']
                 }
             ))
+        }
+        if (user_agreement_accepted &&
+            privacy_policy_accepted &&
+            age_accepted &&
+            personal_data_agreement_accepted &&
+            cookies_accepted) {
+            await user.update({
+                user_agreement_accepted,
+                privacy_policy_accepted,
+                age_accepted,
+                personal_data_agreement_accepted,
+                cookies_accepted
+            }, { where: { email } })
         }
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })

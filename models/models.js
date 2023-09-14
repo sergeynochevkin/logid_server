@@ -116,6 +116,9 @@ const Transport = sequelize.define('transport', {
 
     from_fast: { type: DataTypes.BOOLEAN, defaultValue: false },
 
+    driver_id: { type: DataTypes.INTEGER },
+
+
 })
 
 
@@ -208,11 +211,11 @@ const Order = sequelize.define('order', {
 
     for_group: { type: DataTypes.INTEGER },
     for_partner: { type: DataTypes.INTEGER },
-    
+
     yandex_url: { type: DataTypes.STRING },
     google_url: { type: DataTypes.STRING },
 
-
+    driver_id: { type: DataTypes.INTEGER },
 })
 
 const CarriagePrice = sequelize.define('carriage_price', {

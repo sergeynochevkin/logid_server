@@ -631,10 +631,10 @@ class OrderController {
                         ))
 
             }
-
             else if (role === 'carrier' && order_status === 'inWork') {
                 await Offer.destroy({ where: { orderId: id } })
-                await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })//error
+                await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
+                let transportForDriver = await Transport.findOne({ where: { id: transport } })
                 let userInfo = await UserInfo.findOne({ where: { userId: carrierId } })
                 let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
                 state = JSON.parse(state.dataValues.state)
@@ -642,17 +642,18 @@ class OrderController {
 
                 await limitService.check_account_activated(language, carrierId)
                 await limitService.check_subscription(language, carrierId, '', 'order')
-                await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
+                await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role, driver_id: transportForDriver.driver_id }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await limitService.increase(carrierId, '', 'order')
                 await mailService.sendEmailToAdmin(`Order ${id} taken by carrier at ${process.env.CLIENT_URL}`, 'App notification')
             }
-
             else if (role === 'customer' && order_status === 'inWork') {
                 await Offer.destroy({ where: { orderId: id } })
                 await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
-                await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
+                let transportForDriver = await Transport.findOne({ where: { id: transport } })
+                await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role, driver_id: transportForDriver.driver_id }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await mailService.sendEmailToAdmin(`Order ${id} taken by customer offer accept at ${process.env.CLIENT_URL}`, 'App notification')
             }
+
             else if (role === 'carrier' && order_status === 'arc') {
                 orderForChanges = await Order.findOne({ where: { id: id } })
                 if (orderForChanges.customer_arc_status === 'arc') {
@@ -660,7 +661,6 @@ class OrderController {
                 } else {
                     await Order.update({ carrier_arc_status: order_status, order_final_status: orderForChanges.disrupted_by ? 'disrupt' : order_final_status, updated_by_role: role }, { where: { id: id } })
                 }
-
             }
             else if (role === 'customer' && order_status === 'arc') {
                 orderForChanges = await Order.findOne({ where: { id: id } })
@@ -671,7 +671,6 @@ class OrderController {
                 } else {
                     await Order.update({ customer_arc_status: order_status, order_final_status: order_final_status, updated_by_role: role }, { where: { id: id } })
                 }
-
             }
             else if (option === 'disrupt') {
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, disrupted_by: role === 'carrier' ? 'customer' : role === 'customer' ? 'carrier' : '', updated_by_role: role }, { where: { id: id } })
@@ -695,7 +694,7 @@ class OrderController {
 
     async edit(req, res, next) {
         try {
-        
+
             let {
                 id,
                 order_comment,

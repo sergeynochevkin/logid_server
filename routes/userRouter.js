@@ -6,7 +6,6 @@ const { body } = require('express-validator')
 
 // router.post('/registration', body('email').isEmail(), userController.registration)
 router.post('/fast_registration', userController.fast_registration)
-router.post('/driver_registration', authMiddleware, userController.driver_registration)
 router.post('/login', userController.login)
 router.post('/logout', userController.logout)
 router.get('/activate/:link', userController.activate)
@@ -18,6 +17,12 @@ router.put('/update', userController.update)
 router.get('/get_code', userController.getCode)
 router.put('/restore', userController.restore)
 router.get('/restore_link', userController.restore_link)
+
+
+router.post('/driver_registration', authMiddleware, userController.driver_registration)
+router.get('/drivers', authMiddleware, userController.get_drivers)
+router.put('/activate_driver', authMiddleware, userController.activate_driver)
+
 
 module.exports = router
 

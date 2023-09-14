@@ -30,7 +30,9 @@ class UserController {
                 city,
                 city_place_id,
                 city_latitude,
-                city_longitude
+                city_longitude,
+
+                name_surname_fathersname
             } = req.body
 
             let password = generator.generate({
@@ -45,8 +47,8 @@ class UserController {
             let userInfo = await UserInfo.findOne({ where: { uuid: user_info_uuid } })
             await limit_service.check_account_activated(language, userInfo.id)
 
-            let userData = await userService.registration(email.toLowerCase(), password, role, language, country)
-            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4(), legal, user_id, user_info_uuid })
+            let userData = await userService.registration(user_id, user_info_uuid, email.toLowerCase(), password, role, language, country)
+            const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4(), legal, name_surname_fathersname })
             let userAppSettingsDefaultList = [
                 { name: 'sms_messaging', value: true, role: 'both' },
                 { name: 'email_messaging', value: true, role: 'both' }
@@ -68,20 +70,31 @@ class UserController {
             next(e)
         }
     }
+
     async get_drivers(req, res, next) {
         try {
-
+            let { userId } = req.query
+            let drivers = await User.findAll({ where: { user_id: userId }, attributes: ['email', 'id', 'role', 'isActivated'], include: UserInfo })
+            return res.json(drivers)
         } catch (error) {
-
+            next(ApiError.badRequest(error.message))
         }
     }
-    async update_driver(req, res, next) {
+
+    async activate_driver(req, res, next) {
         try {
-
+            let { id, language } = req.body
+            await User.update({ isActivated: true }, { where: { id } })
+            return res.send(translateService.setNativeTranslate(language, {
+                russian: ['Вы активировали аккаунт'],
+                english: ['You have activated your account']
+            }))
+            
         } catch (error) {
-
+            next(ApiError.badRequest(error.message))
         }
     }
+    
     async delete_driver(req, res, next) {
         try {
 
@@ -156,7 +169,7 @@ class UserController {
             } = req.body
 
 
-            let userData = await userService.registration(email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
+            let userData = await userService.registration(null, null, email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)
             const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4() })
 
             //defaults copy from userinfo controller
@@ -248,8 +261,16 @@ class UserController {
 
     async login(req, res, next) {
         try {
-            const { email, password, language } = req.body
-            const userData = await userService.login(email.toLowerCase(), password, language)
+            const { email, password, language, user_agreement_accepted,
+                privacy_policy_accepted,
+                age_accepted,
+                personal_data_agreement_accepted,
+                cookies_accepted } = req.body
+            const userData = await userService.login(email.toLowerCase(), password, language, user_agreement_accepted,
+            privacy_policy_accepted,
+            age_accepted,
+            personal_data_agreement_accepted,
+            cookies_accepted.total)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
