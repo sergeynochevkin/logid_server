@@ -53,7 +53,7 @@ class TransportController {
                 ad_show,
                 ad_name: ad_name.value,
                 moderated: ad_show ? 'not_checked' : '',
-                driver_id:driver_id.value
+                driver_id: driver_id.value
             })
 
             if (ad_show) {
@@ -127,8 +127,8 @@ class TransportController {
                 ad_text: ad_text.value,
                 ad_show,
                 ad_name: ad_name.value,
-                driver_id:driver_id.value
-                
+                driver_id: driver_id.value
+
             }, { where: { id } })
 
             if (ad_show) {
@@ -169,19 +169,34 @@ class TransportController {
             if ((offers && offers.length > 0) && (ordersInWork && ordersInWork.length > 0)) {
                 message = setNativeTranslate(language, {
                     russian: ['Удаление не доступно. Этот транспорт есть в активных предложениях и заказах в работе'],
-                    english: ['Removal is not available. This transport is in active offers and orders in progress']
+                    english: ['Removal is not available. This transport is in active offers and orders in progress'],
+                    spanish: ['La eliminación no está disponible. Este transporte se encuentra en ofertas activas y pedidos en curso'],
+                    turkish: ['Kaldırma mevcut değil. Bu taşıma aktif tekliflerde olup siparişler devam etmektedir'],
+                    chinese: ['无法移除。 该运输正在积极报价中，订单正在进行中。'],
+                    hindi: ['निष्कासन उपलब्ध नहीं है. यह परिवहन सक्रिय ऑफ़र में है और ऑर्डर जारी हैं।'],
+
                 })
             }
             else if (offers && offers.length > 0) {
                 message = setNativeTranslate(language, {
                     russian: ['Удаление не доступно. Этот транспорт есть в активных предложениях'],
-                    english: ['Removal is not available. This transport is in active offers']
+                    english: ['Removal is not available. This transport is in active offers'],
+                    spanish: ['La eliminación no está disponible. Este transporte está en ofertas activas'],
+                    turkish: ['Kaldırma mevcut değil. Bu ulaşım aktif tekliflerde'],
+                    chinese: ['无法移除。 此交通正在积极报价中'],
+                    hindi: ['निष्कासन उपलब्ध नहीं है. यह परिवहन सक्रिय ऑफ़र में है'],
+
                 })
             }
             else if (ordersInWork && ordersInWork.length > 0) {
                 message = setNativeTranslate(language, {
                     russian: ['Удаление не доступно. Этот транспорт есть в заказах в работе'],
-                    english: ['Removal is not available. This transport is orders in progress']
+                    english: ['Removal is not available. This transport is orders in progress'],
+                    spanish: ['La eliminación no está disponible. Este transporte está en pedidos en curso'],
+                    turkish: ['Kaldırma mevcut değil. Bu taşımanın siparişleri devam ediyor'],
+                    chinese: ['无法移除。 此运输是根据正在进行中的订单进行的'],
+                    hindi: ['निष्कासन उपलब्ध नहीं है. यह परिवहन ऑर्डर पर प्रगति पर है'],
+
                 })
             } else {
                 await Transport.destroy({ where: { id: id } })
@@ -190,7 +205,12 @@ class TransportController {
                 fs.rmSync(`./uploads/transport/${id}`, { recursive: true, force: true });
                 message = setNativeTranslate('russian', {
                     russian: ['Транспорт удален'],
-                    english: ['Transport removed']
+                    english: ['Transport removed'],
+                    spanish: ['Transporte retirado'],
+                    turkish: ['Taşıma kaldırıldı'],
+                    chinese: ['运输已移除'],
+                    hindi: ['परिवहन हटा दिया गया'],
+
                 })
             }
 

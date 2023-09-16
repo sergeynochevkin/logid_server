@@ -154,13 +154,21 @@ class ManagementController {
 
                     let message = translate_service.setNativeTranslate(language, {
                         russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию и допущен к показу на главной странице`],
-                        english: [`Your transport ${transport.dataValues.tag} has been moderated and allowed to be displayed on the main page`]
+                        english: [`Your transport ${transport.dataValues.tag} has been moderated and allowed to be displayed on the main page`],
+                        spanish: [`Tu transporte ${transport.dataValues.tag} ha sido moderado y se le ha permitido mostrarse en la página principale`],
+                        turkish: [`Nakliyeniz ${transport.dataValues.tag} denetlendi ve ana sayfada görüntülenmesine izin verildi`],
+                        chinese: [`您的交通工具 ${transport.dataValues.tag} 已被审核并允许在主页上显示`],
+                        hindi: [`आपका परिवहन ${transport.dataValues.tag} मॉडरेट किया गया है और मुख्य पृष्ठ पर प्रदर्शित करने की अनुमति दी गई है`],
                     })
 
                     await mail_service.sendUserMail(user_info.dataValues.email,
                         translate_service.setNativeTranslate(language, {
                             russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию`],
-                            english: [`Your transport ${transport.dataValues.tag} has been moderated`]
+                            english: [`Your transport ${transport.dataValues.tag} has been moderated`],
+                            spanish: [`Tu transporte ${transport.dataValues.tag} ha sido moderado`],
+                            turkish: [`Nakliyeniz ${transport.dataValues.tag} denetlendi`],
+                            chinese: [`您的交通工具 ${transport.dataValues.tag} 已被审核`],
+                            hindi: [`आपका परिवहन ${transport.dataValues.tag} मॉडरेट किया गया है`],
                         })
                         , message
                     )
@@ -178,15 +186,23 @@ class ManagementController {
 
                 if (moderated === 'checked_not_accepted') {
                     let message = translate_service.setNativeTranslate(language, {
-                        russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию и не допущен к показу на главной странице. Подробности в разделе транспорт`],
-                        english: [`Your transport ${transport.dataValues.tag} did not pass moderation and not allowed to be displayed on the main page. Details in the transport section`]
+                        russian: [`Ваш транспорт ${transport.dataValues.tag} не прошел модерацию и не допущен к показу на главной странице. Подробности в разделе транспорт`],
+                        english: [`Your transport ${transport.dataValues.tag} did not pass moderation and not allowed to be displayed on the main page. Details in the transport section`],
+                        spanish: [`Tu transporte ${transport.dataValues.tag} no pasó la moderación y no se le permitió mostrarse en la página principal. Detalles en la sección de transporte`],
+                        turkish: [`Nakliyeniz ${transport.dataValues.tag} denetimi geçemedi ve ana sayfada görüntülenmesine izin verilmedi. Detaylar ulaşım bölümünde`],
+                        chinese: [`您的交通工具 ${transport.dataValues.tag} 未通过审核，不允许在首页展示。 运输部分的详细信息`],
+                        hindi: [`आपका परिवहन ${transport.dataValues.tag} मॉडरेशन पास नहीं किया और मुख्य पृष्ठ पर प्रदर्शित होने की अनुमति नहीं दी। परिवहन अनुभाग में विवरण`],
                     })
 
 
                     await mail_service.sendUserMail(user_info.dataValues.email,
                         translate_service.setNativeTranslate(language, {
                             russian: [`Ваш транспорт ${transport.dataValues.tag} не прошел модерацию`],
-                            english: [`Your transport ${transport.dataValues.tag}  did not pass moderation`]
+                            english: [`Your transport ${transport.dataValues.tag}  did not pass moderation`],
+                            spanish: [`Tu transporte ${transport.dataValues.tag} no pasó la moderación`],
+                            turkish: [`Nakliyeniz ${transport.dataValues.tag} denetimi geçemedi`],
+                            chinese: [`您的交通工具 ${transport.dataValues.tag} 没有通过审核`],
+                            hindi: [`आपका परिवहन ${transport.dataValues.tag} संयम पारित नहीं किया`],
                         })
                         , message
 

@@ -119,7 +119,11 @@ module.exports = async function (handlerArgs) {
         let text = translateService.setNativeTranslate(language,
             {
                 russian: ['Это автоматическое уведомление, ответ не будет прочитан'],
-                english: ['This is an automatic notification, the response will not be read']
+                english: ['This is an automatic notification, the response will not be read'],
+                spanish: ['Esta es una notificación automática, la respuesta no será leída'],
+                turkish: ['Bu otomatik bir bildirimdir, yanıt okunmayacaktır'],
+                chinese: ['这是自动通知，回复不会被阅读'],
+                hindi: ['यह एक स्वचालित अधिसूचना है, उत्तर पढ़ा नहीं जाएगा'],
             }
         )
         let message
@@ -160,7 +164,11 @@ module.exports = async function (handlerArgs) {
                     russian: [ordersForNotification.length > 1 ? 'Заказы' : 'Заказ', ordersForNotification.toString(), 'завтра', ordersForNotification.length > 1 ? 'будут' : 'будет', 'автоматически', ordersForNotification.length > 1 && handlerArgs.newStatus === 'arc' ? 'перенесены в архив' :
                         ordersForNotification.length === 1 && handlerArgs.newStatus === 'arc' ? 'перенесен в архив' : ordersForNotification.length > 1 && handlerArgs.newStatus === 'canceled' ? 'отменены' : ordersForNotification.length === 1 && handlerArgs.newStatus === 'canceled' ? 'отменен'
                             : ordersForNotification.length > 1 && handlerArgs.newStatus === 'completed' ? 'завершены' : ordersForNotification.length === 1 && handlerArgs.newStatus === 'completed' ? 'завершен' : ''],
-                    english: [ordersForNotification.length > 1 ? 'Orders' : 'Order', ordersForNotification.toString(), 'will be automatically', handlerArgs.newStatus === 'arc' ? 'moved to archive' : handlerArgs.newStatus === 'canceled' ? 'canceled' : handlerArgs.newStatus === 'completed' ? 'completed' : '', 'tomorrow']
+                    english: [ordersForNotification.length > 1 ? 'Orders' : 'Order', ordersForNotification.toString(), 'will be automatically', handlerArgs.newStatus === 'arc' ? 'moved to archive' : handlerArgs.newStatus === 'canceled' ? 'canceled' : handlerArgs.newStatus === 'completed' ? 'completed' : '', 'tomorrow'],
+                    spanish: [ordersForNotification.length > 1 ? 'Pedidos' : 'Orden', ordersForNotification.toString(), 'será automáticamente', handlerArgs.newStatus === 'arc' ? 'movido al archivo' : handlerArgs.newStatus === 'canceled' ? 'cancelado' : handlerArgs.newStatus === 'completed' ? 'terminado' : '', 'mañana'],
+                    turkish: [ordersForNotification.length > 1 ? 'Emirler' : 'Emir', ordersForNotification.toString(), 'otomatik olarak olacak', handlerArgs.newStatus === 'arc' ? 'arşive taşındı' : handlerArgs.newStatus === 'canceled' ? 'iptal edildi' : handlerArgs.newStatus === 'completed' ? 'tamamlanmış' : '', 'yarın'],
+                    chinese: [ordersForNotification.length > 1 ? '命令' : '命令', ordersForNotification.toString(), '将会自动', handlerArgs.newStatus === 'arc' ? '移至存档' : handlerArgs.newStatus === 'canceled' ? '取消' : handlerArgs.newStatus === 'completed' ? '完全的' : '', '明天'],
+                    hindi: [ordersForNotification.length > 1 ? 'आदेश' : 'आदेश', ordersForNotification.toString(), 'स्वचालित रूप से होगा', handlerArgs.newStatus === 'arc' ? 'संग्रह में ले जाया गया' : handlerArgs.newStatus === 'canceled' ? 'रद्द' : handlerArgs.newStatus === 'completed' ? 'पुरा होना' : '', 'कल'],
                 }
             )
 
@@ -181,7 +189,11 @@ module.exports = async function (handlerArgs) {
             message = translateService.setNativeTranslate(language,
                 {
                     russian: [ordersForTypeUpdate.length > 1 ? 'Заказы' : 'Заказ', ordersForTypeUpdate.toString(), 'долго не берут в работу, вы можете преобразовать', ordersForTypeUpdate.length > 1 ? 'их' : 'его', 'в аукцион и рассмотреть предложения перевозчиков'],
-                    english: [ordersForTypeUpdate.length > 1 ? 'Orders' : 'Order', ordersForTypeUpdate.toString(), 'is not taken into work for a long time, you can convert', ordersForTypeUpdate.length > 1 ? 'them' : 'it', 'into auction and consider customers offers']
+                    english: [ordersForTypeUpdate.length > 1 ? 'Orders' : 'Order', ordersForTypeUpdate.toString(), 'is not taken into work for a long time, you can convert', ordersForTypeUpdate.length > 1 ? 'them' : 'it', 'into auction and consider carriers offers'],
+                    spanish: [ordersForTypeUpdate.length > 1 ? 'Pedidos' : 'Orden', ordersForTypeUpdate.toString(), 'no se utiliza durante mucho tiempo, puede convertir', ordersForTypeUpdate.length > 1 ? 'ellos' : 'él', 'en subasta y considerar ofertas de transportistas'],
+                    turkish: [ordersForTypeUpdate.length > 1 ? 'Emirler' : 'Emir', ordersForTypeUpdate.toString(), 'uzun süre işe alınmadıysa dönüştürebilirsiniz', ordersForTypeUpdate.length > 1 ? 'onlara' : 'onu', 'açık artırmaya çıkarın ve taşıyıcıların tekliflerini değerlendirin'],
+                    chinese: [ordersForTypeUpdate.length > 1 ? '命令' : '命令', ordersForTypeUpdate.toString(), '长时间不投入工作，可以转换', ordersForTypeUpdate.length > 1 ? '他们' : '它', '进入拍卖并考虑运营商的报价'],
+                    hindi: [ordersForTypeUpdate.length > 1 ? 'आदेश' : 'आदेश', ordersForTypeUpdate.toString(), 'लंबे समय तक काम पर नहीं लिया गया है, आप परिवर्तित कर सकते हैं', ordersForTypeUpdate.length > 1 ? 'उन्हें' : 'it', 'नीलामी में शामिल हों और वाहकों के प्रस्तावों पर विचार करें'],                
                 }
             )
             await ServerNotification.findOrCreate({

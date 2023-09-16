@@ -152,12 +152,20 @@ class OfferController {
                     translate_service.setNativeTranslate(member_language,
                         {
                             russian: [`Ваше предложение к аукциону ${offer.dataValues.orderId} отклонено заказчиком`],
-                            english: [`Your offer for auction ${offer.dataValues.orderId} has been rejected by customer`]
+                            english: [`Your offer for auction ${offer.dataValues.orderId} has been rejected by customer`],
+                            spanish: [`Tu oferta de subasta ${offer.dataValues.orderId} ha sido rechazado por el cliente`],
+                            turkish: [`Açık artırma teklifiniz ${offer.dataValues.orderId} müşteri tarafından reddedildi`],
+                            chinese: [`您的拍卖报价 ${offer.dataValues.orderId} 已被客户拒绝`],
+                            hindi: [`नीलामी के लिए आपका प्रस्ताव ${offer.dataValues.orderId} ग्राहक द्वारा अस्वीकार कर दिया गया है`],
                         }),
                     translate_service.setNativeTranslate(member_language,
                         {
-                            russian: [`Это автоматическое уведомление, ответ не будет прочитан`],
-                            english: [`This is an automatic notification, the response will not be read`]
+                            russian: ['Это автоматическое уведомление, ответ не будет прочитан'],
+                            english: ['This is an automatic notification, the response will not be read'],
+                            spanish: ['Esta es una notificación automática, la respuesta no será leída'],
+                            turkish: ['Bu otomatik bir bildirimdir, yanıt okunmayacaktır'],
+                            chinese: ['这是自动通知，回复不会被阅读'],
+                            hindi: ['यह एक स्वचालित अधिसूचना है, उत्तर पढ़ा नहीं जाएगा'],
                         }),
                 )
 
@@ -167,11 +175,15 @@ class OfferController {
                         message: translate_service.setNativeTranslate(member_language,
                             {
                                 russian: [`Ваше предложение к аукциону ${offer.dataValues.orderId} отклонено заказчиком`],
-                                english: [`Your offer for auction ${offer.dataValues.orderId} has been rejected by customer`]
+                                english: [`Your offer for auction ${offer.dataValues.orderId} has been rejected by customer`],
+                                spanish: [`Tu oferta de subasta ${offer.dataValues.orderId} ha sido rechazado por el cliente`],
+                                turkish: [`Açık artırma teklifiniz ${offer.dataValues.orderId} müşteri tarafından reddedildi`],
+                                chinese: [`您的拍卖报价 ${offer.dataValues.orderId} 已被客户拒绝`],
+                                hindi: [`नीलामी के लिए आपका प्रस्ताव ${offer.dataValues.orderId} ग्राहक द्वारा अस्वीकार कर दिया गया है`],
                             }),
                         type: 'error'
                     },
-                    defaults:{uuid:v4()}
+                    defaults: { uuid: v4() }
                 })
             }
 
@@ -181,7 +193,11 @@ class OfferController {
                 return res.send(translate_service.setNativeTranslate(mover_language,
                     {
                         russian: [`Вы отклонили предложение`],
-                        english: [`You rejected the offer`]
+                        english: [`You rejected the offer`],
+                        spanish: [`Rechazaste la oferta`],
+                        turkish: [`Teklifi reddettin`],
+                        chinese: [`您拒绝了该提议`],
+                        hindi: [`आपने प्रस्ताव अस्वीकार कर दिया`],
                     }),)
             } else {
                 return res.send('deleted')

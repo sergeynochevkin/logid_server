@@ -93,7 +93,13 @@ class SubscriptionController {
                     res_object.message = translateService.setNativeTranslate(language,
                         {
                             russian: ['Пожалуйста, оплатите подписку'],
-                            english: ['Pay for a subscription please']
+                            english: ['Pay for a subscription please'],
+                            spanish: ['Pagar por una suscripción'],
+                            turkish: ['Abonelik için ödeme yapın lütfen'],
+                            chinese: ['支付订阅费用'],
+                            hindi: ['सदस्यता अनुरोधों के लिए भुगतान करें'],
+                        
+
                         }
                     )
                     return res.json(res_object)
@@ -119,7 +125,12 @@ class SubscriptionController {
                         res_object.message = translateService.setNativeTranslate(language,
                             {
                                 russian: ['Подписка отключена'],
-                                english: ['Subscription disabled']
+                                english: ['Subscription disabled'],
+                                spanish: ['Suscripción deshabilitada'],
+                                turkish: ['Abonelik devre dışı bırakıldı'],
+                                chinese: ['订阅已禁用'],
+                                hindi: ['सदस्यता अक्षम की गई'],
+                            
                             }
                         )
                         return res.json(res_object)
@@ -127,7 +138,12 @@ class SubscriptionController {
                         res_object.message = translateService.setNativeTranslate(language,
                             {
                                 russian: ['Подписка продлена'],
-                                english: ['Subscription renewed']
+                                english: ['Subscription renewed'],
+                                spanish: ['Suscripción extendida'],
+                                turkish: ['Abonelik uzatıldı'],
+                                chinese: ['订阅延长'],
+                                hindi: ['सदस्यता बढ़ा दी गई'],
+                            
                             }
                         )
                         return res.json(res_object)
@@ -135,7 +151,12 @@ class SubscriptionController {
                         res_object.message = translateService.setNativeTranslate(language,
                             {
                                 russian: ['Подписка оформлена'],
-                                english: ['Subscribed']
+                                english: ['Subscribed'],
+                                spanish: ['Suscripción completada'],
+                                turkish: ['Abonelik tamamlandı'],
+                                chinese: ['认购完成'],
+                                hindi: ['सदस्यता पूर्ण हुई'],
+                            
                             }
                         )
                         return res.json(res_object)

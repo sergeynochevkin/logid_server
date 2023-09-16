@@ -50,7 +50,7 @@ class UserController {
             let userData = await userService.registration(user_id, user_info_uuid, email.toLowerCase(), password, role, language, country)
             const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4(), legal, name_surname_fathersname })
             let userAppSettingsDefaultList = [
-                { name: 'sms_messaging', value: true, role: 'both' },
+                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both' },
                 { name: 'email_messaging', value: true, role: 'both' }
             ]
 
@@ -87,14 +87,18 @@ class UserController {
             await User.update({ isActivated: true }, { where: { id } })
             return res.send(translateService.setNativeTranslate(language, {
                 russian: ['Вы активировали аккаунт'],
-                english: ['You have activated your account']
+                english: ['You have activated your account'],
+                spanish: ['Has activado tu cuenta'],
+                turkish: ['Hesabınızı etkinleştirdiniz'],
+                chinese: ['您已激活您的帐户'],
+                hindi: ['आपने अपना खाता सक्रिय कर लिया है'],
             }))
-            
+
         } catch (error) {
             next(ApiError.badRequest(error.message))
         }
     }
-    
+
     async delete_driver(req, res, next) {
         try {
 
@@ -134,7 +138,11 @@ class UserController {
                 return next(ApiError.badRequest(translateService.setNativeTranslate('english',
                     {
                         russian: ['Ошибка валидации'],
-                        english: ['Validation error']
+                        english: ['Validation error'],
+                        spanish: ['Error de validacion'],
+                        turkish: ['Doğrulama hatası'],
+                        chinese: ['验证错误'],
+                        hindi: ['मान्यता त्रुटि'],
                     }
                 ), errors.array()))//at last
             }
@@ -186,7 +194,7 @@ class UserController {
             await limit_service.setSubscriptionLimits(6, user_info)
 
             let userAppSettingsDefaultList = [
-                { name: 'sms_messaging', value: true, role: 'both' },
+                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both' },
                 { name: 'email_messaging', value: true, role: 'both' }
             ]
 
@@ -267,10 +275,10 @@ class UserController {
                 personal_data_agreement_accepted,
                 cookies_accepted } = req.body
             const userData = await userService.login(email.toLowerCase(), password, language, user_agreement_accepted,
-            privacy_policy_accepted,
-            age_accepted,
-            personal_data_agreement_accepted,
-            cookies_accepted.total)
+                privacy_policy_accepted,
+                age_accepted,
+                personal_data_agreement_accepted,
+                cookies_accepted.total)
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true /*, https:true */ })
             return res.json(userData)
         } catch (e) {
@@ -307,7 +315,11 @@ class UserController {
             return res.send(translateService.setNativeTranslate(language,
                 {
                     russian: ['Новая ссылка для активации аккаунта отправлена на', email],
-                    english: ['A new account activation link has been sent to', email]
+                    english: ['A new account activation link has been sent to', email],
+                    spanish: ['Se ha enviado un enlace de activación de cuenta nueva a', email],
+                    turkish: ['Yeni bir hesap aktivasyon bağlantısı şu adrese gönderildi:', email],
+                    chinese: ['新帐户激活链接已发送至', email],
+                    hindi: ['एक नया खाता सक्रियण लिंक भेज दिया गया है', email],
                 }
             ))
         } catch (e) {

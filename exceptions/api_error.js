@@ -26,7 +26,11 @@ class ApiError extends Error {
         return new ApiError(401, translateService.setNativeTranslate('english',
             {
                 russian: ['Пользователь не авторизован'],
-                english: ['User not authorized']
+                english: ['User not authorized'],
+                spanish: ['El usuario no está autorizado'],
+                turkish: ['Kullanıcının yetkisi yoktur'],
+                chinese: ['用户未获得授权'],
+                hindi: ['प्रयोक्ता अधिकृत नहीं है'],
             }
         ))
     }

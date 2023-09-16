@@ -37,7 +37,12 @@ class FileController {
             cb(translateService.setNativeTranslate(language,
                 {
                     russian: ['Не корректные форматы файлов'],
-                    english: ['Incorrect file formats']
+                    english: ['Incorrect file formats'],
+                    spanish: ['Formatos de archivo incorrectos'],
+                    turkish: ['Yanlış dosya formatları'],
+                    chinese: ['文件格式不正确'],
+                    hindi: ['ग़लत फ़ाइल स्वरूप'],
+                
                 }
             ))
         },

@@ -16,7 +16,12 @@ class UserService {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Не корректный email или пароль'],
-                    english: ['Incorrect email or password']
+                    english: ['Incorrect email or password'],
+                    spanish: ['Correo o contraseña incorrectos'],
+                    turkish: ['Yanlış eposta adresi veya şifre'],
+                    chinese: ['错误的邮箱帐号或密码'],
+                    hindi: ['गलत ईमेल या पासवर्ड'],
+                
                 }
             ))
         }
@@ -25,7 +30,12 @@ class UserService {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['email уже занят'],
-                    english: ['email is already taken']
+                    english: ['email is already taken'],
+                    spanish: ['el correo electronico ya ha sido tomado'],
+                    turkish: ['e-posta zaten alınmış'],
+                    chinese: ['ईमेल पहले से ही लिया जा चुका है'],
+                    hindi: ['电子邮件已经被采取'],
+                
                 }
             ))
         }
@@ -112,7 +122,12 @@ class UserService {
                 throw ApiError.badRequest(translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы ввели действующий пароль'],
-                        english: ['You have entered your current password']
+                        english: ['You have entered your current password'],
+                        spanish: ['Has introducido tu contraseña actual'],
+                        turkish: ['Mevcut şifrenizi girdiniz'],
+                        chinese: ['您已输入当前密码'],
+                        hindi: ['आपने अपना वर्तमान पासवर्ड दर्ज कर दिया है'],
+                    
                     }
                 ))
             }
@@ -134,7 +149,12 @@ class UserService {
                     throw ApiError.badRequest(translateService.setNativeTranslate(language,
                         {
                             russian: ['Вы ввели действующий email'],
-                            english: ['You have entered your current email']
+                            english: ['You have entered your current email'],
+                            spanish: ['Has introducido tu correo electrónico actual'],
+                            turkish: ['Mevcut e-postanızı girdiniz'],
+                            chinese: ['您已输入当前的电子邮件'],
+                            hindi: ['आपने अपना वर्तमान ईमेल दर्ज कर दिया है'],
+                        
                         }
                     ))
                 }
@@ -142,7 +162,12 @@ class UserService {
                     throw ApiError.badRequest(translateService.setNativeTranslate(language,
                         {
                             russian: ['email уже занят'],
-                            english: ['email is already taken']
+                            english: ['email is already taken'],
+                            spanish: ['el correo electronico ya ha sido tomado'],
+                            turkish: ['e-posta zaten alınmış'],
+                            chinese: ['电子邮件已经被采取'],
+                            hindi: ['ईमेल पहले से ही लिया जा चुका है'],
+                        
                         }
                     ))
                 }
@@ -174,7 +199,12 @@ class UserService {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Неверный код подтверждения'],
-                    english: ['Incorrect confirmation code']
+                    english: ['Incorrect confirmation code'],
+                    spanish: ['Código de confirmación incorrecto'],
+                    turkish: ['Yanlış onay kodu'],
+                    chinese: ['确认码不正确'],
+                    hindi: ['ग़लत पुष्टिकरण कोड'],
+                
                 }
             ))
         } else {
@@ -183,7 +213,12 @@ class UserService {
                 throw ApiError.badRequest(translateService.setNativeTranslate(language,
                     {
                         russian: ['Вы ввели действующий пароль'],
-                        english: ['You have entered your current password']
+                        english: ['You have entered your current password'],
+                        spanish: ['Has introducido tu contraseña actual'],
+                        turkish: ['Mevcut şifrenizi girdiniz'],
+                        chinese: ['您已输入当前密码'],
+                        hindi: ['आपने अपना वर्तमान पासवर्ड दर्ज कर दिया है'],
+                    
                     }
                 ))
             }
@@ -206,7 +241,12 @@ class UserService {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Вы ввели не корректный email'],
-                    english: ['You entered an incorrect email']
+                    english: ['You entered an incorrect email'],
+                    spanish: ['Ingresaste un correo electrónico incorrecto'],
+                    turkish: ['Yanlış bir e-posta girdiniz'],
+                    chinese: ['您输入的电子邮件不正确'],
+                    hindi: ['आपने ग़लत ईमेल दर्ज किया है'],
+                
                 }
             ))
         }
@@ -224,7 +264,12 @@ class UserService {
                 message: translateService.setNativeTranslate(language,
                     {
                         russian: ['Неверная ссылка активации'],
-                        english: ['Incorrect activation link']
+                        english: ['Incorrect activation link'],
+                        spanish: ['Enlace de activación incorrecto'],
+                        turkish: ['Yanlış etkinleştirme bağlantısı'],
+                        chinese: ['激活链接不正确'],
+                        hindi: ['ग़लत सक्रियण लिंक'],
+                    
                     }
                 ), type: 'error', uuid: activationLink
             })
@@ -235,7 +280,12 @@ class UserService {
                     message: translateService.setNativeTranslate(language,
                         {
                             russian: ['Аккаунт уже активирован'],
-                            english: ['Account has already been activated']
+                            english: ['Account has already been activated'],
+                            spanish: ['La cuenta ya ha sido activada'],
+                            turkish: ['Hesap zaten etkinleştirildi'],
+                            chinese: ['账户已经激活'],
+                            hindi: ['खाता पहले ही सक्रिय हो चुका है'],
+                        
                         }
                     ), type: 'error', uuid: activationLink
                 })
@@ -245,7 +295,12 @@ class UserService {
                     userInfoId: userInfo.id, message: translateService.setNativeTranslate(language,
                         {
                             russian: ['Вы активировали аккаунт'],
-                            english: ['You have activated your account']
+                            english: ['You have activated your account'],
+                            spanish: ['Has activado tu cuenta'],
+                            turkish: ['Hesabınızı etkinleştirdiniz'],
+                            chinese: ['您已激活您的帐户'],
+                            hindi: ['आपने अपना खाता सक्रिय कर लिया है'],
+                        
                         }
                     ), type: 'success', uuid: activationLink
                 })
@@ -264,7 +319,12 @@ class UserService {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Пользователя с таким email не существует'],
-                    english: ['User with this email does not exist']
+                    english: ['User with this email does not exist'],
+                    spanish: ['El usuario con este correo electrónico no existe'],
+                    turkish: ['Bu e-postaya sahip kullanıcı mevcut değil'],
+                    chinese: ['使用此电子邮件的用户不存在'],
+                    hindi: ['इस ईमेल वाला उपयोगकर्ता मौजूद नहीं है'],
+                
                 }
             ))
         }
@@ -273,7 +333,12 @@ class UserService {
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Нееверный пароль'],
-                    english: ['Incorrect password']
+                    english: ['Incorrect password'],
+                    spanish: ['Contraseña incorrecta'],
+                    turkish: ['Yanlış parola'],
+                    chinese: ['密码错误'],
+                    hindi: ['गलत पासवर्ड'],
+                
                 }
             ))
         }
