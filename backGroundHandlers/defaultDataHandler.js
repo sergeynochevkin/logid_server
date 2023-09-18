@@ -466,14 +466,7 @@ module.exports = async function () {
 
 
     //one time handlers
-    let transports = await Transport.findAll()
-    for (const transport of transports) {
-        let user_info = await UserInfo.findOne({ where: { id: transport.userInfoId } })
-        let user = await User.findOne({ where: { id: user_info.userId } })
-        if (!transport.driver_id) {
-            await Transport.update({ driver_id: user.id }, { where: { id: transport.id } })
-        }
-    }
+
 
     console.log('default data overwritted!');
 }
