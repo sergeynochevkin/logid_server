@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Translation, SubscriptionPlan, SubscriptionOption, SubscriptionOptionsByPlan, Equipment, TransportLoadCapacity, TransportSideType, TransportType, Country, UserInfo, UserAppSetting } = require('../models/models')
+const { Translation, SubscriptionPlan, SubscriptionOption, SubscriptionOptionsByPlan, Equipment, TransportLoadCapacity, TransportSideType, TransportType, Country, UserInfo, UserAppSetting, Transport } = require('../models/models')
 
 module.exports = async function () {
     console.log('default data handler started...');
@@ -460,7 +460,16 @@ module.exports = async function () {
 
     for (const userInfo of userInfos) {
         for (const setting of userAppSettingsDefaultList) {
-            await UserAppSetting.findOrCreate({ where: { name: setting.name, userInfoId: userInfo.id}, defaults: { value: true  } })
+            await UserAppSetting.findOrCreate({ where: { name: setting.name, userInfoId: userInfo.id }, defaults: { value: true } })
+        }
+    }
+
+
+    //one time handlers
+    let transports = await Transport.findAll()
+    for (const transport of transports) {
+        if (!transport.driver_id) {
+            await Transport.update({ driver_id: transport.userInfoId }, { where: { id: transport.id } })
         }
     }
 
