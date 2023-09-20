@@ -48,73 +48,75 @@ class PartnerController {
 
 
             // myself
-            if (newPartner.dataValues.id === user_info.dataValues.id) {
-                partner = translateService.setNativeTranslate(language,
-                    {
-                        russian: ['Вы не можете добавить партнером себя'],
-                        english: ['You cannot add yourself as a partner'],
-                        spanish: ['No puedes agregarte como socio'],
-                        turkish: ['Kendinizi ortak olarak ekleyemezsiniz'],
-                        chinese: ['您无法将自己添加为合作伙伴'],
-                        hindi: ['आप स्वयं को भागीदार के रूप में नहीं जोड़ सकते'],
-                    }
-                )
-            }
-            else if (partners.includes(newPartner.id)) {
-                partner = translateService.setNativeTranslate(language,
-                    {
-                        russian: ['Такой партнер уже есть'],
-                        english: ['Such a partner already exists'],
-                        spanish: ['Un socio así ya existe'],
-                        turkish: ['Böyle bir ortak zaten mevcut'],
-                        chinese: ['这样的合作伙伴已经存在'],
-                        hindi: ['ऐसा पार्टनर पहले से मौजूद है'],
-                    }
-                )
-            }
-            else if (newPartner && (role !== newPartnerRole)) {
-                partner = await Partner.findOrCreate({
-                    where: {
-                        userInfoId, partnerUserInfoId: newPartner.id
-                    }
-                }).then(OtherRating.findOrCreate({
-                    where: {
-                        raterUserInfoId: userInfoId,
-                        ratedUserInfoId: newPartner.id,
-                    }
-                }))
+            if (newPartner) {
+                if (newPartner.dataValues.id === user_info.dataValues.id) {
+                    partner = translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Вы не можете добавить партнером себя'],
+                            english: ['You cannot add yourself as a partner'],
+                            spanish: ['No puedes agregarte como socio'],
+                            turkish: ['Kendinizi ortak olarak ekleyemezsiniz'],
+                            chinese: ['您无法将自己添加为合作伙伴'],
+                            hindi: ['आप स्वयं को भागीदार के रूप में नहीं जोड़ सकते'],
+                        }
+                    )
+                }
+                else if (partners.includes(newPartner.id)) {
+                    partner = translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Такой партнер уже есть'],
+                            english: ['Such a partner already exists'],
+                            spanish: ['Un socio así ya existe'],
+                            turkish: ['Böyle bir ortak zaten mevcut'],
+                            chinese: ['这样的合作伙伴已经存在'],
+                            hindi: ['ऐसा पार्टनर पहले से मौजूद है'],
+                        }
+                    )
+                }
+                else if (newPartner && (role !== newPartnerRole)) {
+                    partner = await Partner.findOrCreate({
+                        where: {
+                            userInfoId, partnerUserInfoId: newPartner.id
+                        }
+                    }).then(OtherRating.findOrCreate({
+                        where: {
+                            raterUserInfoId: userInfoId,
+                            ratedUserInfoId: newPartner.id,
+                        }
+                    }))
 
-                addedPartner = await Partner.findOrCreate({
-                    where: {
-                        userInfoId: newPartner.id, partnerUserInfoId: userInfoId
-                    }
-                }).then(OtherRating.findOrCreate({
-                    where: {
-                        raterUserInfoId: newPartner.id,
-                        ratedUserInfoId: userInfoId
-                    }
-                }))
-            }
-            else if (role === newPartnerRole) {
-                partner = `${role === 'carrier' ? translateService.setNativeTranslate(language,
-                    {
-                        russian: ['Вы являетесь перевозчиком и не можете добавить перевозчика'],
-                        english: ['You are a carrier and cannot add a carrier'],
-                        spanish: ['Eres un transportista y no puedes agregar un transportista'],
-                        turkish: ['Operatörsünüz ve operatör ekleyemezsiniz'],
-                        chinese: ['您是运营商，无法添加运营商'],
-                        hindi: ['आप एक वाहक हैं और कोई वाहक नहीं जोड़ सकते'],
-                    }
-                ) : translateService.setNativeTranslate(language,
-                    {
-                        russian: ['Вы являетесь заказчиком и не можете добавить заказчика'],
-                        english: ['You are a customer and cannot add a customer'],
-                        spanish: ['Eres cliente y no puedes agregar un cliente'],
-                        turkish: ['Müşterisiniz ve müşteri ekleyemezsiniz'],
-                        chinese: ['您是客户，无法添加客户'],
-                        hindi: ['आप एक ग्राहक हैं और ग्राहक नहीं जोड़ सकते'],
-                    }
-                )}`
+                    addedPartner = await Partner.findOrCreate({
+                        where: {
+                            userInfoId: newPartner.id, partnerUserInfoId: userInfoId
+                        }
+                    }).then(OtherRating.findOrCreate({
+                        where: {
+                            raterUserInfoId: newPartner.id,
+                            ratedUserInfoId: userInfoId
+                        }
+                    }))
+                }
+                else if (role === newPartnerRole) {
+                    partner = `${role === 'carrier' ? translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Вы являетесь перевозчиком и не можете добавить перевозчика'],
+                            english: ['You are a carrier and cannot add a carrier'],
+                            spanish: ['Eres un transportista y no puedes agregar un transportista'],
+                            turkish: ['Operatörsünüz ve operatör ekleyemezsiniz'],
+                            chinese: ['您是运营商，无法添加运营商'],
+                            hindi: ['आप एक वाहक हैं और कोई वाहक नहीं जोड़ सकते'],
+                        }
+                    ) : translateService.setNativeTranslate(language,
+                        {
+                            russian: ['Вы являетесь заказчиком и не можете добавить заказчика'],
+                            english: ['You are a customer and cannot add a customer'],
+                            spanish: ['Eres cliente y no puedes agregar un cliente'],
+                            turkish: ['Müşterisiniz ve müşteri ekleyemezsiniz'],
+                            chinese: ['您是客户，无法添加客户'],
+                            hindi: ['आप एक ग्राहक हैं और ग्राहक नहीं जोड़ सकते'],
+                        }
+                    )}`
+                }
             }
             else {
                 partner = translateService.setNativeTranslate(language,
