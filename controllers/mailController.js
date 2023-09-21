@@ -399,15 +399,21 @@ class MailController {
                             allWhoProposed = allWhoProposed.filter(el => el.id !== noPartnerId).map(el => el.email).toString()
                             await sendMail([], allMembers_subject, allMembers_text, order, allWhoProposed)
                         }
-                    }
-                    await sendMail(mover.email, mover_subject, mover_text, order)
-                    if (member) {
-                        await sendMail(member.email, member_subject, member_text, order, [], link)
-                        if (member.phone !== '' && member.country === 'russia') {
-                            await smsService.sendSms(member.phone, member_text_sms)
+
+                        if (member) {
+                            if (member.phone !== '' && member.country === 'russia') {
+                                await smsService.sendSms(member.phone, member_text_sms)
+                            }
                         }
                     }
+
+                    await sendMail(mover.email, mover_subject, mover_text, order)
+
+                    if (member) {
+                        await sendMail(member.email, member_subject, member_text, order, [], link)                      
+                    }                    
                 }
+                
                 // mass processing of orders is not in progress and is not planned
                 else if (option === 'completed') {
                     mover_subject = translateService.setNativeTranslate(language,
