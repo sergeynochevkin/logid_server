@@ -471,7 +471,7 @@ class MailController {
                     if (!Array.isArray(orderId)) {
                         mover_subject = translateService.setNativeTranslate(language,
                             {
-                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id],
+                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенесли в архив' : '', order.order_type === 'order' ? 'заказ' : 'аукцион', order.id],
                                 english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', order.order_type === 'order' ? 'an order' : 'an auction', order.id],
 
                                 spanish: [option === 'canceled' ? 'Has cancelado' : option === 'postponed' ? 'Has pospuesto' : option === 'new' ? 'Has enviado' : option === 'arc' ? 'Has archivadod' : '', order.order_type === 'order' ? 'una orden' : 'una subasta', order.id],
@@ -497,7 +497,7 @@ class MailController {
                     if (Array.isArray(orderId)) {
                         mover_subject = translateService.setNativeTranslate(language,
                             {
-                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенсли в архив' : '', 'заказы', order.map(el => el.id).sort().toString()],
+                                russian: [option === 'canceled' ? 'Вы отменили' : option === 'postponed' ? 'Вы отложили' : option === 'new' ? 'Вы отправили' : option === 'arc' ? 'Вы перенесли в архив' : '', 'заказы', order.map(el => el.id).sort().toString()],
                                 english: [option === 'canceled' ? 'You have canceled' : option === 'postponed' ? 'You have postponed' : option === 'new' ? 'You have sent' : option === 'arc' ? 'You have archived' : '', 'orders', order.map(el => el.id).sort().toString()],
                                 spanish: [option === 'canceled' ? 'Has cancelado' : option === 'postponed' ? 'Has pospuesto' : option === 'new' ? 'Has enviado' : option === 'arc' ? 'Has archivadod' : '', 'pedidos', order.map(el => el.id).sort().toString()],
                                 turkish: [option === 'canceled' ? 'İptal ettiniz' : option === 'postponed' ? 'Erteledin' : option === 'new' ? 'Gönderdin' : option === 'arc' ? 'Arşivlediniz' : '', 'emirler', order.map(el => el.id).sort().toString()],
