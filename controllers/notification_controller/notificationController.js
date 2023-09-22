@@ -1,5 +1,5 @@
-const { Transport, ServerNotification } = require('../models/models')
-const ApiError = require('../exceptions/api_error')
+const { Transport, ServerNotification } = require('../../models/models')
+const ApiError = require('../../exceptions/api_error')
 const { Op } = require("sequelize")
 
 class NotificationController {

@@ -1,12 +1,12 @@
-const ApiError = require('../exceptions/api_error')
+const ApiError = require('../../exceptions/api_error')
 const nodemailer = require('nodemailer')
-const { Order, UserInfo, Offer, Transport, Translation } = require('../models/models')
+const { Order, UserInfo, Offer, Transport, Translation } = require('../../models/models')
 const { Op } = require("sequelize")
-const { transportHandler } = require('../modules/transportHandler')
+const { transportHandler } = require('../../modules/transportHandler')
 const { types } = require('pg')
-const translateService = require('../service/translate_service')
-const smsService = require('../service/sms_service')
-const settingService = require('../service/setting_service')
+const translateService = require('../../service/translate_service')
+const smsService = require('../../service/sms_service')
+const settingService = require('../../service/setting_service')
 
 
 

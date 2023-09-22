@@ -1,6 +1,4 @@
 const transportHandler = function (types, load_capacities, side_types) {
-
-    //усовершенствовать логику включить в нее опции
     
     types.includes('electric_scooter' || 'bike') ? types.push('walk', 'electric_scooter', 'bike') : types
     types.includes('scooter') ? types.push('walk', 'electric_scooter', 'bike') : types
@@ -15,7 +13,7 @@ const transportHandler = function (types, load_capacities, side_types) {
     side_types.includes('hard_top') ? side_types.push('awing') : side_types
 
     return (
-        types, load_capacities, side_types
+        {types, load_capacities, side_types}
     )
 }
 

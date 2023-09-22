@@ -1,8 +1,8 @@
 const Router = require('express')
 const router = new Router()
-const orderController = require('../controllers/orderController')
 const checkRole = require('../middleware/checkRoleMiddleware')
 const authMiddleware = require('../middleware/auth_middleware')
+const orderController = require('../controllers/order_controller/orderController')
 
 router.post('/', authMiddleware, orderController.create)
 router.post('/get_orders', authMiddleware, orderController.getAll)

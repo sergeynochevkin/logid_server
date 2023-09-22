@@ -1,14 +1,18 @@
-const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed, TransportByOrder, Transport } = require('../models/models')
-const ApiError = require('../exceptions/api_error')
+const { Order, UserInfo, Point, Offer, NotificationState, PartnerByGroup, OrderByGroup, OrderByPartner, LimitCounter, UserAppState, OrderViewed, TransportByOrder, Transport } = require('../../models/models')
+const ApiError = require('../../exceptions/api_error')
 const { Op, where } = require("sequelize")
-const { transportHandler } = require('../modules/transportHandler')
-const { notificationHandler } = require('../modules/notificationHandler')
-const { filterHandler } = require('../modules/filterHandler')
-const limitService = require('../service/limit_service')
-const mailService = require('../service/mail_service')
+const { transportHandler } = require('../../modules/transportHandler')
+const { notificationHandler } = require('../../modules/notificationHandler')
+const { filterHandler } = require('../../modules/filterHandler')
+const limitService = require('../../service/limit_service')
+const mailService = require('../../service/mail_service')
 const fs = require('fs')
-const point_service = require('../service/point_service')
-const url_service = require('../service/url_service')
+const point_service = require('../../service/point_service')
+const url_service = require('../../service/url_service')
+const { sort_service } = require('./sort_service')
+const { transport_service } = require('./transport._service')
+const { order_service } = require('./order_service')
+const { role_service } = require('./role_service')
 
 
 class OrderController {
@@ -105,347 +109,31 @@ class OrderController {
 
     async getAll(req, res, next) {
         try {
-            let { userInfoId, role, carrierId, order_status, country, city, transport, myBlocked, iAmBlocked, myFavorite, isArc, filters } = req.body
+            let { userInfoId, carrierId, order_status, isArc, filters } = req.body 
 
             let types
             let load_capacities
             let side_types
-
-            if (role === 'carrier') {
-                types = transport.map(el => el.type).filter(el => el !== null)
-                load_capacities = transport.map(el => el.load_capacity).filter(el => el !== null)
-                side_types = transport.map(el => el.side_type).filter(el => el !== null)
-                transportHandler(types, load_capacities, side_types)
-            }
-
-            let order =
-            {
-                count: undefined,
-                total_count: {},
-                filtered_count: undefined,
-                rows: [],
-                map_rows: [],
-                added: {},
-                views: [],
-                transport: []
-            }
+            let role = await role_service(userInfoId)
 
             let orderForPoints
             let orderForPartners
             let points
             let partners
-            let previousState
-            let state
 
-            let sortDirection
-            let sortColumn
 
-            if (filters[order_status].selectedSort === '') {
-                sortDirection = 'id'
-                sortColumn = 'ASC'
-            }
-            if (filters[order_status].selectedSort === 'default') {
-                sortDirection = 'id'
-                sortColumn = 'DESC'
-            }
-            if (filters[order_status].selectedSort === 'auctionFirst') {
-                sortDirection = 'order_type'
-                sortColumn = 'ASC'
-            }
-            if (filters[order_status].selectedSort === 'orderFirst') {
-                sortDirection = 'order_type'
-                sortColumn = 'DESC'
-            }
-            if (filters[order_status].selectedSort === 'costUp') {
-                sortDirection = 'cost'
-                sortColumn = 'ASC'
-            }
-            if (filters[order_status].selectedSort === 'costDown') {
-                sortDirection = 'cost'
-                sortColumn = 'DESC'
-            }
-            if (filters[order_status].selectedSort === 'firstCreated') {
-                sortDirection = 'createdAt'
-                sortColumn = 'DESC'
-            }
-            if (filters[order_status].selectedSort === 'lastCreated') {
-                sortDirection = 'createdAt'
-                sortColumn = 'ASC'
-            }
-            if (filters[order_status].selectedSort === 'finalStatus') {
-                sortDirection = 'order_final_status'
-                sortColumn = 'ASC'
-            }
-            if (filters[order_status].selectedSort === 'transportType') {
-                sortDirection = 'type'
-                sortColumn = 'ASC'
+            let { sortDirection, sortColumn, _filters } = sort_service(filters, order_status)
+            filters = { ..._filters }
+
+            if (role === 'carrier' || role === 'driver') {
+                let arrays = await transport_service(userInfoId, role)
+                types = [...arrays.types]
+                load_capacities = [...arrays.load_capacities]
+                side_types = [...arrays.side_types]
             }
 
-            filters[order_status].costFrom === '' ? filters[order_status].costFrom = 0 : ''
-            filters[order_status].costTo === '' ? filters[order_status].costTo = 10000000 : ''
-            filters[order_status].timeFrom === '' ? filters[order_status].timeFrom = '1022-08-13 01:59:00+03' : ''
-            filters[order_status].timeTo === '' ? filters[order_status].timeTo = '3022-08-13 01:59:00+03' : ''
-
-            if (isArc !== 'arc') {
-                previousState = await NotificationState.findOne({ where: { userInfoId: userInfoId } })
-                if (previousState.order_state) {
-                    previousState = JSON.parse(previousState.order_state)
-                } else {
-                    previousState = []
-                }
-            }
-
-            if (role === 'customer' && isArc === 'arc') {
-                order = await Order.findAndCountAll({
-                    where: {
-                        [Op.and]: { userInfoId, customer_arc_status: order_status, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } }
-                    }, order: [
-                        [sortDirection, sortColumn]
-                    ],
-                    offset: 0,
-                    // limit: filters[order_status].limit
-                })
-            }
-
-            else if (role === 'customer') {
-                order = await Order.findAndCountAll({
-                    where: { [Op.and]: { userInfoId, order_status, customer_arc_status: null, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
-                    order: [
-                        [sortDirection, sortColumn]
-                    ],
-                    offset: 0,
-                    // limit: filters[order_status].limit
-                })
-
-                state = await Order.findAll({
-                    where: { [Op.and]: { userInfoId/*,order_status:{[Op.ne]:'arc', customer_arc_status: null*/ } }
-                })
-            }
-
-            if (role === 'carrier' && isArc === 'arc') {
-                order = await Order.findAndCountAll({
-                    where: { [Op.and]: { carrierId, carrier_arc_status: order_status, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
-                    order: [
-                        [sortDirection, sortColumn]
-                    ],
-                    offset: 0,
-                    // limit: filters[order_status].limit
-                })
-            }
-
-            if (role === 'carrier' && isArc !== 'arc') {
-                if (order_status !== 'new') {
-                    order = await Order.findAndCountAll({
-                        where: { [Op.and]: { carrierId, order_status, country, /*city, comment go to geo*/  carrier_arc_status: null, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
-                        order: [
-                            [sortDirection, sortColumn]
-                        ],
-                        offset: 0,
-                        // limit: filters[order_status].limit
-                    })
-                }
-
-                // города
-                let userInfoCity = {
-                    lat: '',
-                    lng: '',
-                    name: ''
-                }
-                let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
-                userInfoCity.lat = parseFloat(userInfo.city_latitude)
-                userInfoCity.lng = parseFloat(userInfo.city_longitude)
-                userInfoCity.name = userInfo.city
-
-                let cities = []
-
-                state = await UserAppState.findOne({ where: { userInfoId } })
-                if (state) {
-                    state = JSON.parse(state.state)
-                    if (state.user_map_cities) {
-                        cities = state.user_map_cities
-                        cities.push(userInfoCity)
-                    } else {
-                        cities.push(userInfoCity)
-                    }
-                } else {
-                    cities.push(userInfoCity)
-                }
-
-                let bound = 0.6
-
-                if (order_status === 'new') {
-                    let orderFavorite = []
-                    for (const city of cities) {
-                        let orders = await Order.findAll({
-                            where: {
-                                [Op.and]: {
-                                    carrierId, order_status, country, type: types, load_capacity: load_capacities, side_type: side_types,
-                                    userInfoId: { [Op.in]: myFavorite }, carrier_arc_status: null,
-                                    start_lat: { [Op.lte]: city.lat + bound },
-                                    start_lng: { [Op.lte]: city.lng + bound },
-                                    start_lat: { [Op.gte]: city.lat - bound },
-                                    start_lng: { [Op.gte]: city.lng - bound },
-                                    cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] }
-                                }
-                            },
-                            order: [
-                                [sortDirection, sortColumn]
-                            ],
-                            offset: 0,
-                        })
-                        orderFavorite = [...orderFavorite, ...orders]
-                    }
-
-                    let blocked = [...new Set([...myBlocked, ...iAmBlocked])]
-
-                    let restOrders = []
-                    for (const city of cities) {
-                        let orders = await Order.findAll({
-                            where: {
-                                [Op.and]: {
-                                    order_status, country, type: types, load_capacity: load_capacities, side_type: side_types,
-                                    userInfoId: { [Op.notIn]: blocked }, carrier_arc_status: null,
-                                    start_lat: { [Op.lte]: city.lat + bound },
-                                    start_lng: { [Op.lte]: city.lng + bound },
-                                    start_lat: { [Op.gte]: city.lat - bound },
-                                    start_lng: { [Op.gte]: city.lng - bound },
-                                    cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] }
-                                }
-                            },
-                            order: [
-                                [sortDirection, sortColumn]
-                            ],
-                            offset: 0,
-                        })
-                        restOrders = [...restOrders, ...orders]
-                    }
-
-                    let firtstPointCheckedOrders = [...new Set([...orderFavorite, ...restOrders])]
-
-                    //second variant if intercity on
-                    let orderSet = []
-                    for (const city of cities) {
-                        for (const order of firtstPointCheckedOrders) {
-                            if ((order.end_lat < city.lat + bound && order.end_lng < city.lng + bound && order.end_lat > city.lat - bound && order.end_lng > city.lng - bound) && !orderSet.find(el => el.id === order.id)) {
-                                if (filters.intercity) {
-                                    if ((order.start_lat > order.end_lat && order.start_lng > order.end_lng) && (parseFloat(order.start_lat) - bound > order.end_lat && parseFloat(order.start_lng) - bound > order.end_lng)) {
-                                        orderSet.push(order)
-                                    }
-                                    if ((order.start_lat < order.end_lat && order.start_lng < order.end_lng) && (parseFloat(order.start_lat) + bound < order.end_lat && parseFloat(order.start_lng) + bound < order.end_lng)) {
-                                        orderSet.push(order)
-                                    }
-                                    if ((order.start_lat > order.end_lat && order.start_lng < order.end_lng) && (order.start_lat > parseFloat(order.end_lat) + bound && parseFloat(order.start_lng) + bound < order.end_lng)) {
-                                        orderSet.push(order)
-                                    }
-                                    if ((order.start_lat < order.end_lat && order.start_lng > order.end_lng) && (parseFloat(order.start_lat) + bound < order.end_lat && order.start_lng > parseFloat(order.end_lng) + bound)) {
-                                        orderSet.push(order)
-                                    }
-                                } else {
-                                    orderSet.push(order)
-                                }
-                            }
-                        }
-                    }
-
-
-                    order.rows = [...orderSet]
-
-                    let currentRows = []
-                    for (const row of order.rows) {
-                        let for_partner = row.for_partner
-                        let for_group = row.for_group
-
-                        let partners = []
-
-                        if (for_partner || for_group) {
-                            let partnersByGroups = []
-                            if (for_group) {
-                                partnersByGroups = await PartnerByGroup.findAll({ where: { partnerGroupId: for_group } })
-                                partnersByGroups = partnersByGroups.length > 0 ? partnersByGroups.map(el => el.partnerId) : []
-                            }
-                            partners = [...partnersByGroups, for_partner]
-                            partners = [...new Set(partners)];
-
-                            if (partners.includes(userInfoId)) {
-                                currentRows.push(row)
-                            }
-                        }
-                        else {
-                            currentRows.push(row)
-                        }
-                    }
-                    order.rows = [...currentRows]
-                }
-
-                let blockedForState = [...new Set([...myBlocked, ...iAmBlocked])]
-
-                //state with cities in mind              
-                let firtstPointCheckedOrders = []
-                for (const city of cities) {
-                    let orders = await Order.findAll({
-                        where: {
-                            [Op.and]: {
-                                order_status: 'new', carrier_arc_status: null, userInfoId: { [Op.notIn]: blockedForState }, type: types, load_capacity: load_capacities, side_type: side_types,
-                                start_lat: { [Op.lte]: city.lat + bound },
-                                start_lng: { [Op.lte]: city.lng + bound },
-                                start_lat: { [Op.gte]: city.lat - bound },
-                                start_lng: { [Op.gte]: city.lng - bound }
-                            }
-                        }
-                    })
-                    firtstPointCheckedOrders = [...firtstPointCheckedOrders, ...orders]
-                }
-
-                //second variant if intercity on
-                let newOrdersState = []
-                for (const city of cities) {
-                    for (const order of firtstPointCheckedOrders) {
-                        if ((order.end_lat < city.lat + bound && order.end_lng < city.lng + bound && order.end_lat > city.lat - bound && order.end_lng > city.lng - bound) && !newOrdersState.find(el => el.id === order.id)) {
-                            newOrdersState.push(order)
-                        }
-                    }
-                }
-
-
-                let currentNewOrdersState = []
-                for (const row of newOrdersState) {
-                    let for_partner = row.for_partner
-                    let for_group = row.for_group
-
-                    let partners = []
-
-                    if (for_group || for_partner) {
-                        let partnersByGroups = []
-                        if (for_group) {
-                            partnersByGroups = await PartnerByGroup.findAll({ where: { partnerGroupId: for_group } })
-                            partnersByGroups = partnersByGroups.length > 0 ? partnersByGroups.map(el => el.partnerId) : []
-                        }
-                        partners = [...partnersByGroups, for_partner]
-                        partners = [...new Set(partners)];
-
-                        if (partners.includes(userInfoId)) {
-                            currentNewOrdersState.push(row)
-                        }
-                    } else {
-                        currentNewOrdersState.push(row)
-                    }
-                }
-                // what about the logic of the previous state for the carrier suppose he reconfigured the filter
-                newOrdersState = [...currentNewOrdersState]
-
-                state = await Order.findAll({
-                    where: {
-                        [Op.and]: {
-                            carrierId, order_status: { [Op.notIn]: ['new'] },
-                            /*order_status:{[Op.ne]:'arc'}carrier_arc_status: null, type: types, load_capacity: load_capacities, side_type: side_types*/
-                        }
-                    }
-                })
-                state = [...state, ...newOrdersState]
-            }
-
-
-
+            let { state, previousState, order } = await order_service(userInfoId,carrierId, order_status, role, isArc, sortDirection, sortColumn, types, load_capacities, side_types, filters)
+            
             orderForPoints = order.rows.map(el => el.pointsIntegrationId)
             orderForPartners = order.rows.map(el => el.carrierId)
 

@@ -10,6 +10,35 @@ const language_service = require('../service/language_service')
 
 class ManagementController {
 
+    async get_registrations(req, res, next) {
+        try {
+            let resObject = {
+                toDay: '',
+                week: '',
+                month: ''
+            }
+
+            let currentTime = new Date()
+
+            let dayStart = currentTime.setHours(0, 0, 0, 0)
+            let monthOlder = currentTime - 1000 * 60 * 60 * 24 * 30.5
+            let weekOlder = currentTime - 1000 * 60 * 60 * 24 * 7
+
+            let regsMonth = await User.findAll({ where: { createdAt: { [Op.gt]: monthOlder } } })
+            let regsWeek = await User.findAll({ where: { createdAt: { [Op.gt]: weekOlder } } })
+            let regsToDay = await User.findAll({ where: { createdAt: { [Op.gt]: dayStart } } })
+
+            resObject.month = [...regsMonth].length
+            resObject.week = [...regsWeek].length
+            resObject.toDay = [...regsToDay].length
+
+            return res.json(resObject)
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
     async get_visits(req, res, next) {
         try {
             let resObject = {
