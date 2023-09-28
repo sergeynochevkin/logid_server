@@ -349,6 +349,7 @@ const UserAppLimit = sequelize.define('user_app_limit', {
 const UserAppSetting = sequelize.define('user_app_setting', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING, defaultValue: '' },
+    managing_by: { type: DataTypes.STRING, defaultValue: '' },
     value: { type: DataTypes.BOOLEAN },
 
     /*

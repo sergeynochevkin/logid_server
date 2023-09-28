@@ -3,7 +3,7 @@ const userService = require('../service/user_service')
 const translateService = require('../service/translate_service')
 const { validationResult } = require('express-validator')
 const ApiError = require('../exceptions/api_error')
-const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, SubscriptionOption, SubscriptionOptionsByPlan } = require('../models/models')
+const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, SubscriptionOption, SubscriptionOptionsByPlan, Order } = require('../models/models')
 const time_service = require('../service/time_service')
 const { Op } = require('sequelize')
 const limit_service = require('../service/limit_service')
@@ -49,9 +49,23 @@ class UserController {
 
             let userData = await userService.registration(user_id, user_info_uuid, email.toLowerCase(), password, role, language, country)
             const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4(), legal, name_surname_fathersname })
+
+            await NotificationState.create({ userInfoId: user_info.id })
+            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })
+            await UserAppState.create({ userInfoId: user_info.id })
+            await UserAppLimit.create({ userInfoId: user_info.id })
+            await LimitCounter.create({ userInfoId: user_info.id })
+
+            await limit_service.setSubscriptionLimits(6, user_info)
+
             let userAppSettingsDefaultList = [
-                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both' },
-                { name: 'email_messaging', value: true, role: 'both' }
+                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both', managing_by: 'user' },
+                { name: 'email_messaging', value: true, role: 'both', managing_by: 'user' },
+                { name: 'can_see_new_orders', value: true, role: 'driver', managing_by: 'supervisor' },
+                { name: 'can_take_order', value: true, role: 'driver', managing_by: 'supervisor' },
+                { name: 'can_make_offer', value: true, role: 'driver', managing_by: 'supervisor' },
+                { name: 'can_finish_order', value: true, role: 'driver', managing_by: 'supervisor' },
+                { name: 'can_set_order_as_disrupted', value: true, role: 'driver', managing_by: 'supervisor' }
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')
@@ -74,7 +88,31 @@ class UserController {
     async get_drivers(req, res, next) {
         try {
             let { userId } = req.query
-            let drivers = await User.findAll({ where: { user_id: userId }, attributes: ['email', 'id', 'role', 'isActivated'], include: UserInfo })
+            let drivers
+            let user = await User.findOne({ where: { id: userId }, include: UserInfo })
+            if (user.role === 'carrier') {
+                drivers = await User.findAll({
+                    where: { user_id: userId }, attributes: ['email', 'id', 'role', 'isActivated'], include: {
+                        model: UserInfo,
+                        include: UserAppSetting
+                    }
+                })
+            }
+            if (user.role === 'customer') {
+                let orders = []
+                orders = await Order.findAll({
+                    where: { order_status: 'inWork', userInfoId: user.user_info.id }
+                })
+                let driverUserInfoIds = orders.map(el => el.driver_id)
+                let driverUsers = await UserInfo.findAll({where:{id:{[Op.in]:driverUserInfoIds}}, include:User})
+                let driverUserIds = driverUsers.map(el=>el.user).map(el=>el.id)
+                drivers = await User.findAll({
+                    where: { id: {[Op.in]:driverUserIds} }, attributes: ['email', 'id', 'role', 'isActivated'], include: {
+                        model: UserInfo,
+                    }
+                })
+            }
+
             return res.json(drivers)
         } catch (error) {
             next(ApiError.badRequest(error.message))
@@ -194,8 +232,8 @@ class UserController {
             await limit_service.setSubscriptionLimits(6, user_info)
 
             let userAppSettingsDefaultList = [
-                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both' },
-                { name: 'email_messaging', value: true, role: 'both' }
+                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both', managing_by: 'user' },
+                { name: 'email_messaging', value: true, role: 'both', managing_by: 'user' }
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')

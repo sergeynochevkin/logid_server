@@ -98,8 +98,8 @@ class UserService {
         }
 
         let userAppSettingsDefaultList = [
-            { name: 'sms_messaging', value: true, role: 'both' },
-            { name: 'email_messaging', value: true, role: 'both' }
+            { name: 'sms_messaging', value: true, role: 'both', managing_by: 'user'  },
+            { name: 'email_messaging', value: true, role: 'both', managing_by: 'user'  }
         ]
 
         userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')

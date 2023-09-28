@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
-const { Translation, SubscriptionPlan, SubscriptionOption, SubscriptionOptionsByPlan, Equipment, TransportLoadCapacity, TransportSideType, TransportType, Country, UserInfo, UserAppSetting, Transport, User } = require('../models/models')
+const { Translation, SubscriptionPlan, SubscriptionOption, SubscriptionOptionsByPlan, Equipment, TransportLoadCapacity, TransportSideType, TransportType, Country, UserInfo, UserAppSetting, Transport, User } = require('../models/models');
+const { role_service } = require('../controllers/order_controller/role_service');
 
 module.exports = async function () {
     console.log('default data handler started...');
@@ -452,20 +453,29 @@ module.exports = async function () {
     }
 
     let userAppSettingsDefaultList = [
-        { name: 'sms_messaging', value: true, role: 'both' },
-        { name: 'email_messaging', value: true, role: 'both' }
+        { name: 'sms_messaging', value: true, role: 'both', managing_by: 'user' },
+        { name: 'email_messaging', value: true, role: 'both', managing_by: 'user' },
+        { name: 'can_see_new_orders', value: true, role: 'driver', managing_by: 'supervisor' },
+        { name: 'can_take_order', value: true, role: 'driver', managing_by: 'supervisor' },
+        { name: 'can_make_offer', value: true, role: 'driver', managing_by: 'supervisor' },
+        { name: 'can_finish_order', value: true, role: 'driver', managing_by: 'supervisor' },
+        { name: 'can_set_order_as_disrupted', value: true, role: 'driver', managing_by: 'supervisor' }
     ]
 
     let userInfos = await UserInfo.findAll()
 
     for (const userInfo of userInfos) {
+        let role = await role_service(userInfo.id)
         for (const setting of userAppSettingsDefaultList) {
-            await UserAppSetting.findOrCreate({ where: { name: setting.name, userInfoId: userInfo.id }, defaults: { value: true } })
+            if (setting.role === role || setting.role === 'both') {
+                await UserAppSetting.findOrCreate({ where: { name: setting.name, userInfoId: userInfo.id }, defaults: { value: setting.value, managing_by: setting.managing_by } })
+            }
         }
     }
 
 
     //one time handlers
+    
 
 
     console.log('default data overwritted!');

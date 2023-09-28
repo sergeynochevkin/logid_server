@@ -54,7 +54,7 @@ class LimitService {
                     turkish: ['Deneme süresini zaten kullandınız'],
                     chinese: ['您已经使用了试用期'],
                     hindi: ['आप पहले ही परीक्षण अवधि का उपयोग कर चुके हैं'],
-                
+
                 }
             ))
         }
@@ -85,12 +85,12 @@ class LimitService {
                         turkish: ['Aboneliğinizde mevcut olan 24 saatlik sipariş limitine ulaştınız, limit şu tarihte güncellenecektir:', handledTime, '. Aboneliğinizi Hesap bölümünden değiştirebilirsiniz. Ayrıca bir şablon oluşturabilir ve limit güncellendiğinde gönderebilirsiniz'],
                         chinese: ['您已达到订阅的 24 小时订单限制，该限制将于', handledTime, '. 您可以在“帐户”部分更改您的订阅。 您还可以创建模板并在限制更新时发送'],
                         hindi: ['आप अपनी सदस्यता के साथ उपलब्ध 24 घंटे की ऑर्डर सीमा तक पहुंच गए हैं, सीमा को अपडेट किया जाएगा', handledTime, '. आप खाता अनुभाग में अपनी सदस्यता बदल सकते हैं. आप एक टेम्प्लेट भी बना सकते हैं और सीमा अपडेट होने पर उसे भेज सकते हैं'],
-                    
+
                     }
                 ))
             }
         }
-        if (user.role === 'carrier') {
+        if (user.role === 'carrier' || user.role === 'driver') {
             if (option === 'order') {
                 let refreshTime = new Date(counter.carrier_take_order_started)
                 refreshTime = refreshTime.setDate(refreshTime.getDate() + 1)
@@ -104,13 +104,13 @@ class LimitService {
                 if (counter.carrier_take_order_amount_per_day >= limits.carrier_take_order_limit_per_day) {
                     throw ApiError.badRequest(translateService.setNativeTranslate(language,
                         {
-                            russian: ['Вы достигли лимита взятия заказов в работу за 24 часа, доступного с вашей подпиской, лимит обновится в', handledTime, '. Вы можете изменить подписку в разделе Аккаунт'],
-                            english: ['You have reached the 24-hour take order limit available with your subscription, the limit will be updated at', handledTime, '. You can change your subscription in the Account section'],
-                            spanish: ['Ha alcanzado el límite de pedidos de 24 horas disponible con su suscripción; el límite se actualizará en', handledTime, '. Puedes cambiar tu suscripción en la sección cuenta'],
-                            turkish: ['Aboneliğinizde mevcut olan 24 saatlik sipariş alma limitine ulaştınız, limit şu tarihte güncellenecektir:', handledTime, '. Aboneliğinizi Hesap bölümünden değiştirebilirsiniz'],
-                            chinese: ['您已达到订阅的 24 小时接受订单限制，该限制将于', handledTime, '. 您可以在“帐户”部分更改您的订阅'],
-                            hindi: ['आप अपनी सदस्यता के साथ उपलब्ध 24-घंटे की ऑर्डर लेने की सीमा तक पहुंच गए हैं, सीमा को अपडेट किया जाएगा', handledTime, '. आप खाता अनुभाग में अपनी सदस्यता बदल सकते हैं'],
-                        
+                            russian: ['Вы достигли лимита взятия заказов в работу за 24 часа, доступного с вашей подпиской, лимит обновится в', handledTime, user.role === 'carrier' ? '. Вы можете изменить подписку в разделе Аккаунт' : 'Для изменения лимита обратитесь в свой автопарк'],
+                            english: ['You have reached the 24-hour take order limit available with your subscription, the limit will be updated at', handledTime, user.role === 'carrier' ? '. You can change your subscription in the Account section' : 'To change the limit, contact your fleet'],
+                            spanish: ['Ha alcanzado el límite de pedidos de 24 horas disponible con su suscripción; el límite se actualizará en', handledTime, user.role === 'carrier' ? '. Puedes cambiar tu suscripción en la sección cuenta' : 'Para cambiar el límite contacta con tu flota'],
+                            turkish: ['Aboneliğinizde mevcut olan 24 saatlik sipariş alma limitine ulaştınız, limit şu tarihte güncellenecektir:', handledTime, user.role === 'carrier' ? '. Aboneliğinizi Hesap bölümünden değiştirebilirsiniz' : 'Limiti değiştirmek için filonuzla iletişime geçin'],
+                            chinese: ['您已达到订阅的 24 小时接受订单限制，该限制将于', handledTime, user.role === 'carrier' ? '. 您可以在“帐户”部分更改您的订阅' : '要更改限制，请联系您的车队'],
+                            hindi: ['आप अपनी सदस्यता के साथ उपलब्ध 24-घंटे की ऑर्डर लेने की सीमा तक पहुंच गए हैं, सीमा को अपडेट किया जाएगा', handledTime, user.role === 'carrier' ? '. आप खाता अनुभाग में अपनी सदस्यता बदल सकते हैं' : 'सीमा बदलने के लिए, अपने बेड़े से संपर्क करें'],
+
                         }
                     ))
                 }
@@ -134,7 +134,7 @@ class LimitService {
                             turkish: ['Aboneliğinizle kullanılabilen 24 saatlik teklif sınırına ulaştınız; sınır şu tarihte güncellenecektir:', handledTime, '. Aboneliğinizi Hesap bölümünden değiştirebilirsiniz'],
                             chinese: ['您已达到订阅的 24 小时优惠限制，该限制将在', handledTime, '. 您可以在“帐户”部分更改您的订阅'],
                             hindi: ['आप अपनी सदस्यता के साथ उपलब्ध 24-घंटे की ऑफ़र सीमा तक पहुंच गए हैं, सीमा अपडेट हो जाएगी', handledTime, '. आप खाता अनुभाग में अपनी सदस्यता बदल सकते हैं'],
-                        
+
                         }
                     ))
                 }
@@ -171,7 +171,7 @@ class LimitService {
                     turkish: ['İşlemi gerçekleştirmek için kayıt sırasında aldığınız bağlantıyı kullanarak hesabınızı etkinleştirin veya hesap bölümünde bağlantıyı tekrar isteyin'],
                     chinese: ['要执行该操作，请使用注册期间收到的链接激活您的帐户，或在帐户部分再次请求该链接'],
                     hindi: ['कार्रवाई करने के लिए, पंजीकरण के दौरान प्राप्त लिंक का उपयोग करके अपना खाता सक्रिय करें, या खाता अनुभाग में फिर से लिंक का अनुरोध करें'],
-                
+
                 }
             ))
         }
@@ -188,7 +188,7 @@ class LimitService {
                     turkish: ['İşlemi gerçekleştirmek için hesabınızın denetlenmesini bekleyin'],
                     chinese: ['要执行该操作，请等待您的帐户得到审核'],
                     hindi: ['कार्रवाई करने के लिए, अपने खाते के मॉडरेट होने तक प्रतीक्षा करें'],
-                
+
                 }
             ))
         }
@@ -207,7 +207,7 @@ class LimitService {
                         turkish: ['İşlemi gerçekleştirmek için doğrulanmış bir hesaba ihtiyacınız var, belgeleri yükleyin, 24 saat içinde kontrol edeceğizn'],
                         chinese: ['要执行此操作，您需要一个经过验证的帐户，上传文件，我们将在 24 小时内检查'],
                         hindi: ['कार्रवाई करने के लिए, आपको एक सत्यापित खाते की आवश्यकता है, दस्तावेज़ अपलोड करें, हम 24 घंटे के भीतर उनकी जांच करेंगे'],
-                    
+
                     }
                 ))
         }

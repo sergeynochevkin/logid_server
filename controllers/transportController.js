@@ -5,6 +5,7 @@ const { setNativeTranslate } = require('../service/translate_service')
 const language_service = require('../service/language_service');
 const { Op } = require('sequelize')
 const mail_service = require('../service/mail_service');
+const { role_service } = require('./order_controller/role_service');
 
 
 
@@ -70,8 +71,13 @@ class TransportController {
     async getAll(req, res, next) {
         try {
             let { userInfoId } = req.query
+            let role = await role_service(userInfoId)
             let transport;
-            transport = await Transport.findAll({ where: { userInfoId } })
+            if (role === 'driver') {
+                transport = await Transport.findAll({ where: { driver_id: userInfoId } })
+            } else {
+                transport = await Transport.findAll({ where: { userInfoId } })
+            }
             return res.json(transport)
         } catch (e) {
             next(ApiError.badRequest(e.message))

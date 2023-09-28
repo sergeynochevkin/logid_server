@@ -77,8 +77,8 @@ class UserInfoController {
             await limit_service.setSubscriptionLimits(planId, user_info)
 
             let userAppSettingsDefaultList = [
-                { name: 'sms_messaging', value: true, role: 'both' },
-                { name: 'email_messaging', value: true, role: 'both' }
+                { name: 'sms_messaging', value: true, role: 'both', managing_by: 'user'  },
+                { name: 'email_messaging', value: true, role: 'both', managing_by: 'user'  }
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === user.role || el.role === 'both')

@@ -3,6 +3,8 @@ const { NotificationState, Order, UserInfo, UserAppState } = require("../../mode
 const { country_service } = require("./country_service")
 const { partner_service } = require("./partner_service")
 const { city_service } = require("./city_service")
+const { supervisor_id_service } = require("./supervisor_id_service")
+const setting_service = require("../../service/setting_service")
 
 const order_service = async function (userInfoId, carrierId, order_status, role, isArc, sortDirection, sortColumn, types, load_capacities, side_types, filters) {
 
@@ -59,10 +61,12 @@ const order_service = async function (userInfoId, carrierId, order_status, role,
         })
     }
 
-    ///!!!
-    if (role === 'carrier' && isArc === 'arc') {
+
+    let field = role === 'carrier' ? 'carrierId' : role === 'driver' ? 'driver_id' : ''
+
+    if ((role === 'carrier' || role === 'driver') && isArc === 'arc') {
         order = await Order.findAndCountAll({
-            where: { [Op.and]: { carrierId, carrier_arc_status: order_status, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
+            where: { [Op.and]: { [field]: carrierId, carrier_arc_status: order_status, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
             order: [
                 [sortDirection, sortColumn]
             ],
@@ -71,21 +75,11 @@ const order_service = async function (userInfoId, carrierId, order_status, role,
         })
     }
 
-    if (role === 'carrier' && isArc === 'arc') {
-        order = await Order.findAndCountAll({
-            where: { [Op.and]: { carrierId, carrier_arc_status: order_status, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
-            order: [
-                [sortDirection, sortColumn]
-            ],
-            offset: 0,
-            // limit: filters[order_status].limit
-        })
-    }
+    if ((role === 'carrier' || role === 'driver') && isArc !== 'arc') {
 
-    if (role === 'carrier' && isArc !== 'arc') {
         if (order_status !== 'new') {
             order = await Order.findAndCountAll({
-                where: { [Op.and]: { carrierId, order_status, country, /*city, comment go to geo*/  carrier_arc_status: null, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
+                where: { [Op.and]: { [field]: carrierId, order_status, country, /*city, comment go to geo*/  carrier_arc_status: null, cost: { [Op.between]: [filters[order_status].costFrom, filters[order_status].costTo] } } },
                 order: [
                     [sortDirection, sortColumn]
                 ],
@@ -95,15 +89,37 @@ const order_service = async function (userInfoId, carrierId, order_status, role,
         }
 
         let bound = 0.6
-        let cities = await city_service(userInfoId)
 
-        if (order_status === 'new') {
+        let supervisor_id
+        if (role === 'driver') {
+            supervisor_id = await supervisor_id_service(userInfoId)
+        }
+
+        let cities
+
+
+        if (order_status === 'new' && filters.city) {
+            cities = [filters.city]
+        } else {
+            cities = await city_service(role === 'carrier' || (role === 'driver' && !types.includes('truck') && !types.includes('minibus') && !types.includes('car') && !types.includes('combi')) ? userInfoId : supervisor_id)
+        }
+
+        // check if new orders off - off and clean total count
+
+        let can_see_new_orders = true
+
+        if (role === 'driver') {
+            can_see_new_orders = await setting_service.checkUserAppSetting('can_see_new_orders', userInfoId)
+        }
+
+        if (order_status === 'new' && can_see_new_orders) {
+
             let orderFavorite = []
             for (const city of cities) {
                 let orders = await Order.findAll({
                     where: {
                         [Op.and]: {
-                            carrierId, order_status, country, type: types, load_capacity: load_capacities, side_type: side_types,
+                            order_status, country, type: types, load_capacity: load_capacities, side_type: side_types,
                             userInfoId: { [Op.in]: myFavorite }, carrier_arc_status: null,
                             start_lat: { [Op.lte]: city.lat + bound },
                             start_lng: { [Op.lte]: city.lng + bound },
@@ -260,12 +276,16 @@ const order_service = async function (userInfoId, carrierId, order_status, role,
         state = await Order.findAll({
             where: {
                 [Op.and]: {
-                    carrierId, order_status: { [Op.notIn]: ['new'] },
+                    [field]: carrierId, order_status: { [Op.notIn]: ['new'] },
                     /*order_status:{[Op.ne]:'arc'}carrier_arc_status: null, type: types, load_capacity: load_capacities, side_type: side_types*/
                 }
             }
         })
         state = [...state, ...newOrdersState]
+
+        if (!can_see_new_orders) {
+            state = [...state.filter(el => el.order_status !== 'new')]
+        }
     }
 
     return (

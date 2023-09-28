@@ -99,18 +99,23 @@ class MailController {
 
 
             const sendMail = (email, subject, text, order, group, link) => {
-                transport.sendMail({
-                    from: process.env.MAIL_FROM,
-                    to: email ? email : [],
-                    bcc: group ? group : [],
-                    subject: subject,
-                    html: `<div>${text}</div>
-                    ${link ? `<div>
-                    <a href="${link}">${link && link}</a>
-                    </div>` : ''} 
-                    `
-                })
+                try {
+                    transport.sendMail({
+                        from: process.env.MAIL_FROM,
+                        to: email ? email : [],
+                        bcc: group ? group : [],
+                        subject: subject,
+                        html: `<div>${text}</div>
+                        ${link ? `<div>
+                        <a href="${link}">${link && link}</a>
+                        </div>` : ''} 
+                        `                })
+                } catch (error) {
+                    next(ApiError.badRequest(error.message))
+                }
+
             }
+
             if (!Array.isArray(orderId)) {
                 order = await Order.findOne({ where: { id: orderId } })
                 if (role === 'carrier') {
@@ -410,10 +415,10 @@ class MailController {
                     await sendMail(mover.email, mover_subject, mover_text, order)
 
                     if (member) {
-                        await sendMail(member.email, member_subject, member_text, order, [], link)                      
-                    }                    
+                        await sendMail(member.email, member_subject, member_text, order, [], link)
+                    }
                 }
-                
+
                 // mass processing of orders is not in progress and is not planned
                 else if (option === 'completed') {
                     mover_subject = translateService.setNativeTranslate(language,
@@ -440,9 +445,12 @@ class MailController {
                     )
 
                     member_text = response_will_not_be_read
+                    
                     await sendMail(mover.email, mover_subject, mover_text, order)
                     await sendMail(member.email, member_subject, member_text, order)
+
                 }
+
                 // non-submission, non-loading mass processing is not planned
                 else if (option === 'disrupt') {
 

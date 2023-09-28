@@ -13,6 +13,8 @@ const { sort_service } = require('./sort_service')
 const { transport_service } = require('./transport._service')
 const { order_service } = require('./order_service')
 const { role_service } = require('./role_service')
+const language_service = require('../../service/language_service')
+const { supervisor_id_service } = require('./supervisor_id_service')
 
 
 class OrderController {
@@ -109,7 +111,7 @@ class OrderController {
 
     async getAll(req, res, next) {
         try {
-            let { userInfoId, carrierId, order_status, isArc, filters } = req.body 
+            let { userInfoId, carrierId, order_status, isArc, filters } = req.body
 
             let types
             let load_capacities
@@ -132,8 +134,8 @@ class OrderController {
                 side_types = [...arrays.side_types]
             }
 
-            let { state, previousState, order } = await order_service(userInfoId,carrierId, order_status, role, isArc, sortDirection, sortColumn, types, load_capacities, side_types, filters)
-            
+            let { state, previousState, order } = await order_service(userInfoId, carrierId, order_status, role, isArc, sortDirection, sortColumn, types, load_capacities, side_types, filters)
+
             orderForPoints = order.rows.map(el => el.pointsIntegrationId)
             orderForPartners = order.rows.map(el => el.carrierId)
 
@@ -147,7 +149,7 @@ class OrderController {
             partners = await UserInfo.findAll({ where: { id: { [Op.in]: orderForPartners } } })
 
             if (partnersByGroups.length !== 0) {
-                partners = partners.filter(el => partnersByGroups.includes(el.id))//new logic with groups
+                partners = partners.filter(el => partnersByGroups.includes(el.id))
             }
 
             partners = partners.filter(partner => partner.name_surname_fathersname.toLowerCase().includes(filters[order_status].partnerName.toLowerCase())
@@ -167,14 +169,14 @@ class OrderController {
                     let prev_completed = previousState.filter(el => el.order_status === 'completed')
                     let prev_in_work = previousState.filter(el => el.order_status === 'inWork')
 
-                    let actual_new = state.filter(el => el.order_status === 'new' && ((role === 'carrier' && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
+                    let actual_new = state.filter(el => el.order_status === 'new' && (((role === 'carrier' || role === 'driver') && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
 
-                    let actual_postponed = state.filter(el => el.order_status === 'postponed' && ((role === 'carrier' && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
-                    let actual_canceled = state.filter(el => el.order_status === 'canceled' && ((role === 'carrier' && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
-                    let actual_completed = state.filter(el => el.order_status === 'completed' && ((role === 'carrier' && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
-                    let actual_in_work = state.filter(el => el.order_status === 'inWork' && ((role === 'carrier' && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
-                    let actual_pattern = state.filter(el => el.order_status === 'pattern' && ((role === 'carrier' && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
-                    if (role === 'carrier') {
+                    let actual_postponed = state.filter(el => el.order_status === 'postponed' && (((role === 'carrier' || role === 'driver') && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
+                    let actual_canceled = state.filter(el => el.order_status === 'canceled' && (((role === 'carrier' || role === 'driver') && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
+                    let actual_completed = state.filter(el => el.order_status === 'completed' && (((role === 'carrier' || role === 'driver') && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
+                    let actual_in_work = state.filter(el => el.order_status === 'inWork' && (((role === 'carrier' || role === 'driver') && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
+                    let actual_pattern = state.filter(el => el.order_status === 'pattern' && (((role === 'carrier' || role === 'driver') && el.carrier_arc_status !== 'arc') || (role === 'customer' && el.customer_arc_status !== 'arc')))
+                    if (role === 'carrier' || role === 'driver') {
                         actual_arc = state.filter(el => el.carrier_arc_status === 'arc')
                     }
                     if (role === 'customer') {
@@ -200,7 +202,7 @@ class OrderController {
                     totalCountObj.inWork = actual_in_work.length
                     totalCountObj.arc = actual_arc.length
                     totalCountObj.pattern = actual_pattern.length
-                    totalCountObj.ids = state.filter(el => ((el.carrier_arc_status !== 'arc' && role === 'carrier') || (el.customer_arc_status !== 'arc' && role === 'customer'))).map(el => el.id)
+                    totalCountObj.ids = state.filter(el => ((el.carrier_arc_status !== 'arc' && (role === 'carrier' || role === 'driver')) || (el.customer_arc_status !== 'arc' && role === 'customer'))).map(el => el.id)
                     totalCountObj.transport = await TransportByOrder.findAll({ where: { orderId: { [Op.in]: totalCountObj.ids } } })
                     order.total_count = totalCountObj
 
@@ -239,7 +241,7 @@ class OrderController {
                 await NotificationState.update({ order_state: state }, { where: { userInfoId: userInfoId } })
             }
 
-            if (order_status === 'new' && role === 'carrier') {
+            if (order_status === 'new' && (role === 'carrier' || role === 'driver')) {
                 order.map_rows = [...order.rows]
             }
 
@@ -286,6 +288,7 @@ class OrderController {
         let orderForChanges
         let { option, order_type, id, role, order_status, order_final_status, carrierId, userInfoId, cost, newTime, firstPointId, transport } = req.body
 
+
         try {
             if (option === 'restore') {
                 await Order.update({ restored: 'restored' }, { where: { id: id } })
@@ -318,21 +321,35 @@ class OrderController {
                             }
                         ))
 
+                let order = await Order.findOne({ where: { id }, raw: true })
+                let driverUserInfo = await UserInfo.findOne(({ where: { id: order.driver_id }, raw: true }))
+                complete_orders_amount = driverUserInfo.complete_orders_amount + 1,
+                    await UserInfo.update(
+                        {
+                            complete_orders_amount
+                        },
+                        {
+                            where: { id: order.driver_id }
+                        }
+                    )
+
             }
-            else if (role === 'carrier' && order_status === 'inWork') {
+            else if ((role === 'carrier' || role === 'driver') && order_status === 'inWork') {
                 await Offer.destroy({ where: { orderId: id } })
                 await TransportByOrder.findOrCreate({ where: { orderId: id, transportId: transport } })
                 let transportForDriver = await Transport.findOne({ where: { id: transport } })
-                let userInfo = await UserInfo.findOne({ where: { userId: carrierId } })
-                let state = await UserAppState.findOne({ where: { userInfoId: userInfo.id } })
-                state = JSON.parse(state.dataValues.state)
-                let language = state.language
-
+                let language = await language_service.setLanguage(userInfoId)
                 await limitService.check_account_activated(language, carrierId)
-                await limitService.check_subscription(language, carrierId, '', 'order')
+                if (role === 'carrier') {
+                    await limitService.check_subscription(language, carrierId, '', 'order')
+                }
+                if (role === 'driver') {
+                    carrierId = await supervisor_id_service(carrierId)
+                    await limitService.check_subscription(language, carrierId, '', 'order')
+                }
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role, driver_id: transportForDriver.driver_id }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await limitService.increase(carrierId, '', 'order')
-                await mailService.sendEmailToAdmin(`Order ${id} taken by carrier at ${process.env.CLIENT_URL}`, 'App notification')
+                await mailService.sendEmailToAdmin(`Order ${id} taken by carrier${role === 'driver' ? '`s driver' : ''} at ${process.env.CLIENT_URL}`, 'App notification')
             }
             else if (role === 'customer' && order_status === 'inWork') {
                 await Offer.destroy({ where: { orderId: id } })
