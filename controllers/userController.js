@@ -41,7 +41,7 @@ class UserController {
                 symbols: true,
                 uppercase: true,
                 lowercase: true,
-                excludeSimilarCharacters: true
+                excludeSimilarCharacters: false
             });
 
             let userInfo = await UserInfo.findOne({ where: { uuid: user_info_uuid } })
@@ -51,12 +51,10 @@ class UserController {
             const user_info = await UserInfo.create({ userId: userData.user.id, city, city_place_id, city_latitude, city_longitude, country, email, phone, uuid: v4(), legal, name_surname_fathersname })
 
             await NotificationState.create({ userInfoId: user_info.id })
-            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })
+            // await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })
             await UserAppState.create({ userInfoId: user_info.id })
             await UserAppLimit.create({ userInfoId: user_info.id })
             await LimitCounter.create({ userInfoId: user_info.id })
-
-            await limit_service.setSubscriptionLimits(6, user_info)
 
             let userAppSettingsDefaultList = [
                 { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both', managing_by: 'user' },
@@ -73,7 +71,7 @@ class UserController {
             for (const setting of userAppSettingsDefaultList) {
                 await UserAppSetting.findOrCreate({
                     where: {
-                        name: setting.name, value: setting.value, userInfoId: user_info.id
+                        name: setting.name, value: setting.value, userInfoId: user_info.id, managing_by
                     }
                 }
                 )
@@ -104,10 +102,10 @@ class UserController {
                     where: { order_status: 'inWork', userInfoId: user.user_info.id }
                 })
                 let driverUserInfoIds = orders.map(el => el.driver_id)
-                let driverUsers = await UserInfo.findAll({where:{id:{[Op.in]:driverUserInfoIds}}, include:User})
-                let driverUserIds = driverUsers.map(el=>el.user).map(el=>el.id)
+                let driverUsers = await UserInfo.findAll({ where: { id: { [Op.in]: driverUserInfoIds } }, include: User })
+                let driverUserIds = driverUsers.map(el => el.user).map(el => el.id)
                 drivers = await User.findAll({
-                    where: { id: {[Op.in]:driverUserIds} }, attributes: ['email', 'id', 'role', 'isActivated'], include: {
+                    where: { id: { [Op.in]: driverUserIds } }, attributes: ['email', 'id', 'role', 'isActivated'], include: {
                         model: UserInfo,
                     }
                 })
@@ -241,7 +239,7 @@ class UserController {
             for (const setting of userAppSettingsDefaultList) {
                 await UserAppSetting.findOrCreate({
                     where: {
-                        name: setting.name, value: setting.value, userInfoId: user_info.id
+                        name: setting.name, value: setting.value, userInfoId: user_info.id, managing_by
                     }
                 }
                 )
@@ -262,7 +260,8 @@ class UserController {
                     type,
                     load_capacity,
                     side_type,
-                    from_fast
+                    from_fast,
+                    driver_id: user_info.id,
                 })
             }
 

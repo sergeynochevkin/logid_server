@@ -198,8 +198,7 @@ class AdController {
                     )
                 }
                 if (userInfoId) {
-                    console.log('!!!!!');
-                    console.log(userInfoId);
+                
                     let self_transports = await Transport.findAll({ raw: true, where: { userInfoId: userInfoId } })
                     transports = transports.filter(el => el.userInfoId !== userInfoId)
                     transports = [...transports, ...self_transports]

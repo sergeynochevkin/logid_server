@@ -29,7 +29,7 @@ class LimitService {
             await LimitCounter.update({ customer_create_amount_per_day: 0, customer_create_started: currentTime }, { where: { userInfoId } })
         }
 
-        if (user.role === 'carrier') {
+        if (user.role === 'carrier' ) {
             let carrier_offer_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'offer')
             carrier_offer_limit_per_day = carrier_offer_limit_per_day.limit
             let carrier_take_order_limit_per_day = options.find(el => el.role === 'carrier' && el.type === 'take_order')

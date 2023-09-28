@@ -167,8 +167,8 @@ class TransportController {
             let offers = await Offer.findAll({ where: { transportid: id } })
             let orders = await TransportByOrder.findAll({ where: { transportId: id } })
             let orderIds = orders.map(el => el.orderId)
-            let ordersInWork = await Order.findAll({ where: { id: { [Op.in]: orderIds }, order_status: 'inWork' } })
-
+            let ordersInWork = await Order.findAll({ where: { [Op.and]: [{ id: { [Op.in]: orderIds } }, { order_status: 'inWork' }] } })
+            console.log(ordersInWork);
 
             //moving to saved logics!
 

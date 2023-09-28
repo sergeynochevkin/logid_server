@@ -25,7 +25,7 @@ const User = sequelize.define('user', {
 
 const Token = sequelize.define('token', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    refreshToken: { type: DataTypes.TEXT, require: true },//!!!!
+    refreshToken: { type: DataTypes.TEXT, require: true },
 })
 
 const UserInfo = sequelize.define('user_info', {

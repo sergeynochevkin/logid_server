@@ -176,7 +176,7 @@ class PartnerController {
             let extraObject = { partners: [] }
             const pushGroups = function (item) {
                 groups.push(item)
-                console.log(groups.map(el => el.id));
+               
             }
             for (const group of allGroups) {
                 let currentPartners = await PartnerByGroup.findAll({

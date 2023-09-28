@@ -18,8 +18,7 @@ class SubscriptionController {
         let paid_to
         let userInfo
 
-        console.log('DESCR!!!');
-        console.log(description);
+
 
         try {
 
