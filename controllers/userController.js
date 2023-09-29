@@ -71,7 +71,7 @@ class UserController {
             for (const setting of userAppSettingsDefaultList) {
                 await UserAppSetting.findOrCreate({
                     where: {
-                        name: setting.name, value: setting.value, userInfoId: user_info.id, managing_by
+                        name: setting.name, value: setting.value, userInfoId: user_info.id, managing_by: setting.managing_by
                     }
                 }
                 )
@@ -88,8 +88,8 @@ class UserController {
             let { userId } = req.query
             let drivers
             let user = await User.findOne({ where: { id: userId }, include: UserInfo })
-            
-       
+
+
 
             if (user.role === 'carrier') {
                 drivers = await User.findAll({
@@ -98,14 +98,14 @@ class UserController {
                         include: UserAppSetting
                     }
                 })
-            
+
 
             }
             if (user.role === 'customer') {
                 let orders = []
                 orders = await Order.findAll({
                     where: { order_status: ['inWork', 'completed'], userInfoId: user.user_info.id }
-                })                
+                })
 
                 let driverUserInfoIds = orders.map(el => el.driver_id)
                 let driverUsers = await UserInfo.findAll({ where: { id: { [Op.in]: driverUserInfoIds } }, include: User })
@@ -245,7 +245,7 @@ class UserController {
             for (const setting of userAppSettingsDefaultList) {
                 await UserAppSetting.findOrCreate({
                     where: {
-                        name: setting.name, value: setting.value, userInfoId: user_info.id, managing_by
+                        name: setting.name, value: setting.value, userInfoId: user_info.id, managing_by: setting.managing_by
                     }
                 }
                 )
