@@ -57,13 +57,13 @@ class UserController {
             await LimitCounter.create({ userInfoId: user_info.id })
 
             let userAppSettingsDefaultList = [
-                { name: 'sms_messaging', value: country === 'russia' ? true : false, role: 'both', managing_by: 'user' },
+                { name: 'sms_messaging', value: country === 'russia' ? false : false, role: 'both', managing_by: 'user' },
                 { name: 'email_messaging', value: true, role: 'both', managing_by: 'user' },
                 { name: 'can_see_new_orders', value: true, role: 'driver', managing_by: 'supervisor' },
                 { name: 'can_take_order', value: true, role: 'driver', managing_by: 'supervisor' },
-                { name: 'can_make_offer', value: true, role: 'driver', managing_by: 'supervisor' },
+                { name: 'can_make_offer', value: false, role: 'driver', managing_by: 'supervisor' },
                 { name: 'can_finish_order', value: true, role: 'driver', managing_by: 'supervisor' },
-                { name: 'can_set_order_as_disrupted', value: true, role: 'driver', managing_by: 'supervisor' }
+                { name: 'can_set_order_as_disrupted', value: false, role: 'driver', managing_by: 'supervisor' }
             ]
 
             userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')
