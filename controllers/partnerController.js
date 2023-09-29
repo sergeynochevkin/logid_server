@@ -2,6 +2,8 @@ const { Partner, OtherRating, PartnerGroup, PartnerByGroup, UserInfo, User } = r
 const ApiError = require('../exceptions/api_error')
 const { Op } = require("sequelize")
 const translateService = require('../service/translate_service')
+const { role_service } = require('../controllers/order_controller/role_service')
+const { supervisor_id_service } = require('../controllers/order_controller/supervisor_id_service')
 
 class PartnerController {
     async create(req, res, next) {
@@ -156,8 +158,16 @@ class PartnerController {
         try {
             let { userInfoId, partnerUserInfoId } = req.query
             let partner;
+         
             if (userInfoId && !partnerUserInfoId) {
-                partner = await Partner.findAll({ where: { userInfoId }, order: ['id'] })
+                let role = await role_service(userInfoId)
+                let supervisorId
+                if (role === 'driver') {
+                    supervisorId = await supervisor_id_service(userInfoId)
+                    partner = await Partner.findAll({ where: { userInfoId:supervisorId }, order: ['id'] })
+                }else{
+                    partner = await Partner.findAll({ where: { userInfoId }, order: ['id'] })
+                }                
             }
             if (!userInfoId && partnerUserInfoId) {
                 partner = await Partner.findAll({ where: { partnerUserInfoId }, order: ['id'] })
@@ -176,7 +186,7 @@ class PartnerController {
             let extraObject = { partners: [] }
             const pushGroups = function (item) {
                 groups.push(item)
-               
+
             }
             for (const group of allGroups) {
                 let currentPartners = await PartnerByGroup.findAll({

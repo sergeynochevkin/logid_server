@@ -13,8 +13,9 @@ const { sort_service } = require('./sort_service')
 const { transport_service } = require('./transport._service')
 const { order_service } = require('./order_service')
 const { role_service } = require('./role_service')
-const language_service = require('../../service/language_service')
 const { supervisor_id_service } = require('./supervisor_id_service')
+
+const language_service = require('../../service/language_service')
 
 
 class OrderController {
