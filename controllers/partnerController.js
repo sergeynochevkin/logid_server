@@ -8,10 +8,16 @@ const { supervisor_id_service } = require('../controllers/order_controller/super
 class PartnerController {
     async create(req, res, next) {
         try {
-            const {
+            let {
                 userInfoId, partnerUserInfoId, status
             } = req.body
-            const partner = await Partner.findOrCreate({
+
+            let role = await role_service(userInfoId)
+            if (role === 'driver') {
+                let supervisorId = await supervisor_id_service(userInfoId)
+                userInfoId = supervisorId
+            }
+            await Partner.findOrCreate({
                 where: {
                     userInfoId, partnerUserInfoId, status
                 }
@@ -19,6 +25,17 @@ class PartnerController {
                 where: {
                     raterUserInfoId: userInfoId,
                     ratedUserInfoId: partnerUserInfoId,
+                }
+            }))
+
+            const partner = await Partner.findOrCreate({
+                where: {
+                    userInfoId: partnerUserInfoId, partnerUserInfoId: userInfoId, status
+                }
+            }).then(OtherRating.findOrCreate({
+                where: {
+                    raterUserInfoId: partnerUserInfoId,
+                    ratedUserInfoId: userInfoId,
                 }
             }))
             return res.json(partner)
@@ -158,16 +175,16 @@ class PartnerController {
         try {
             let { userInfoId, partnerUserInfoId } = req.query
             let partner;
-         
+
             if (userInfoId && !partnerUserInfoId) {
                 let role = await role_service(userInfoId)
                 let supervisorId
                 if (role === 'driver') {
                     supervisorId = await supervisor_id_service(userInfoId)
-                    partner = await Partner.findAll({ where: { userInfoId:supervisorId }, order: ['id'] })
-                }else{
+                    partner = await Partner.findAll({ where: { userInfoId: supervisorId }, order: ['id'] })
+                } else {
                     partner = await Partner.findAll({ where: { userInfoId }, order: ['id'] })
-                }                
+                }
             }
             if (!userInfoId && partnerUserInfoId) {
                 partner = await Partner.findAll({ where: { partnerUserInfoId }, order: ['id'] })

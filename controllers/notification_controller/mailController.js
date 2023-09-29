@@ -235,12 +235,12 @@ class MailController {
 
                 let allMembers_text_sms = translateService.setNativeTranslate(language,
                     {
-                        russian: ['Новый', order.order_type === 'order' ? 'заказ' : 'аукцион'],
-                        english: ['New', order.order_type === 'order' ? 'order' : 'auction'],
-                        spanish: ['Nuevo', order.order_type === 'order' ? 'orden' : 'subasta'],
-                        turkish: ['Yeni', order.order_type === 'order' ? 'emir' : 'açık arttırma'],
-                        chinese: ['新的', order.order_type === 'order' ? '命令' : '拍卖'],
-                        hindi: ['नया', order.order_type === 'order' ? 'आदेश' : 'नीलामी'],
+                        russian: ['Новый', order.order_type === 'order' ? 'заказ' : 'аукцион', link],
+                        english: ['New', order.order_type === 'order' ? 'order' : 'auction', link],
+                        spanish: ['Nuevo', order.order_type === 'order' ? 'orden' : 'subasta', link],
+                        turkish: ['Yeni', order.order_type === 'order' ? 'emir' : 'açık arttırma', link],
+                        chinese: ['新的', order.order_type === 'order' ? '命令' : '拍卖', link],
+                        hindi: ['नया', order.order_type === 'order' ? 'आदेश' : 'नीलामी', link],
                     }
                 )
 
@@ -445,7 +445,7 @@ class MailController {
                     )
 
                     member_text = response_will_not_be_read
-                    
+
                     await sendMail(mover.email, mover_subject, mover_text, order)
                     await sendMail(member.email, member_subject, member_text, order)
 

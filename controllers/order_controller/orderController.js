@@ -347,6 +347,9 @@ class OrderController {
                 if (role === 'driver') {
                     carrierId = await supervisor_id_service(carrierId)
                     await limitService.check_subscription(language, carrierId, '', 'order')
+
+
+                    
                 }
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role, driver_id: transportForDriver.driver_id }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await limitService.increase(carrierId, '', 'order')
