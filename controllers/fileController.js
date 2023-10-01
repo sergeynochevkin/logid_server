@@ -1,4 +1,4 @@
-const { Transport, Order } = require('../models/models')
+const { Transport, Order, UserInfo } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const path = require('path')
@@ -14,7 +14,7 @@ class FileController {
         storage: multer.diskStorage({
             destination: function (req, file, cb) {
                 const { id, option, action } = req.body
-                const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : './uploads/other'
+                const path = option === 'transport' ? `./uploads/transport/${id}` : option === 'order' ? `./uploads/order/${id}` : option === 'avatar' ? `./uploads/avatar/${id}` : './uploads/other'
                 // action === 'update' && fs.rmSync(`./uploads/transport/${id}`, { recursive: true, force: true });
                 action !== 'update' && fs.mkdirSync(path, { recursive: true })
                 cb(null, path)
@@ -42,7 +42,7 @@ class FileController {
                     turkish: ['Yanlış dosya formatları'],
                     chinese: ['文件格式不正确'],
                     hindi: ['ग़लत फ़ाइल स्वरूप'],
-                
+
                 }
             ))
         },
@@ -67,6 +67,16 @@ class FileController {
             if (action === 'update' && option === 'order') {
                 let order = await Order.findOne({ where: { id } })
                 let fileNames = JSON.parse(order.dataValues.files)
+                for (const name of fileNames) {
+                    fs.unlink(`./uploads/${option}/${id}/${name}`,
+                        err => {
+                            if (err) { console.log(err) }
+                        })
+                }
+            }
+            if (action === 'update' && option === 'avatar') {
+                let userInfo = await UserInfo.findOne({ where: { id }, raw:true })
+                let fileNames = JSON.parse(userInfo.files)
                 for (const name of fileNames) {
                     fs.unlink(`./uploads/${option}/${id}/${name}`,
                         err => {
@@ -121,6 +131,10 @@ class FileController {
             }
             if (option === 'order') {
                 await Order.update({ files: JSON.stringify(compressed_names) }, { where: { id: id } })
+            }
+
+            if (option === 'avatar') {
+                await UserInfo.update({ files: JSON.stringify(compressed_names) }, { where: { id: id } })
             }
 
             res.send('uploaded')
