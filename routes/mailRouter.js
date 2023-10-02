@@ -4,7 +4,7 @@ const mailController = require('../controllers/notification_controller/mailContr
 const authMiddleware = require('../middleware/auth_middleware')
 
 router.post('/send_mail', authMiddleware, mailController.send)
-router.post('/send_capture_form_mail', authMiddleware, mailController.sendCaptureFormMail)
+router.post('/send_capture_form_mail', mailController.sendCaptureFormMail)
 
 
 module.exports = router
