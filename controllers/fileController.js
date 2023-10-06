@@ -75,7 +75,7 @@ class FileController {
                 }
             }
             if (action === 'update' && option === 'avatar') {
-                let userInfo = await UserInfo.findOne({ where: { id }, raw:true })
+                let userInfo = await UserInfo.findOne({ where: { id }, raw: true })
                 let fileNames = JSON.parse(userInfo.files)
                 for (const name of fileNames) {
                     fs.unlink(`./uploads/${option}/${id}/${name}`,
@@ -92,8 +92,12 @@ class FileController {
 
             //sharp images here
 
-            sharp.cache(false)
 
+            const roundedCorners = Buffer.from(
+                '<svg><rect x="0" y="0" width="50" height="50" rx="25" ry="25"/></svg>'
+              );
+
+            sharp.cache(false)
             for (const name of names) {
                 //check extention
                 let nameArray = name.split('.')
@@ -107,6 +111,17 @@ class FileController {
                         .withMetadata()
                         .webp({ quality: 30 })
                         .toFile(`./uploads/${option}/${id}/_${clean_name}.webp`);
+                    if (option === 'avatar') {
+                        await sharp(`./uploads/${option}/${id}/${name}`)
+                            .withMetadata()
+                            .resize(50, 50, {fit: 'contain'})
+                            .webp({ quality: 100 })                            
+                            .composite([{
+                              input: roundedCorners,
+                              blend: 'dest-in'
+                            }])
+                            .toFile(`./uploads/${option}/${id}/_${clean_name}_map_icon.webp`);
+                    }
                 }
 
                 //if png
@@ -116,6 +131,18 @@ class FileController {
                         .webp({ quality: 30 })
                         .toFile(`./uploads/${option}/${id}/_${clean_name}.webp`);
                 }
+                if (option === 'avatar') {
+                    await sharp(`./uploads/${option}/${id}/${name}`)
+                        .withMetadata()
+                        .resize(50, 50, {fit: 'contain'})
+                        .webp({ quality: 100 })
+                        .composite([{
+                          input: roundedCorners,
+                          blend: 'dest-in'
+                        }])
+                        .toFile(`./uploads/${option}/${id}/_${clean_name}_map_icon.webp`);
+                }
+
 
                 fs.unlink(`./uploads/${option}/${id}/${name}`,
                     err => {
@@ -123,6 +150,9 @@ class FileController {
                     })
 
                 compressed_names.push(`_${clean_name}.webp`)
+                if (option === 'avatar') {
+                    compressed_names.push(`_${clean_name}_map_icon.webp`)
+                }
             }
 
             // edit, attach images paths in array?!
