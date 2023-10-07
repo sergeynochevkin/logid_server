@@ -176,6 +176,23 @@ class LimitService {
             ))
         }
     }
+    async check_we_have_data(language, userInfoId) {
+        let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
+        if (!userInfo.legal) {
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
+                {
+                    russian: ['Для отправки заказа, заполните профиль в разделе Аккаунт'],
+                    english: ['To send an order, fill out your profile in the Account section'],
+                    spanish: ['Para enviar un pedido, complete su perfil en la sección Cuenta'],
+                    turkish: ['Sipariş göndermek için Hesap bölümünde profilinizi doldurun'],
+                    сhinese: ['要发送订单，请在“帐户”部分填写您的个​​人资料'],
+                    hindi: ['ऑर्डर भेजने के लिए, खाता अनुभाग में अपना प्रोफ़ाइल भरें'],
+
+                }
+            ))
+        }
+    }
+
     async check_account_moderated(language, userInfoId) {
         let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
         let user = await User.findOne({ where: { id: userInfo.userId } })

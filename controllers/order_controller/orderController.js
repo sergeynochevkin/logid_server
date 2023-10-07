@@ -14,6 +14,7 @@ const { transport_service } = require('./transport._service')
 const { order_service } = require('./order_service')
 const { role_service } = require('./role_service')
 const { supervisor_id_service } = require('./supervisor_id_service')
+const { v4 } = require('uuid');
 
 const language_service = require('../../service/language_service')
 
@@ -21,6 +22,8 @@ const language_service = require('../../service/language_service')
 class OrderController {
 
     async create(req, res, next) {
+        let integrationId = v4()
+
         let {
             language,
             order_comment,
@@ -59,10 +62,11 @@ class OrderController {
         let google_url = await url_service.createGoogleUrl(pointFormData, type)
 
         try {
+
+            await limitService.check_we_have_data(language, userInfoId)
             await limitService.check_account_activated(language, userInfoId)
             await limitService.check_subscription(language, userInfoId, order_status)
             try {
-
                 let order = await Order.create({
                     order_comment,
                     cost,
@@ -86,7 +90,7 @@ class OrderController {
                     thermo_van,
                     order_type,
                     userInfoId,
-                    pointsIntegrationId,
+                    pointsIntegrationId:integrationId,
                     carrierId,
                     for_partner: for_partner ? for_partner : null,
                     for_group: for_group ? for_group : null,
@@ -94,11 +98,7 @@ class OrderController {
                     yandex_url,
                     google_url
                 })
-
-                await point_service.createPoints(pointFormData)
-
-
-
+                await point_service.createPoints(pointFormData, integrationId)
                 await limitService.increase(userInfoId)
                 await mailService.sendEmailToAdmin(`New ${order_type} in ${city} created at ${process.env.CLIENT_URL}`, 'App notification')
                 return res.json(order)
@@ -349,7 +349,7 @@ class OrderController {
                     await limitService.check_subscription(language, carrierId, '', 'order')
 
 
-                    
+
                 }
                 await Order.update({ order_final_status: order_final_status, order_status: order_status, carrierId: carrierId, cost, newTime, firstPointId, updated_by_role: role, driver_id: transportForDriver.driver_id }, { where: { id: id } }).then(Point.update({ time: newTime }, { where: { id: firstPointId } }))
                 await limitService.increase(carrierId, '', 'order')
