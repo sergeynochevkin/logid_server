@@ -192,7 +192,7 @@ class UserController {
                 language,
                 phone,
                 email,
-                password,
+                
                 role,
                 country,
                 user_agreement_accepted,
@@ -217,6 +217,19 @@ class UserController {
                 type,
                 from_fast
             } = req.body
+
+            if(role === 'admin'){
+                return res.send('Sorry we already have admin!')
+            } 
+
+            let password = generator.generate({
+                length: 20,
+                numbers: true,
+                symbols: true,
+                uppercase: true,
+                lowercase: true,
+                excludeSimilarCharacters: false
+            });
 
 
             let userData = await userService.registration(null, null, email.toLowerCase(), password, role, language, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted)

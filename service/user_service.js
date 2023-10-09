@@ -43,7 +43,7 @@ class UserService {
         const activationLink = v4()
         const user = await User.create({ user_id, user_info_uuid, email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
         if (role !== 'driver') {
-            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language)
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language, password)
         } else {
             //send letter with email and password
             await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?action=driver_activation`, password, role, language)

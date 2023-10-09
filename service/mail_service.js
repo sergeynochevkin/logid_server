@@ -41,27 +41,67 @@ class MailService {
         }
     }
 
-    async sendActivationMail(to, link, language) {
+    async sendActivationMail(to, link, language, password) {
         await this.transport.sendMail({
             from: process.env.MAIL_FROM,
             to: to,
             bcc: '',
             subject: translateService.setNativeTranslate(language,
                 {
-                    russian: ['Ссылка для активации вашего аккаунта logid'],
-                    english: ['Link to activate your logid account'],
-                    spanish: ['Enlace para activar tu cuenta logid'],
-                    turkish: ['Logid hesabınızı etkinleştirme bağlantısı'],
-                    chinese: ['激活您的 logid 帐户的链接'],
-                    hindi: ['अपने "लॉगिड" खाते को सक्रिय करने के लिए लिंक'],
+                    russian: ['Ваш пароль и ссылка для активации вашего аккаунта logid'],
+                    english: ['Your password and link to activate your logid account'],
+                    spanish: ['Tu contraseña y enlace para activar tu cuenta logid'],
+                    turkish: ['Logid hesabınızı etkinleştirmek için şifreniz ve bağlantınız'],
+                    chinese: ['您的密码和激活 logid 帐户的链接'],
+                    hindi: ['आपके लॉग इन खाते को सक्रिय करने के लिए आपका पासवर्ड और लिंक'],
                 }
             ),
             html:
-                `
-                        <div>
-                        <a href="${link}">${link}</a>
-                        </div>
             `
+            <div>
+            <div>${translateService.setNativeTranslate(language,
+        {
+            russian: ['Ваш логин'],
+            english: ['Your login'],
+            spanish: ['Su nombre de usuario'],
+            turkish: ['Kullanıcı girişin'],
+            chinese: ['您的登录信息'],
+            hindi: ['अपना लॉगिन'],
+
+        }
+    )}: ${to}</div>
+            <div>${translateService.setNativeTranslate(language,
+        {
+            russian: ['Ваш пароль'],
+            english: ['Your password'],
+            spanish: ['Tu contraseña'],
+            turkish: ['Şifreniz'],
+            chinese: ['你的密码'],
+            hindi: ['आपका पासवर्ड'],
+        }
+    )}: ${password}</div>
+        <div>${translateService.setNativeTranslate(language,
+        {
+            russian: ['В целях безопасности, пожалуйста, сохраните пароль и удалите это письмо. Вы можете изменить пароль после авторизации в разделе аккаунт'],
+            english: ['For security reasons, please save your password and delete this email. You can change your password after authorization in the account section'],
+            spanish: ['Por razones de seguridad, guarde su contraseña y elimine este correo electrónico. Puede cambiar su contraseña después de la autorización en la sección de cuenta'],
+            turkish: ['Güvenlik nedeniyle lütfen şifrenizi kaydedin ve bu e-postayı silin. Hesap bölümünden yetkilendirme sonrasında şifrenizi değiştirebilirsiniz.'],
+            chinese: ['出于安全原因，请保存您的密码并删除此电子邮件。 您可以在账户部分授权后修改密码'],
+            hindi: ['सुरक्षा कारणों से, कृपया अपना पासवर्ड सहेजें और इस ईमेल को हटा दें। आप खाता अनुभाग में प्राधिकरण के बाद अपना पासवर्ड बदल सकते हैं'],
+        }
+    )}</div>
+            <div>${translateService.setNativeTranslate(language,
+        {
+            russian: ['Для активации аккаунта перейдите по ссылке'],
+            english: ['To activate your account, follow the link'],
+            spanish: ['Para activar su cuenta, siga el enlace'],
+            turkish: ['Hesabınızı etkinleştirmek için bağlantıyı takip edin'],
+            chinese: ['要激活您的帐户，请点击链接'],
+            hindi: ['अपना खाता सक्रिय करने के लिए, लिंक का अनुसरण करें'],
+        }
+    )} <a href=${link}>${link}</a></div>
+            </div>
+`
         })
     }
 
