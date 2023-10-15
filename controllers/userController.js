@@ -192,7 +192,7 @@ class UserController {
                 language,
                 phone,
                 email,
-                
+
                 role,
                 country,
                 user_agreement_accepted,
@@ -215,12 +215,13 @@ class UserController {
                 load_capacity,
                 side_type,
                 type,
-                from_fast
+                from_fast,
+                promo_code
             } = req.body
 
-            if(role === 'admin'){
+            if (role === 'admin') {
                 return res.send('Sorry we already have admin!')
-            } 
+            }
 
             let password = generator.generate({
                 length: 20,
@@ -241,7 +242,7 @@ class UserController {
             let paid_to = time_service.setTime(initialTime, 1440 * 365, 'form')
 
             await NotificationState.create({ userInfoId: user_info.id })
-            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })
+            await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })// plan by promocodes && validity date promocode from link or from form!
             await UserAppState.create({ userInfoId: user_info.id })
             await UserAppLimit.create({ userInfoId: user_info.id })
             await LimitCounter.create({ userInfoId: user_info.id })
