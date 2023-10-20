@@ -30,9 +30,9 @@ class ManagementController {
             let viewsWeek = await TransportViewed.findAll({ where: { [Op.and]: [{ createdAt: { [Op.gt]: weekOlder } }, { contact_viewed: true }] } })
             let viewsToDay = await TransportViewed.findAll({ where: { [Op.and]: [{ createdAt: { [Op.gt]: dayStart } }, { contact_viewed: true }] } })
 
-            resObject.transport_contact.toDay = [...viewsMonth].length
+            resObject.transport_contact.month = [...viewsMonth].length
             resObject.transport_contact.week = [...viewsWeek].length
-            resObject.transport_contact.month = [...viewsToDay].length
+            resObject.transport_contact.toDay = [...viewsToDay].length
 
             return res.json(resObject)
 
