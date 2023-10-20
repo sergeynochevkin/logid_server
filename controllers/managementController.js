@@ -1,4 +1,4 @@
-const { Transport, User, UserInfo, Order, ServerNotification, Visit } = require('../models/models')
+const { Transport, User, UserInfo, Order, ServerNotification, Visit, TransportViewed } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const mail_service = require('../service/mail_service')
@@ -9,6 +9,37 @@ const { defaults } = require('pg');
 const language_service = require('../service/language_service')
 
 class ManagementController {
+
+    async get_clicks(req, res, next) {
+        try {
+            let resObject = {
+                transport_contact: {
+                    toDay: '',
+                    week: '',
+                    month: ''
+                }
+            }
+
+            let currentTime = new Date()
+
+            let dayStart = currentTime.setHours(0, 0, 0, 0)
+            let monthOlder = currentTime - 1000 * 60 * 60 * 24 * 30.5
+            let weekOlder = currentTime - 1000 * 60 * 60 * 24 * 7
+
+            let viewsMonth = await TransportViewed.findAll({ where: { [Op.and]: [{ createdAt: { [Op.gt]: monthOlder } }, { contact_viewed: true }] } })
+            let viewsWeek = await TransportViewed.findAll({ where: { [Op.and]: [{ createdAt: { [Op.gt]: weekOlder } }, { contact_viewed: true }] } })
+            let viewsToDay = await TransportViewed.findAll({ where: { [Op.and]: [{ createdAt: { [Op.gt]: dayStart } }, { contact_viewed: true }] } })
+
+            resObject.transport_contact.toDay = [...viewsMonth].length
+            resObject.transport_contact.week = [...viewsWeek].length
+            resObject.transport_contact.month = [...viewsToDay].length
+
+            return res.json(resObject)
+
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
+        }
+    }
 
     async get_registrations(req, res, next) {
         try {
@@ -34,8 +65,8 @@ class ManagementController {
 
             return res.json(resObject)
 
-        } catch (e) {
-            next(ApiError.badRequest(e.message))
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
         }
     }
 
@@ -46,6 +77,7 @@ class ManagementController {
                 week: '',
                 month: ''
             }
+
 
             let currentTime = new Date()
 

@@ -537,6 +537,13 @@ const Visit = sequelize.define('visit', {
     ip: { type: DataTypes.STRING, defaultValue: '' },
 })
 
+const ManagementPlan = sequelize.define('management_plan', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    name: { type: DataTypes.STRING, unique: true, defaultValue: '' },
+    value: { type: DataTypes.STRING, defaultValue: '' },
+})
+
+
 
 UserInfo.hasOne(LimitCounter)
 LimitCounter.belongsTo(UserInfo)

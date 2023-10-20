@@ -19,12 +19,13 @@ class AdController {
         }
     }
 
-    async addContactView(req, res, next) {
+    async addContactView(req, res, next) {//check it!!!!!!!!!!!!!!!!!!!!
         try {
             let { option, item_id, ip, id } = req.body
             if (option === 'transport') {
                 await TransportViewed.findOrCreate({ where: { transportId: item_id, userInfoId: id }, defaults: { contact_viewed: true } })
 
+                //double? check it!
                 let view = await TransportViewed.findOne({ where: { ip } })
                 if (!view) {
                     await TransportViewed.findOrCreate({ where: { transportId: item_id, ip } })
