@@ -21,7 +21,7 @@ class UserService {
                     turkish: ['Yanlış eposta adresi veya şifre'],
                     chinese: ['错误的邮箱帐号或密码'],
                     hindi: ['गलत ईमेल या पासवर्ड'],
-                
+
                 }
             ))
         }
@@ -35,7 +35,7 @@ class UserService {
                     turkish: ['e-posta zaten alınmış'],
                     chinese: ['ईमेल पहले से ही लिया जा चुका है'],
                     hindi: ['电子邮件已经被采取'],
-                
+
                 }
             ))
         }
@@ -43,7 +43,7 @@ class UserService {
         const activationLink = v4()
         const user = await User.create({ user_id, user_info_uuid, email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
         if (role !== 'driver') {
-            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language, password)
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language, password, role)
         } else {
             //send letter with email and password
             await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?action=driver_activation`, password, role, language)
@@ -98,8 +98,8 @@ class UserService {
         }
 
         let userAppSettingsDefaultList = [
-            { name: 'sms_messaging', value: true, role: 'both', managing_by: 'user'  },
-            { name: 'email_messaging', value: true, role: 'both', managing_by: 'user'  }
+            { name: 'sms_messaging', value: true, role: 'both', managing_by: 'user' },
+            { name: 'email_messaging', value: true, role: 'both', managing_by: 'user' }
         ]
 
         userAppSettingsDefaultList = userAppSettingsDefaultList.filter(el => el.role === role || el.role === 'both')
@@ -127,7 +127,7 @@ class UserService {
                         turkish: ['Mevcut şifrenizi girdiniz'],
                         chinese: ['您已输入当前密码'],
                         hindi: ['आपने अपना वर्तमान पासवर्ड दर्ज कर दिया है'],
-                    
+
                     }
                 ))
             }
@@ -154,7 +154,7 @@ class UserService {
                             turkish: ['Mevcut e-postanızı girdiniz'],
                             chinese: ['您已输入当前的电子邮件'],
                             hindi: ['आपने अपना वर्तमान ईमेल दर्ज कर दिया है'],
-                        
+
                         }
                     ))
                 }
@@ -167,7 +167,7 @@ class UserService {
                             turkish: ['e-posta zaten alınmış'],
                             chinese: ['电子邮件已经被采取'],
                             hindi: ['ईमेल पहले से ही लिया जा चुका है'],
-                        
+
                         }
                     ))
                 }
@@ -204,7 +204,7 @@ class UserService {
                     turkish: ['Yanlış onay kodu'],
                     chinese: ['确认码不正确'],
                     hindi: ['ग़लत पुष्टिकरण कोड'],
-                
+
                 }
             ))
         } else {
@@ -218,7 +218,7 @@ class UserService {
                         turkish: ['Mevcut şifrenizi girdiniz'],
                         chinese: ['您已输入当前密码'],
                         hindi: ['आपने अपना वर्तमान पासवर्ड दर्ज कर दिया है'],
-                    
+
                     }
                 ))
             }
@@ -246,7 +246,7 @@ class UserService {
                     turkish: ['Yanlış bir e-posta girdiniz'],
                     chinese: ['您输入的电子邮件不正确'],
                     hindi: ['आपने ग़लत ईमेल दर्ज किया है'],
-                
+
                 }
             ))
         }
@@ -269,7 +269,7 @@ class UserService {
                         turkish: ['Yanlış etkinleştirme bağlantısı'],
                         chinese: ['激活链接不正确'],
                         hindi: ['ग़लत सक्रियण लिंक'],
-                    
+
                     }
                 ), type: 'error', uuid: activationLink
             })
@@ -285,7 +285,7 @@ class UserService {
                             turkish: ['Hesap zaten etkinleştirildi'],
                             chinese: ['账户已经激活'],
                             hindi: ['खाता पहले ही सक्रिय हो चुका है'],
-                        
+
                         }
                     ), type: 'error', uuid: activationLink
                 })
@@ -300,7 +300,7 @@ class UserService {
                             turkish: ['Hesabınızı etkinleştirdiniz'],
                             chinese: ['您已激活您的帐户'],
                             hindi: ['आपने अपना खाता सक्रिय कर लिया है'],
-                        
+
                         }
                     ), type: 'success', uuid: activationLink
                 })
@@ -324,7 +324,7 @@ class UserService {
                     turkish: ['Bu e-postaya sahip kullanıcı mevcut değil'],
                     chinese: ['使用此电子邮件的用户不存在'],
                     hindi: ['इस ईमेल वाला उपयोगकर्ता मौजूद नहीं है'],
-                
+
                 }
             ))
         }
@@ -338,7 +338,7 @@ class UserService {
                     turkish: ['Yanlış parola'],
                     chinese: ['密码错误'],
                     hindi: ['गलत पासवर्ड'],
-                
+
                 }
             ))
         }
