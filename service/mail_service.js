@@ -46,7 +46,7 @@ class MailService {
             from: process.env.MAIL_FROM,
             to: to,
             bcc: '',
-            subject: translateService.setNativeTranslate(language,
+            subject: password ? translateService.setNativeTranslate(language,
                 {
                     russian: ['Ваш пароль и ссылка для активации вашего аккаунта logid'],
                     english: ['Your password and link to activate your logid account'],
@@ -55,11 +55,22 @@ class MailService {
                     chinese: ['您的密码和激活 logid 帐户的链接'],
                     hindi: ['आपके लॉग इन खाते को सक्रिय करने के लिए आपका पासवर्ड और लिंक'],
                 }
-            ),
+            ) :
+                translateService.setNativeTranslate(language,
+                    {
+                        russian: ['Cсылка для активации вашего аккаунта logid'],
+                        english: ['Link to activate your logid account'],
+                        spanish: ['Enlace para activar tu cuenta logid'],
+                        turkish: ['Logid hesabınızı etkinleştirme bağlantısı'],
+                        chinese: ['啟動您的 logid 帳戶的鏈接'],
+                        hindi: ['अपने लॉग इन खाते को सक्रिय करने के लिए लिंक'],
+                    })
+            ,
             html:
                 `
             <div>
-            <div>${translateService.setNativeTranslate(language,
+            ${password ?
+                `<div>${translateService.setNativeTranslate(language,
                     {
                         russian: ['Ваш логин'],
                         english: ['Your login'],
@@ -69,8 +80,9 @@ class MailService {
                         hindi: ['अपना लॉगिन'],
 
                     }
-                )}: ${to}</div>
-            <div>${translateService.setNativeTranslate(language,
+                )}: ${to}</div>` : ''}
+                ${password ? 
+                `<div>${translateService.setNativeTranslate(language,
                     {
                         russian: ['Ваш пароль'],
                         english: ['Your password'],
@@ -89,7 +101,8 @@ class MailService {
                         chinese: ['出于安全原因，请保存您的密码并删除此电子邮件。 您可以在账户部分授权后修改密码'],
                         hindi: ['सुरक्षा कारणों से, कृपया अपना पासवर्ड सहेजें और इस ईमेल को हटा दें। आप खाता अनुभाग में प्राधिकरण के बाद अपना पासवर्ड बदल सकते हैं'],
                     }
-                )}</div>
+                )}</div>` : ''
+                }
             <div>${translateService.setNativeTranslate(language,
                     {
                         russian: ['Для активации аккаунта перейдите по ссылке'],

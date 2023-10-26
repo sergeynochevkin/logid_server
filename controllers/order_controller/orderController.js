@@ -90,7 +90,7 @@ class OrderController {
                     thermo_van,
                     order_type,
                     userInfoId,
-                    pointsIntegrationId:integrationId,
+                    pointsIntegrationId: integrationId,
                     carrierId,
                     for_partner: for_partner ? for_partner : null,
                     for_group: for_group ? for_group : null,
@@ -323,16 +323,19 @@ class OrderController {
                         ))
 
                 let order = await Order.findOne({ where: { id }, raw: true })
-                let driverUserInfo = await UserInfo.findOne(({ where: { id: order.driver_id }, raw: true }))
-                complete_orders_amount = driverUserInfo.complete_orders_amount + 1,
-                    await UserInfo.update(
-                        {
-                            complete_orders_amount
-                        },
-                        {
-                            where: { id: order.driver_id }
-                        }
-                    )
+
+                if (order.driver_id !== order.carrierId) {
+                    let driverUserInfo = await UserInfo.findOne(({ where: { id: order.driver_id }, raw: true }))
+                    complete_orders_amount = driverUserInfo.complete_orders_amount + 1,
+                        await UserInfo.update(
+                            {
+                                complete_orders_amount
+                            },
+                            {
+                                where: { id: order.driver_id }
+                            }
+                        )
+                }
 
             }
             else if ((role === 'carrier' || role === 'driver') && order_status === 'inWork') {

@@ -52,13 +52,13 @@ class RatingController {
                         facilities_amount = partnerUserInfo.facilities_amount + 1,
 
                         (in_time_amount - 1) === 0 ? total_in_time = in_time :
-                            total_in_time = (partnerUserInfo.total_in_time * (in_time_amount - 1) + in_time) / in_time_amount,
+                            total_in_time = (Number(partnerUserInfo.total_in_time) * (in_time_amount - 1) + in_time) / in_time_amount,
 
                         (politeness_amount - 1) === 0 ? total_politeness = politeness :
-                            total_politeness = (partnerUserInfo.total_politeness * (politeness_amount - 1) + politeness) / politeness_amount,
+                            total_politeness = (Number(partnerUserInfo.total_politeness) * (politeness_amount - 1) + politeness) / politeness_amount,
 
                         (facilities_amount - 1) === 0 ? total_facilities = facilities :
-                            total_facilities = (partnerUserInfo.total_facilities * (facilities_amount - 1) + facilities) / facilities_amount,
+                            total_facilities = (Number(partnerUserInfo.total_facilities) * (facilities_amount - 1) + facilities) / facilities_amount,
 
                         //problem with rating first count
                         n = 3,
@@ -68,7 +68,7 @@ class RatingController {
                         // n = partnerUserInfo.politeness_amount === 0 ? n : n + 1,
 
 
-                        role === 'customer'  ? total_rating = (total_politeness + total_facilities + total_in_time) / n /10 : total_rating = (total_politeness + total_facilities + total_in_time + partnerUserInfo.total_solvency) / n,
+                        role === 'customer'  ? total_rating = (total_politeness + total_facilities + total_in_time) / n  : total_rating = (total_politeness + total_facilities + total_in_time + Number(partnerUserInfo.total_solvency)) / n,
 
                         await UserInfo.update(
                             {
@@ -129,22 +129,24 @@ class RatingController {
 
             otherRating = await OtherRating.update({ solvency }, { where: { [Op.and]: { raterUserInfoId, ratedUserInfoId } } }).then(partnerUserInfo = await UserInfo.findOne(({ where: { id: ratedUserInfoId } })))
                 .then(
-
                     partnerUserInfo.solvency_amount === 0 || (partnerUserInfo.solvency_amount === 1 && partnerOtherRatingdByThisUser.solvency !== 0) ?
                         (total_solvency = solvency, solvency_amount = 1) :
                         partnerUserInfo.solvency_amount === 1 && partnerOtherRatingdByThisUser.solvency === 0 ?
-                            (solvency_amount = partnerUserInfo.solvency_amount + 1, total_solvency = (partnerUserInfo.total_solvency + solvency) / solvency_amount)
+                            (solvency_amount = partnerUserInfo.solvency_amount + 1, total_solvency = (Number(partnerUserInfo.total_solvency) + solvency) / solvency_amount)
                             : partnerUserInfo.solvency_amount > 1 && partnerOtherRatingdByThisUser.solvency !== 0 ?
-                                (total_solvency = (partnerUserInfo.total_solvency * partnerUserInfo.solvency_amount - partnerOtherRatingdByThisUser.solvency + solvency) / partnerUserInfo.solvency_amount, solvency_amount = partnerUserInfo.solvency_amount)
+                                (total_solvency = (Number(partnerUserInfo.total_solvency) * partnerUserInfo.solvency_amount - partnerOtherRatingdByThisUser.solvency + solvency) / partnerUserInfo.solvency_amount, solvency_amount = partnerUserInfo.solvency_amount)
                                 : partnerUserInfo.solvency_amount > 1 && partnerOtherRatingdByThisUser.solvency === 0 ?
-                                    (total_solvency = (partnerUserInfo.total_solvency * partnerUserInfo.solvency_amount + solvency) / (partnerUserInfo.solvency_amount + 1), solvency_amount = partnerUserInfo.solvency_amount + 1)
+                                    (total_solvency = (Number(partnerUserInfo.total_solvency) * partnerUserInfo.solvency_amount + solvency) / (partnerUserInfo.solvency_amount + 1), solvency_amount = partnerUserInfo.solvency_amount + 1)
                                     : '',
 
                     //total rating
                     n = 1,
                     n = partnerUserInfo.facilities_amount === 0 ? n : n + 1,
                     n = partnerUserInfo.in_time_amount === 0 ? n : n + 1,
-                    n = partnerUserInfo.total_politeness === 0 ? n : n + 1,
+                    n = partnerUserInfo.politeness_amount === 0 ? n : n + 1,
+
+                    console.log('HERE!!!'),
+                    console.log(n),
 
                     total_rating = (Number(partnerUserInfo.total_politeness) + Number(partnerUserInfo.total_facilities) + Number(partnerUserInfo.total_in_time) + Number(total_solvency)) / n,
 
