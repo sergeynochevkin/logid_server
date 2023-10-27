@@ -114,15 +114,15 @@ class ManagementController {
             let userInfos
             let transports
 
-            users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [] }, role: { [Op.in]: filters.users.role !== 'all' ? [filters.users.role] : ['carrier', 'customer', 'driver'] }, email: { [Op.substring]: filters.users.searchString.toLowerCase() } } })
-            userInfos = await UserInfo.findAll({ where: { userId: { [Op.in]: users.map(el => el.id) }, city: filters.users.city !== 'all' ? filters.users.city : { [Op.ne]: '' } } })
+            users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [] }, role: { [Op.in]: filters.users.role !== 'all' && filters.users.role !== '' ? [filters.users.role] : ['carrier', 'customer', 'driver'] }, email: { [Op.substring]: filters.users.searchString.toLowerCase() } } })
+            userInfos = await UserInfo.findAll({ where: { userId: { [Op.in]: users.map(el => el.id) }, city: filters.users.city !== 'all' && filters.users.city !== '' ? filters.users.city : { [Op.ne]: '' } } })
 
-            if (filters.users.city !== 'all') {
+            if (filters.users.city !== 'all' && filters.users.city !== '') {
                 users = users.filter(el => userInfos.map(el => el.userId).includes(el.id))
             }
 
 
-            if (filters.users.delivery_group !== 'all' && filters.users.role === 'carrier') {
+            if (filters.users.delivery_group !== 'all' && filters.users.delivery_group !== '' && filters.users.role === 'carrier') {
                 let group
                 group = filters.users.delivery_group === 'for_courier_delivery' ? ['walk', 'bike', 'car', 'scooter', 'electric_scooter'] : ['truck', 'minibus', 'combi']
                 transports = await Transport.findAll({ where: { userInfoId: { [Op.in]: userInfos.map(el => el.id) }, type: { [Op.in]: group } } })
