@@ -109,10 +109,31 @@ class ManagementController {
 
         try {
 
-            let { userId } = req.query
-            let users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [] } } })
-            let userInfos = await UserInfo.findAll({})
-            let transports = await Transport.findAll({})
+            let { userId, filters } = req.body
+            let users
+            let userInfos
+            let transports
+
+            users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [] }, role: { [Op.in]: filters.users.role !== 'all' ? [filters.users.role] : ['carrier', 'customer', 'driver'] }, email: { [Op.substring]: filters.users.searchString.toLowerCase() } } })
+            userInfos = await UserInfo.findAll({ where: { userId: { [Op.in]: users.map(el => el.id) }, city: filters.users.city !== 'all' ? filters.users.city : { [Op.ne]: '' } } })
+
+            if (filters.users.city !== 'all') {
+                users = users.filter(el => userInfos.map(el => el.userId).includes(el.id))
+            }
+
+
+            if (filters.users.delivery_group !== 'all' && filters.users.role === 'carrier') {
+                let group
+                group = filters.users.delivery_group === 'for_courier_delivery' ? ['walk', 'bike', 'car', 'scooter', 'electric_scooter'] : ['truck', 'minibus', 'combi']
+                transports = await Transport.findAll({ where: { userInfoId: { [Op.in]: userInfos.map(el => el.id) }, type: { [Op.in]: group } } })
+                userInfos = userInfos.filter(el => transports.map(el => el.userInfoId).includes(el.id))
+                users = users.filter(el => userInfos.map(el => el.userId).includes(el.id))
+            }
+            else {
+                transports = await Transport.findAll({ where: { userInfoId: { [Op.in]: userInfos.map(el => el.id) } } })
+            }
+
+
 
             //clear that i dont need
             let handledUsers = []
@@ -140,6 +161,8 @@ class ManagementController {
                 }
                 handledUsers.push(userPattern)
             }
+
+
 
             return res.json(handledUsers)
         } catch (e) {
