@@ -36,12 +36,12 @@ class UserController {
             } = req.body
 
             let password = generator.generate({
-                length: 20,
+                length: 18,
                 numbers: true,
                 symbols: true,
                 uppercase: true,
                 lowercase: true,
-                excludeSimilarCharacters: false
+                excludeSimilarCharacters: true
             });
 
             let userInfo = await UserInfo.findOne({ where: { uuid: user_info_uuid } })
@@ -224,12 +224,12 @@ class UserController {
             }
 
             let password = generator.generate({
-                length: 20,
+                length: 18,
                 numbers: true,
                 symbols: true,
                 uppercase: true,
                 lowercase: true,
-                excludeSimilarCharacters: false
+                excludeSimilarCharacters: true
             });
 
 
