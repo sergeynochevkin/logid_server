@@ -64,15 +64,16 @@ class UserService {
         let initialTime = new Date();
         initialTime.setHours(23, 59, 59, 0)
         let paid_to = time_service.setTime(initialTime, 1440 * 365, 'form')
+let plan_id = 1
 
         await NotificationState.create({ userInfoId: user_info.id })
-        await Subscription.create({ userInfoId: user_info.id, planId: 6, country: user_info.country, paid_to })
+        await Subscription.create({ userInfoId: user_info.id, planId: plan_id, country: user_info.country, paid_to })
         await UserAppState.create({ userInfoId: user_info.id })
         await UserAppLimit.create({ userInfoId: user_info.id })
         await LimitCounter.create({ userInfoId: user_info.id })
 
         let currentTime = new Date()
-        let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId: 6 } })
+        let optionsByPlan = await SubscriptionOptionsByPlan.findAll({ where: { planId: plan_id } })
         optionsByPlan = optionsByPlan.map(el => el.optionId)
         let options = await SubscriptionOption.findAll({ where: { option_id: { [Op.in]: optionsByPlan }, country: user_info.country } })
 

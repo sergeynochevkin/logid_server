@@ -65,7 +65,7 @@ class UserInfoController {
             let initialTime = new Date();
             initialTime.setHours(23, 59, 59, 0)
             let paid_to = timeService.setTime(initialTime, 1440 * 365, 'form')
-            let planId = 6
+            let planId = 1
 
             await NotificationState.create({ userInfoId: user_info.id })
             await Subscription.create({ userInfoId: user_info.id, planId, country: user_info.country, paid_to })
