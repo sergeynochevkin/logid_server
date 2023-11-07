@@ -22,7 +22,7 @@ class MailService {
     }
 
     async sendUserMail(to, subject, message, html, link) {
-        try {
+        // try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
                 to: to,
@@ -36,13 +36,13 @@ class MailService {
                 <a href="https://logid.app/">https://logid.app/</a>
                 </div>`
             })
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
+        // } catch (error) {
+        //     next(ApiError.badRequest(error.message))
+        // }
     }
 
     async sendActivationMail(to, link, language, password, role) {
-        try {
+        // try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
                 to: to,
@@ -133,14 +133,14 @@ class MailService {
                             : ''}
     `
             })
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
+        // } catch (error) {
+        //     next(ApiError.badRequest(error.message))
+        // }
 
     }
 
     async sendCredentialsEmail(to, link, password, role, language,) {
-        try {
+        // try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
                 to: to,
@@ -202,15 +202,15 @@ class MailService {
                     </div>
         `
             })
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
+        // } catch (error) {
+        //     next(ApiError.badRequest(error.message))
+        // }
 
 
     }
 
     async sendEmailRecoveryCode(to, code, language) {
-        try {
+        // try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
                 to: to,
@@ -227,14 +227,14 @@ class MailService {
                 ),
                 text: code
             })
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
+        // } catch (error) {
+        //     next(ApiError.badRequest(error.message))
+        // }
 
     }
 
     async sendEmailToAdmin(subject, text) {
-        try {
+        // try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
                 to: 'sergey.nochevkin@gmail.com',
@@ -242,13 +242,13 @@ class MailService {
                 subject: subject,
                 text: text
             })
-        } catch (error) {
-            next(ApiError.badRequest(error.message))
-        }
+        // } catch (error) {
+        //     next(ApiError.badRequest(error.message))
+        // }
     }
 
     async sendManagementEmail(subject, message, to, userId, userInfoId) {
-        try {
+        // try {
             await this.transport.sendMail({
                 from: process.env.MAIL_FROM,
                 to: to,
@@ -265,10 +265,10 @@ class MailService {
             })
             NotificationHistory.create({ userId, userInfoId, type: 'email', subject, message, status: 'success' })
 
-        } catch (error) {
-            NotificationHistory.create({ userId, userInfoId, type: 'email', subject, message, status: 'error' })
-            console.log(error);
-        }
+        // } catch (error) {
+        //     NotificationHistory.create({ userId, userInfoId, type: 'email', subject, message, status: 'error' })
+        //     console.log(error);
+        // }
     }
 }
 
