@@ -49,8 +49,7 @@ class UserService {
             } else {
                 //send letter with email and password
                 await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?action=driver_activation`, password, role, language) // if i
-            }
-            await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
+            }         
         } catch (error) {
             await User.destroy({ where: { id: user.id } })
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
@@ -64,6 +63,7 @@ class UserService {
                 }
             ))
         }
+        await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
 
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })
