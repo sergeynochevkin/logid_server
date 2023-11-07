@@ -11,5 +11,5 @@ module.exports = class UserDTO {
         this.role = model.role;
         this.isActivated = model.isActivated;
         this.user_id = model.user_id;
-    }
+    } 
 }

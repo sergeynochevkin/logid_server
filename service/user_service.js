@@ -42,13 +42,28 @@ class UserService {
         const hashPassword = await bcrypt.hash(password, 5)
         const activationLink = v4()
         const user = await User.create({ user_id, user_info_uuid, email, password: hashPassword, role, activationLink, country, user_agreement_accepted, privacy_policy_accepted, age_accepted, cookies_accepted, personal_data_agreement_accepted })
-        if (role !== 'driver') {
-            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language, password, role)
-        } else {
-            //send letter with email and password
-            await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?action=driver_activation`, password, role, language)
+
+        try {
+            if (role !== 'driver') {
+                await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}?language=${language}`, language, password, role)
+            } else {
+                //send letter with email and password
+                await mailService.sendCredentialsEmail(email, `${process.env.CLIENT_URL}?action=driver_activation`, password, role, language) // if i
+            }
+            await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
+        } catch (error) {
+            await User.destroy({ where: { id: usr.id } })
+            throw ApiError.badRequest(translateService.setNativeTranslate(language,
+                {
+                    russian: ['Вы указали не доступный email, пожалуйста измените email и повторите регистрацию'],
+                    english: ['You specified an unavailable email, please change your email and re-register'],
+                    spanish: ['Usted especificó un correo electrónico no disponible, cambie su correo electrónico y vuelva a registrarse'],
+                    turkish: ['Kullanılamayan bir e-posta adresi belirttiniz, lütfen e-posta adresinizi değiştirin ve yeniden kaydolun'],
+                    chinese: ['您指定的电子邮件不可用，请更改您的电子邮件并重新注册'],
+                    hindi: ['आपने एक अनुपलब्ध ईमेल निर्दिष्ट किया है, कृपया अपना ईमेल बदलें और पुनः पंजीकरण करें'],
+                }
+            ))
         }
-        await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
 
         const userDto = new UserDTO(user)
         const tokens = await tokenService.generateTokens({ ...userDto })
@@ -64,7 +79,7 @@ class UserService {
         let initialTime = new Date();
         initialTime.setHours(23, 59, 59, 0)
         let paid_to = time_service.setTime(initialTime, 1440 * 365, 'form')
-let plan_id = 1
+        let plan_id = 1
 
         await NotificationState.create({ userInfoId: user_info.id })
         await Subscription.create({ userInfoId: user_info.id, planId: plan_id, country: user_info.country, paid_to })

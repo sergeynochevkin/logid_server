@@ -220,11 +220,15 @@ const Order = sequelize.define('order', {
 
 const CarriagePrice = sequelize.define('carriage_price', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    price_per_km: { type: DataTypes.INTEGER },
-    carry_in: { type: DataTypes.INTEGER },
-    carry_out: { type: DataTypes.INTEGER },
-    waiting: { type: DataTypes.INTEGER },
+    country: { type: DataTypes.STRING },
     city: { type: DataTypes.STRING },
+    city_lat: { type: DataTypes.DECIMAL },
+    city_lng: { type: DataTypes.DECIMAL },
+    city_id:{ type: DataTypes.STRING },
+    type: { type: DataTypes.STRING },
+    carrier_id: { type: DataTypes.INTEGER },
+    range: { type: DataTypes.INTEGER },
+    price: { type: DataTypes.INTEGER },
 })
 
 // const SubscriptionPrice = sequelize.define('subscription_price', {

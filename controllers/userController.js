@@ -76,7 +76,7 @@ class UserController {
                 }
                 )
             }
-            return res.send('added') //password to activation email!
+            return res.send('added') 
 
         } catch (e) {
             next(e)
