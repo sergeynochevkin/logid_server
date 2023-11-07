@@ -1,4 +1,4 @@
-const { Transport, User, UserInfo, Order, ServerNotification, Visit, TransportViewed } = require('../models/models')
+const { Transport, User, UserInfo, Order, ServerNotification, Visit, TransportViewed, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, Offer } = require('../models/models')
 const ApiError = require('../exceptions/api_error')
 const { Op, where } = require("sequelize")
 const mail_service = require('../service/mail_service')
@@ -50,21 +50,16 @@ class ManagementController {
             }
 
             let currentTime = new Date()
-
             let dayStart = currentTime.setHours(0, 0, 0, 0)
             let monthOlder = currentTime - 1000 * 60 * 60 * 24 * 30.5
             let weekOlder = currentTime - 1000 * 60 * 60 * 24 * 7
-
             let regsMonth = await User.findAll({ where: { createdAt: { [Op.gt]: monthOlder } } })
             let regsWeek = await User.findAll({ where: { createdAt: { [Op.gt]: weekOlder } } })
             let regsToDay = await User.findAll({ where: { createdAt: { [Op.gt]: dayStart } } })
-
             resObject.month = [...regsMonth].length
             resObject.week = [...regsWeek].length
             resObject.toDay = [...regsToDay].length
-
             return res.json(resObject)
-
         } catch (error) {
             next(ApiError.badRequest(error.message))
         }
@@ -77,15 +72,10 @@ class ManagementController {
                 week: '',
                 month: ''
             }
-
-
             let currentTime = new Date()
-
             let dayStart = currentTime.setHours(0, 0, 0, 0)
-
             let monthOlder = currentTime - 1000 * 60 * 60 * 24 * 30.5
             let weekOlder = currentTime - 1000 * 60 * 60 * 24 * 7
-
             await Visit.destroy({ where: { createdAt: { [Op.lt]: monthOlder } } })
             let visitsMonth = await Visit.findAll({ where: { createdAt: { [Op.gt]: monthOlder } } })
             visitsMonth = new Set(visitsMonth.map(el => el.ip))
@@ -93,13 +83,11 @@ class ManagementController {
             visitsWeek = new Set(visitsWeek.map(el => el.ip))
             let visitsToDay = await Visit.findAll({ where: { createdAt: { [Op.gt]: dayStart } } })
             visitsToDay = new Set(visitsToDay.map(el => el.ip))
-
             resObject.month = [...visitsMonth].length
             resObject.week = [...visitsWeek].length
             resObject.toDay = [...visitsToDay].length
 
             return res.json(resObject)
-
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
@@ -113,14 +101,12 @@ class ManagementController {
             let users
             let userInfos
             let transports
-
             users = await User.findAll({ where: { id: { [Op.ne]: userId }, email: { [Op.notIn]: [] }, role: { [Op.in]: filters.users.role !== 'all' && filters.users.role !== '' ? [filters.users.role] : ['carrier', 'customer', 'driver'] }, email: { [Op.substring]: filters.users.searchString.toLowerCase() } } })
             userInfos = await UserInfo.findAll({ where: { userId: { [Op.in]: users.map(el => el.id) }, city: filters.users.city !== 'all' && filters.users.city !== '' ? filters.users.city : { [Op.ne]: '' } } })
 
             if (filters.users.city !== 'all' && filters.users.city !== '') {
                 users = users.filter(el => userInfos.map(el => el.userId).includes(el.id))
             }
-
 
             if (filters.users.delivery_group !== 'all' && filters.users.delivery_group !== '' && filters.users.role === 'carrier') {
                 let group
@@ -132,8 +118,6 @@ class ManagementController {
             else {
                 transports = await Transport.findAll({ where: { userInfoId: { [Op.in]: userInfos.map(el => el.id) } } })
             }
-
-
 
             //clear that i dont need
             let handledUsers = []
@@ -161,9 +145,6 @@ class ManagementController {
                 }
                 handledUsers.push(userPattern)
             }
-
-
-
             return res.json(handledUsers)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -194,7 +175,6 @@ class ManagementController {
 
             let { members, subject, message, type } = formData
             let users = await User.findAll({ where: { id: { [Op.in]: members } } })
-
             for (const user of users) {
                 let userInfo = await UserInfo.findOne({ where: { userId: user.id } })
                 if (type === 'mail') {
@@ -229,13 +209,11 @@ class ManagementController {
 
             if (option === 'transport') {
                 await Transport.update({ moderated, moderation_comment }, { where: { id } })
-
                 let transport = await Transport.findOne({ where: { id } })
                 let user_info = await UserInfo.findOne({ where: { id: transport.dataValues.userInfoId } })
                 let language = await language_service.setLanguage(user_info.dataValues.id)
 
                 if (moderated === 'checked_accepted') {
-
                     let message = translate_service.setNativeTranslate(language, {
                         russian: [`Ваш транспорт ${transport.dataValues.tag} прошел модерацию и допущен к показу на главной странице`],
                         english: [`Your transport ${transport.dataValues.tag} has been moderated and allowed to be displayed on the main page`],
@@ -278,7 +256,6 @@ class ManagementController {
                         hindi: [`आपका परिवहन ${transport.dataValues.tag} मॉडरेशन पास नहीं किया और मुख्य पृष्ठ पर प्रदर्शित होने की अनुमति नहीं दी। परिवहन अनुभाग में विवरण`],
                     })
 
-
                     await mail_service.sendUserMail(user_info.dataValues.email,
                         translate_service.setNativeTranslate(language, {
                             russian: [`Ваш транспорт ${transport.dataValues.tag} не прошел модерацию`],
@@ -289,7 +266,6 @@ class ManagementController {
                             hindi: [`आपका परिवहन ${transport.dataValues.tag} संयम पारित नहीं किया`],
                         })
                         , message
-
                     )
 
                     await ServerNotification.findOrCreate({
@@ -301,16 +277,71 @@ class ManagementController {
                         defaults: { uuid: v4() }
                     })
                 }
-
-
                 return res.send(moderated === 'checked_accepted' ? `Transport ${id} moderated` : `Transport ${id} not moderated`)
             }
-
-
-
-
         } catch (e) {
             next(ApiError.badRequest(e.message))
+        }
+    }
+
+    // now only new user! later what to do with offers, orders, transports 
+    async user_destroy(req, res, next) {
+        try {
+            let { id } = req.query // use different cases and different messages
+            let user = await User.findOne({ where: { id } })
+            let language
+            let email = user.email
+            let userInfoId
+            let userInfo =await UserInfo.findOne({ where: { userId: id } })
+            if (userInfo) {
+                userInfoId = userInfo.id
+                let orders = await Order.findAll({ where: { userInfoId } })
+                let transports = await Transport.findAll({ where: { userInfoId } })
+                let offers = await Offer.findAll({ where: { userInfoId } })
+                let drivers = await User.findAll({ where: { user_id: id } })
+                if (orders.length>0 || transports.length>0 || offers.length>0 || drivers.length>0) {
+                    throw ApiError.badRequest(translate_service.setNativeTranslate('english',                        {
+                            russian: ['Не удалось удалить пользователя у него есть', orders.length>0 ? 'заказы' : '', offers.length>0 ? 'предложения' : '', transports.length>0 ? 'транспорт' : '', drivers.length>0 ? 'водители' : ''],
+                            english: ['Failed to delete the user he has', orders.length>0 ? 'orders' : '', offers.length>0 ? 'offers' : '', transports.length>0 ? 'transports' : '', drivers.length>0 ? 'drivers' : ''],
+                        }
+                    ))
+                }
+                language = await language_service.setLanguage(userInfoId, '')
+                await NotificationState.destroy({ where: { userInfoId: userInfo.id } })
+                await Subscription.destroy({ where: { userInfoId } })
+                await UserAppState.destroy({ where: { userInfoId } })
+                await UserAppLimit.destroy({ where: { userInfoId } })
+                await LimitCounter.destroy({ where: { userInfoId } })
+                await UserAppSetting.destroy({ where: { userInfoId } })
+                await UserInfo.destroy({ where: { userId: id } })
+            } else {
+                language = await language_service.setLanguage('', id)
+            }
+
+            await User.destroy({ where: { id } })
+            await mail_service.sendUserMail(email,
+                translate_service.setNativeTranslate(language, {
+                    russian: ['Ваш аккаунт logid удален'],
+                    english: ['Your logid account has been deleted'],
+                    spanish: ['Su cuenta de inicio de sesión ha sido eliminada'],
+                    turkish: ['Logid hesabınız silindi'],
+                    chinese: ['您的logid帐户已被删除'],
+                    hindi: ['आपका लॉग इन खाता हटा दिया गया है'],
+                })
+                ,
+                translate_service.setNativeTranslate(language,
+                    {
+                        russian: ['Это автоматическое уведомление, ответ не будет прочитан'],
+                        english: ['This is an automatic notification, the response will not be read'],
+                        spanish: ['Esta es una notificación automática, la respuesta no será leída'],
+                        turkish: ['Bu otomatik bir bildirimdir, yanıt okunmayacaktır'],
+                        chinese: ['这是自动通知，回复不会被阅读'],
+                        hindi: ['यह एक स्वचालित अधिसूचना है, उत्तर पढ़ा नहीं जाएगा'],
+                    })
+            )
+            return res.send('deleted')
+        } catch (error) {
+            next(ApiError.badRequest(error.message))
         }
     }
 }

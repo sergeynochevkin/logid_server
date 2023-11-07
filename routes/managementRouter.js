@@ -11,6 +11,7 @@ router.get('/get_visits', checkRoleMiddleware('admin'), auth_middleware, managem
 router.get('/get_clicks', checkRoleMiddleware('admin'), auth_middleware, managementController.get_clicks)
 router.get('/get_registrations', checkRoleMiddleware('admin'), auth_middleware, managementController.get_registrations)
 router.post('/send_notification', checkRoleMiddleware('admin'), auth_middleware, managementController.send_notification)
+router.delete('/delete_user', checkRoleMiddleware('admin'), auth_middleware, managementController.user_destroy)
 router.put('/', auth_middleware, checkRoleMiddleware('admin'), managementController.updateField)
 
 module.exports = router

@@ -1,11 +1,16 @@
-const { UserInfo, UserAppState, Country } = require("../models/models")
+const { UserInfo, UserAppState, Country, User } = require("../models/models")
 
 class LanguageService {
 
-   async setLanguage(userInfoId) {
+    async setLanguage(userInfoId, userId) {
         let currentLanguage
-        if (!userInfoId) {
+        if (!userInfoId && !userId) {
             currentLanguage = 'english'
+        }
+        if (!userInfoId && userId) {
+            let user = await User.findOne({ where: { id: userId } })
+            let country = await Country.findOne({ where: { value: user.country } })
+            currentLanguage = country.default_language
         } else {
             let userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
             let stateObject = await UserAppState.findOne({ where: { userInfoId } })
@@ -22,8 +27,6 @@ class LanguageService {
                 currentLanguage = state.language
             }
         }
-
-        console.log(currentLanguage);
         return currentLanguage
     }
 }

@@ -3,12 +3,14 @@ const userService = require('../service/user_service')
 const translateService = require('../service/translate_service')
 const { validationResult } = require('express-validator')
 const ApiError = require('../exceptions/api_error')
-const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, SubscriptionOption, SubscriptionOptionsByPlan, Order } = require('../models/models')
+const { User, ServerNotification, Translation, UserInfo, Transport, NotificationState, Subscription, UserAppState, UserAppLimit, LimitCounter, UserAppSetting, SubscriptionOption, SubscriptionOptionsByPlan, Order, Offer } = require('../models/models')
 const time_service = require('../service/time_service')
 const { Op } = require('sequelize')
 const limit_service = require('../service/limit_service')
 const { v4 } = require('uuid');
 const generator = require('generate-password');
+const mail_service = require('../service/mail_service')
+const language_service = require('../service/language_service');
 
 
 class UserController {
@@ -76,7 +78,7 @@ class UserController {
                 }
                 )
             }
-            return res.send('added') 
+            return res.send('added')
 
         } catch (e) {
             next(e)
