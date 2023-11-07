@@ -52,7 +52,7 @@ class UserService {
             }
             await mailService.sendEmailToAdmin(`New ${role} registered at ${process.env.CLIENT_URL}`, 'App notification')
         } catch (error) {
-            await User.destroy({ where: { id: usr.id } })
+            await User.destroy({ where: { id: user.id } })
             throw ApiError.badRequest(translateService.setNativeTranslate(language,
                 {
                     russian: ['Вы указали не доступный email, пожалуйста измените email и повторите регистрацию'],
