@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.4",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.20.0",
     "cookie-parser": "^1.4.6",
@@ -30,6 +32,7 @@
     "sequelize": "^6.19.0",
     "sharp": "^0.32.4",
     "sms_ru": "^0.0.1",
+    "typescript": "^5.3.3",
     "uuid": "^9.0.0",
     "yookassa": "^0.1.1"
   },

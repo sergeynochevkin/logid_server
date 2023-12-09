@@ -21,8 +21,6 @@ class SubscriptionController {
 
 
         try {
-
-
             if (!payment_id) {
                 planId = plan.plan_id
                 userInfo = await UserInfo.findOne({ where: { id: userInfoId } })
