@@ -81,12 +81,11 @@ app.use("/api", router);
 //обработка ошибок последний Middleware
 app.use(errorHandler);
 
-app.use(express.static(path.join(__dirname, "../logid_client/build")));
-
 const start = async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
+    //подклчить сртификаты
     https
       .createServer(
         {
@@ -96,6 +95,7 @@ const start = async () => {
         app
       )
       .listen(PORT, () => console.log(`Server started at PORT ${PORT}`));
+    // app.listen(PORT, () => console.log(`Server started at PORT ${PORT}`))
   } catch (e) {
     console.log(e);
   }
