@@ -28,6 +28,12 @@ app.use(
 );
 app.use(express.json({ limit: "5mb" }));
 app.use(express.static(path.resolve(__dirname, "uploads")));
+
+app.use(express.static(path.join("../logid_client", "build")));
+app.get("/" * quot, (req, res) => {
+  res.sendFile(path.join("../../var/www/logid/client/index.html"));
+});
+
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
 app.use(bodyParser.json({ limit: "5mb" }));
