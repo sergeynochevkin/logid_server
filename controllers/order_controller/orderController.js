@@ -62,9 +62,8 @@ class OrderController {
         let google_url = await url_service.createGoogleUrl(pointFormData, type)
 
         try {
-
-            await limitService.check_we_have_data(language, userInfoId)
-            await limitService.check_account_activated(language, userInfoId)
+            // await limitService.check_we_have_data(language, userInfoId)
+            // await limitService.check_account_activated(language, userInfoId)
             await limitService.check_subscription(language, userInfoId, order_status)
             try {
                 let order = await Order.create({
