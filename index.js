@@ -37,7 +37,7 @@ app.use(bodyParser.json({ limit: "5mb" }));
 var privateKey = fs.readFileSync("ssl/logid_app.key");
 var certificate = fs.readFileSync("ssl/logid_app.crt");
 
-handlerTimer(subscriptionHandler, 1, "hour", 1, "day");
+// handlerTimer(subscriptionHandler, 1, "hour", 1, "day");
 
 // handlerTimer(changePartnerKeyHandler, 1, 'hour', 7, 'day')
 
